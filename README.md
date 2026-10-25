@@ -1,117 +1,58 @@
 # light-kit
 
-A high-level spec-driven development kit that works with any language or framework and with Claude Code, GitHub Copilot, Cursor and Codex.
+Spec-driven development for AI coding clients: Claude Code, GitHub Copilot, Cursor and Codex.
 
-You write agents, skills, prompts and workflows once in `kit/` (client-neutral markdown). `tools/install.mjs` generates the files each client expects.
+You write agents, skills, prompts and workflows once in `kit/`; `tools/install.mjs` generates the files each client expects. Work is organised per request: each one is triaged, runs the workflow it needs, and leaves a trail of spec artifacts in `specs/NNN-slug/`.
 
-## Model tiers
-Use a strong model where the work is hard and a cheap one where it is not. `.light-kit/models.json` maps three difficulty tiers to models, using the names your client accepts, for example `easy` to a small model, `medium` to a mid one, `hard` to the strongest:
-```json
-{ "easy": "", "medium": "", "hard": "", "claude": { "easy": "", "medium": "", "hard": "" } }
-```
-Top-level values apply to every client; a client's own section (`claude`, `codex`, `copilot`, `cursor`) wins. **Empty means the client's own default model**, so nothing changes until you fill it in. At user, workspace and project level the nearest file wins per key.
-- **Agents have no fixed tier.** The difficulty belongs to the task, so the same `light-developer` runs on the easy model for one task and the hard model for the next.
-- **The level is decided per request, not stored anywhere.** Right after triage the orchestrator rates every step of the chosen workflow for this request, using the triage scores (a hard design only when scope, novelty, impact or risk is high; an easy conclusion unless the change is cross-cutting), and writes the ratings in the `## Routing` section of `10-understanding.md`. It re-rates when facts change (more ambiguity found, a design turns out simple).
-- **Plan tasks** get their own level from the tech-lead (easy: mechanical or fully specified; medium: ordinary logic in one component; hard: spans components, unclear, new design, security, data migration, public interfaces; when unsure, the higher). The orchestrator can raise a task's level, never lower the tech-lead's.
-- **Who routes:** the orchestrator (`light-model-routing` skill) calls each agent with the model of that task's tier. Reviews run at least as strong as the strongest tier used to write the code, and a fix runs on its task's tier or higher.
-- **Escalation:** a task that fails its checks twice, or that the agent reports as harder than planned, is rerun one tier higher, never lower. The model and any escalation are noted per task in `50-implementation.md`. If the hardest tier fails twice it stops and reports.
-- **Where it works:** it needs a client where the caller can pick the model for each agent call. Claude Code can (the subagent call has a model parameter that overrides the agent's own setting), and the orchestrator must be the main session, which `/light-request` makes it. Where a client has no per-call model choice, or rejects a name, the work simply runs on the client's model and the orchestrator says so once.
+## Requirements
+Node 18 or newer, and at least one supported client.
 
-## Auditing the kit
-New models need less hand-holding, so guidance written for an older one becomes dead weight in every session. `/light-audit` reviews the kit itself and says what to shorten, merge or remove.
-- **Measure:** `node .light-kit/audit/audit.mjs` (or `node kit/audit/audit.mjs --source kit` in this repository) reports what is loaded every session versus on demand, unused skills and agents, stale references, repeated text, and the components worth testing.
-- **Judge by purpose:** every agent, skill, command, workflow and core rule is labelled `compensation` (exists because a model needed it), `structure` (process design), `preference` (your wishes) or `enforcement` (safety). Only compensation gets the necessity test; preferences and safety are never removed on model grounds.
-- **Necessity test:** a self-check, then for the costly or doubtful ones a probe: small tasks run twice in an empty folder through the client's non-interactive mode (for example `claude -p`), with and without the component. High confidence needs the probe.
-- **Result:** a report in `.light-kit/audits/<date>-<model>.md` with verdicts, evidence, confidence and tokens saved. In this repository, `/light-audit --apply` applies the high-confidence ones, one commit each; in an installed kit it never edits generated files (an upgrade would overwrite them), it only reports.
-- **When:** the session-start hook reminds you once per model when the model in use differs from the one the kit was last audited with (clients that do not report their model are skipped; turn it off with `audit.remind: false`).
-
-## Names
-Everything your AI client lists is prefixed `light-`, so it never clashes with other frameworks: agents (`light-developer`), skills (`light-commit`), commands (`/light-init`, `/light-request`, `/light-bootstrap`, `/light-standardize`, `/light-triage`, `/light-plan`, `/light-implement`, `/light-review`, `/light-status`, `/light-audit`) and Cursor rules. The kit's own folder is `.light-kit`, and its hooks and workflows live inside it. Your project's request folders stay `specs/`. When you upgrade, the installer removes the obsolete generated files of the earlier names (only files carrying the light-kit marker; your own files are never touched).
-
-## Three install levels
-| Level | Where | For |
-|---|---|---|
-| **user** | your home folder: `~/.claude`, `~/.copilot`, `~/.cursor`, `~/.codex` (+ `~/.agents`, `~/.light-kit`) | the kit available in **every** project you open |
-| **workspace** | a folder holding several projects | several projects (separate repositories, or one repository with several projects), each with its own stack |
-| **project** | one project | everything lives in that project |
-
-**User level.** Agents, skills, commands, workflows and hooks are installed once, in the folders your clients read for all projects (existing files are kept; instruction files and settings only get a marked block or merged entries). Nothing project-specific is installed: the safety hooks (secrets, sensitive files, dangerous commands, protected paths) protect every project right away, while the specs, commit and branch workflow turn on **per project** when you run `light-init` there (it creates that project's `.light-kit/` with its profile, map and hooks config). Hook settings stack: `~/.light-kit/hooks.config.json` (yours, for all projects), then a workspace's, then the project's. A project that has its own project-level install uses that instead of the user-level hooks for the same client. Limits: Copilot prompt files and Cursor rules cannot be installed globally (Cursor keeps user rules in its settings, VS Code keeps prompts in its profile folder), so use a project-level install for those.
-
-**Workspace level.** The kit's agents, skills, commands, workflows and hooks are installed **once at the workspace folder**. Each project keeps its **own** profile, codebase map, hooks config, assessment and `specs/` in `<project>/.light-kit/`, and these override the workspace defaults, so a project is never judged by another's conventions. `.light-kit/projects.md` is the registry (purpose, stack as found, repository, who talks to whom). The `light-request` command first works out which project(s) a request touches (`light-project-scope` skill), keeps each request in the right project's `specs/`, and handles several repositories (a branch and commits per repository, one `repos` entry in `status.md`). Start your AI client from the workspace folder, not from a project inside it.
-
-**Picking the level.** The installer chooses for you: `user` when the target is your home folder (or with `--level user`, which needs no folder), `workspace` when it finds two or more nested repositories (or `--projects api,web`), otherwise `project`. Force it with `--level user|workspace|project`. Pointing at a client's own folder works too: `node tools/install.mjs ~/.claude` installs the user-level kit for Claude only (into your home folder, never nested inside `.claude`), and `proj/.cursor` installs the project-level kit for Cursor into `proj`. Without `--clients` it detects the clients from their folders (at user level: `~/.claude`, `~/.copilot`, `~/.cursor`, `~/.codex`/`~/.agents`; otherwise `.claude`/`CLAUDE.md`, `.cursor`, Copilot files under `.github`, `.codex`/`.agents`, also inside workspace projects). At project and workspace level, finding none installs all four; at user level it stops and asks you to pass `--clients`, rather than create folders for tools you may not use. Monorepo projects (one repository) are discovered by `light-init`. Try `--dry-run` first. `--force` overwrites existing kit files the installer would otherwise leave alone (files without the light-kit marker, and seeds such as the project profile) but keeps shared instruction files (`CLAUDE.md`, `AGENTS.md`, ...) merged. `--force-all` does the same and also replaces those instruction files with the kit block alone, so any content of your own in them is lost. Hook registrations (`settings.json`, ...) are always merged, never replaced, because they hold unrelated settings.
-
-## Quick start
+## Install
 ```sh
-node tools/install.mjs /path/to/your/project-or-workspace [--level user|workspace|project] [--clients claude,copilot,cursor,codex] [--projects api,web] [--force | --force-all]
+node tools/install.mjs /path/to/your/project
 ```
-For all your projects at once: `node tools/install.mjs --level user`.
-
-Omit `--clients` to reuse `kit.config.json` (or install all four). Use `--dry-run` to preview. Re-running is safe:
-- instruction files (`CLAUDE.md`, `AGENTS.md`, `.github/copilot-instructions.md`) only get a `<!-- light-kit:start/end -->` block replaced or appended
-- generated files are overwritten only if they carry the light-kit marker; your own files are skipped and listed
-
-Then, in your AI client, run the **`light-init`** command:
-- **Existing project (adopt):** detects your stack and conventions, writes `.light-kit/project-profile.md` and a one-time `.light-kit/codebase-map.md`, then assesses the project against **its own** standards (what is good, what deviates). It proposes only minor, behavior-preserving, non-breaking fixes in `.light-kit/standardization-backlog.md` (never refactors) and changes nothing until you run `light-standardize` (all items, or some by id; one verified commit per item, on a work branch), then use `light-request`.
-- **New project (greenfield):** asks for stack and constraints, proposes best practices, writes the profile. Then run `light-bootstrap` to define the vision, architecture and a working skeleton.
-
-`.light-kit/project-profile.md` is yours: kit upgrades never overwrite it.
-
-## How a request flows
-`light-request "<what you want>"` creates `specs/NNN-slug/` and triages the request:
-
-| Workflow | When | Steps |
-|---|---|---|
-| `direct` | easy, clear, low risk | understand → implement → review → conclude, no questions |
-| `standard` | medium | + discovery, plan; tester and reviewer in parallel |
-| `full` | complex, ambiguous or risky | clarify → discover → design → plan → implement → tester/reviewer/security in parallel → conclude |
-
-The `bootstrap` workflow (new projects, started by the `light-bootstrap` command rather than triage) runs vision → architecture → plan → skeleton → review. Override triage with `--workflow`. Artifacts: `00-request`, `10-understanding`, `20-discovery`, `30-design`, `40-plan`, `50-implementation`, `60-conclusion`, plus `status.md`.
-
-Every artifact starts with a `runs:` header recording which agent produced it, with what, so you can see how a result came about:
+For every project on the machine:
+```sh
+node tools/install.mjs --level user
 ```
----
-runs:
-  - step: plan | agent: light-tech-lead | model: <model id> | thinking: <reasoning setting or unknown> | level: hard
----
-```
-Each agent run adds one line (parallel or retried runs add their own). Agents write only what they know, `unknown` otherwise (a model usually knows its own name but not always its reasoning setting). It covers the files in `specs/<NNN-slug>/` except `status.md`, plus the codebase map, assessment, backlog and audit reports. An `artifact-header` hook warns when a header is missing or incomplete.
+`--dry-run` previews the install. Re-running is safe: only kit-generated files are replaced.
 
-Agents: light-orchestrator, light-product-owner, light-business-analyst, light-ux-designer, light-architect, light-tech-lead, light-developer, light-tester, light-reviewer, light-security-reviewer, light-tech-writer. Any agent or command can be invoked manually.
+Levels, client detection and flags: [docs/installation.md](docs/installation.md).
 
-## Safety hooks
-Installed by default for every client that supports hooks (use `--no-hooks` to skip). They protect against the common mistakes of agent-driven work, with no stack assumptions built in:
-- block reading or editing files that hold secrets, and writing secrets into files or prompts
-- block dangerous commands (mass deletion, force push, hard reset, piping downloads into a shell, environment dumps, destructive database statements)
-- keep commit messages and pull request text clean: no AI attribution (`Co-Authored-By` an assistant, "Generated with …") and no trailers
-- protect version-control internals, the hooks themselves and paths you declare generated or locked
-- warn when work starts without an active request, run your format/lint commands after edits, flag secrets in tool output, and give each session its context
-- optional: verify before the agent finishes, and an audit log
+## Get started
+1. Install the kit.
+2. Open the project in your AI client and run `/light-init`. It detects the stack and turns the kit on for this project (`.light-kit/project-profile.md`).
+3. Ask for work:
+   ```
+   /light-request "Add an export button to the report page"
+   ```
+   The request is triaged. Easy work starts immediately; complex work is clarified first. Artifacts land in `specs/001-add-export-button/`.
+4. `/light-status` shows where every request stands.
 
-What is specific to your project (secret file names, secret variable naming, generated paths, format/lint/test commands) lives in `.light-kit/hooks.config.json`, which `light-init` fills from what it finds in your repo. See `kit/hooks/README.md` for every hook and key. Hooks need Node 18+ on the machine running the AI client.
+For a new project, run `/light-bootstrap "<what the project is for>"` after `/light-init` to define the vision, architecture and skeleton.
 
-## Decisions
-The agents decide and move on: they pick the best option, record it with a one-line reason, and tell you in one line. They stop to ask only when two or more options are genuinely equivalent, or when a fact only you have is missing. Questions are short, plain and functional, with trade-offs as a comparison table (`light-approval-summary` skill).
-
-## Commits
-The agent commits as it goes, so history stays reviewable (`light-commit` skill, set up by `light-init`):
-- the plan is committed once validated, **before** implementation starts; understanding and design are committed once settled
-- one commit per verified plan task, one per review fix, one for the conclusion
-- only the files of each unit are staged, messages follow your convention (Conventional Commits by default) and contain only the change description (no trailers, no AI attribution: the instructions forbid it, a hook blocks it, and for Claude Code the installer switches off its own `attribution` setting unless you set one), and nothing is ever pushed
-- at the start of a request the agent records the base branch and base commit in `status.md` (so reviewers know exactly where to start: `git diff <base_commit>..HEAD`), and if you are on `main`, `master` or another protected branch it first moves to a new `<type>/<NNN-slug>` branch; a hook refuses commits on protected branches
-- `Mode: auto | ask | off` in `.light-kit/project-profile.md` controls it; a hook reminds the agent when too many files pile up uncommitted
-
-## Generated layout
-| Client | Output |
+## Commands
+| Command | What it does |
 |---|---|
-| Claude Code | `.claude/{agents,commands,skills}`, `CLAUDE.md` |
-| Copilot | `.github/{agents,prompts,skills}`, `copilot-instructions.md` |
-| Cursor | `.cursor/{rules,commands}` |
-| Codex | `.codex/agents/*.toml`, `.agents/skills`, `AGENTS.md` (prompts in `.codex/prompts/` to copy to `~/.codex/prompts/`) |
-| all | `AGENTS.md`, `.light-kit/{workflows,templates,profiles,project-profile.md,hooks.config.json,hooks/}` (at user level: `~/.light-kit/...`, and `~/.codex/AGENTS.md`, `~/.claude/CLAUDE.md`, `~/.copilot/copilot-instructions.md`) |
-| hooks | `.claude/settings.json`, `.codex/hooks.json`, `.cursor/hooks.json`, `.github/hooks/light-kit.json` (merged, your own hooks are kept) |
+| `/light-init` | Set up the kit in this project: profile, codebase map, assessment. |
+| `/light-request "<what you want>"` | Start a request; triage picks the workflow and runs it end to end. |
+| `/light-triage "<request>"` | Score a request and recommend a workflow without running it. |
+| `/light-plan <specs/NNN-slug>` | Produce or refresh discovery, design and plan for a request. |
+| `/light-implement <specs/NNN-slug>` | Implement an existing request's plan, task by task. |
+| `/light-review <specs/NNN-slug>` | Review a request's implementation. |
+| `/light-status [specs/NNN-slug]` | Show request state, current step and blockers. |
+| `/light-bootstrap "<project idea>"` | Define the vision, architecture and skeleton of a new project. |
+| `/light-standardize [S-01 …]` | Apply the standardization items found by init. |
+| `/light-audit [--apply]` | Find kit guidance that a newer model no longer needs. |
 
-Client formats change often; they are defined in one place (`CLIENTS` in `tools/build.mjs`). Copilot and Cursor have no parallel subagents here, so parallel steps run sequentially there.
-
-## Develop
-`npm test` lints the kit (e.g. workflows reference real agents, every component has a `purpose`) and tests generation and install.
+## Documentation
+| File | Contents |
+|---|---|
+| [docs/installation.md](docs/installation.md) | Install levels, flags, client detection, generated layout, upgrades. |
+| [docs/usage.md](docs/usage.md) | Request flow, workflows, artifacts, agents, names, decisions. |
+| [docs/model-routing.md](docs/model-routing.md) | Choosing a model per step and per plan task. |
+| [docs/commits.md](docs/commits.md) | Branches, commit checkpoints, message rules. |
+| [docs/safety-hooks.md](docs/safety-hooks.md) | What the hooks block and warn about. |
+| [docs/auditing.md](docs/auditing.md) | Auditing and trimming the kit. |
+| [docs/development.md](docs/development.md) | Repository layout, tests, changing the kit. |
+| [kit/hooks/README.md](kit/hooks/README.md) | Every hook and config key. |
