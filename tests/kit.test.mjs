@@ -102,6 +102,8 @@ test('adopt assessment: skill, standardize workflow and command are generated an
   const init = readFileSync(join(dir, '.claude/commands/init.md'), 'utf8');
   assert.match(init, /project-assessment/);
   assert.match(init, /Do not change any project code now/);
+  assert.doesNotMatch(init, /ask which items to accept/);
+  assert.match(readFileSync(join(dir, '.light-kit/workflows/standardize.md'), 'utf8'), /skip items marked `rejected`/);
   const skill = readFileSync(join(dir, '.claude/skills/project-assessment/SKILL.md'), 'utf8');
   assert.match(skill, /Never propose:\*\* refactors/);
   assert.match(skill, /Behavior-preserving/);
@@ -122,14 +124,15 @@ test('tech debt and review cycle: skills, workflow steps, templates and config a
     assert.match(text, /implement — agent: developer — skill: tech-debt/, w);
     assert.match(text, /fix — agent: developer — skill: review-cycle/, w);
   }
-  assert.match(read('.light-kit/workflows/standardize.md'), /never fix debt beyond the accepted items/);
+  assert.match(read('.light-kit/workflows/standardize.md'), /never fix debt beyond the backlog items/);
   assert.match(read('.light-kit/templates/50-implementation.md'), /## Technical debt/);
   assert.match(read('.light-kit/templates/50-implementation.md'), /## Review rounds/);
   assert.match(read('.light-kit/templates/60-conclusion.md'), /Deferred technical debt and open findings/);
   assert.match(read('.light-kit/templates/status.md'), /review_turns/);
   assert.match(read('.light-kit/project-profile.md'), /Review turns: 1/);
   assert.match(read('.claude/commands/request.md'), /--review-turns/);
-  assert.match(read('.claude/commands/init.md'), /review turns/);
+  assert.match(read('.claude/commands/init.md'), /Review turns/);
+  assert.match(read('.claude/commands/init.md'), /without asking/);
   assert.match(read('.claude/agents/developer.md'), /tech-debt/);
   assert.match(read('.claude/agents/developer.md'), /review-cycle/);
   assert.match(read('.claude/agents/reviewer.md'), /Technical debt/);
@@ -154,4 +157,28 @@ test('concise communication rules live in the global instructions of every clien
   const home = tmp();
   install(home, ['claude'], { level: 'user' });
   assert.match(readFileSync(join(home, '.claude/CLAUDE.md'), 'utf8'), /## Communication \(saves tokens\)/);
+});
+
+test('approval summaries: skill, global rule, gates and agents are wired', () => {
+  const dir = tmp();
+  install(dir, ['claude']);
+  const read = (p) => readFileSync(join(dir, p), 'utf8');
+  const skill = read('.claude/skills/approval-summary/SKILL.md');
+  assert.match(skill, /One screen/);
+  assert.match(skill, /Functional first/);
+  assert.match(skill, /Trade-offs go in a table/);
+  assert.match(skill, /same aspects for every option/);
+    for (const w of ['full', 'bootstrap']) {
+    assert.match(read(`.light-kit/workflows/${w}.md`), /Decision point:\*\* record/, w);
+    assert.doesNotMatch(read(`.light-kit/workflows/${w}.md`), /wait for approval|approval-summary/, w);
+  }
+  assert.match(skill, /Decide yourself/);
+  assert.match(skill, /genuinely equivalent/);
+  assert.match(read('CLAUDE.md'), /Decide, don't ask/);
+  // the rule is global: no agent repeats it
+  for (const a of ['orchestrator', 'product-owner', 'business-analyst', 'architect', 'ux-designer', 'tech-lead', 'tech-writer'])
+    assert.doesNotMatch(read(`.claude/agents/${a}.md`), /approval-summary|equivalent options|Decide, don't ask/, a);
+  assert.match(read('CLAUDE.md'), /Everything the user reads/);
+  assert.match(read('.claude/skills/codebase-map/SKILL.md'), /In plain words/);
+  assert.match(read('.claude/skills/project-assessment/SKILL.md'), /approval-summary/);
 });

@@ -14,7 +14,7 @@ Hook settings stack from the outside in: your user-wide `~/.light-kit/hooks.conf
 Config is layered: `.light-kit/hooks.config.json` at the workspace root holds what applies to **every** project (secret-looking content, protected branches, commit reminders, modes). Each project's `<project>/.light-kit/hooks.config.json` holds what is specific to **its** stack (its sensitive files, secret variable names, generated paths, format / lint / verify commands). Lists add up; the nearer layer wins for modes and commands. Fill each project's file from that project only; never copy one project's entries into another. Paths and globs in a project file are relative to the workspace root, so prefix them with the project folder.
 
 ## Discover, then fill
-Ask yourself each question, answer it from the repo (manifests, scripts, CI, docs, ignore files), and confirm uncertain answers with the user.
+Ask yourself each question, answer it from the repo (manifests, scripts, CI, docs, ignore files), If an answer is uncertain, leave that key empty rather than guess, and note what you could not determine in your report.
 
 | Question | Config key |
 |---|---|

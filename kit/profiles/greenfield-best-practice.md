@@ -5,7 +5,7 @@ description: Baseline practices proposed by init for a new project; tailored to 
 
 # Greenfield best practices
 
-Propose, then let the user accept or trim:
+Apply by default, tailored to the chosen stack (the user can trim them):
 - Version control with conventional commits and short-lived branches.
 - Automated tests (unit first, a few integration tests, minimal end-to-end) and a single command to run them.
 - Formatter and linter configured and enforced in CI.

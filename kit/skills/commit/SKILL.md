@@ -15,7 +15,7 @@ Read the **Commit policy** in `.light-kit/project-profile.md`:
 If the project is not a git repository, skip committing and say so once.
 
 ## Checkpoints (commit at each)
-1. **Artifact validated** — when the user approves a gate (understanding, design, plan), or when a workflow without that gate finishes the artifact. Commit the request folder files only. The plan is committed **before** any implementation starts.
+1. **Artifact finished** — when an artifact (understanding, design, plan) is complete and any question you had to ask about it is answered. Commit the request folder files only. The plan is committed **before** any implementation starts.
 2. **Plan task done** — one commit per task, after its verification passes. The tick in `40-plan.md` and the log entry in `50-implementation.md` go in the same commit as the code.
 3. **Debt and review fixes** — each resolved technical-debt item and each review finding fixed gets its own commit (or one per coherent group), before moving on.
 4. **Conclusion** — `60-conclusion.md` and documentation updates.
@@ -37,7 +37,7 @@ If a task turns out too large for one coherent commit, split the task in the pla
 Commit in the repository that owns the files, and never in one commit across two repositories. A cross-project request therefore produces commits in several repositories, each on its own work branch, in the order the plan gives. The request folder is committed in the repository that contains it.
 
 ## Examples
-- `docs(spec): clarify and approve request 007-export-report`
+- `docs(spec): clarify request 007-export-report`
 - `docs(plan): plan request 007-export-report (6 tasks)`
 - `feat(export): add report builder` with `Task: 2`
 - `fix(export): handle empty report found in review`

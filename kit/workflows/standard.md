@@ -21,5 +21,3 @@ Commit points (see the `commit` skill):
 - during step 4, one commit per plan task, after its verification passes, then one per resolved debt item
 - during step 6, one commit per finding fixed
 - after step 7, commit the conclusion
-
-Ask the user only about questions that block the plan, each with a proposed default.

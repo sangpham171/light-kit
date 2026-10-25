@@ -28,7 +28,7 @@ Omit `--clients` to reuse `kit.config.json` (or install all four). Use `--dry-ru
 - generated files are overwritten only if they carry the light-kit marker; your own files are skipped and listed
 
 Then, in your AI client, run the **init** command:
-- **Existing project (adopt):** detects your stack and conventions, writes `.light-kit/project-profile.md` and a one-time `.light-kit/codebase-map.md`, then assesses the project against **its own** standards (what is good, what deviates). It proposes only minor, behavior-preserving, non-breaking fixes in `.light-kit/standardization-backlog.md` (never refactors) and changes nothing until you accept items. Apply the accepted ones with `standardize` (one verified commit per item, on a work branch), then use `request`.
+- **Existing project (adopt):** detects your stack and conventions, writes `.light-kit/project-profile.md` and a one-time `.light-kit/codebase-map.md`, then assesses the project against **its own** standards (what is good, what deviates). It proposes only minor, behavior-preserving, non-breaking fixes in `.light-kit/standardization-backlog.md` (never refactors) and changes nothing until you run `standardize` (all items, or some by id; one verified commit per item, on a work branch), then use `request`.
 - **New project (greenfield):** asks for stack and constraints, proposes best practices, writes the profile. Then run `bootstrap` to define the vision, architecture and a working skeleton.
 
 `.light-kit/project-profile.md` is yours: kit upgrades never overwrite it.
@@ -40,9 +40,9 @@ Then, in your AI client, run the **init** command:
 |---|---|---|
 | `direct` | easy, clear, low risk | understand → implement → review → conclude, no questions |
 | `standard` | medium | + discovery, plan; tester and reviewer in parallel |
-| `full` | complex, ambiguous or risky | clarify (gate) → discover → design (gate) → plan → implement → tester/reviewer/security in parallel → conclude |
+| `full` | complex, ambiguous or risky | clarify → discover → design → plan → implement → tester/reviewer/security in parallel → conclude |
 
-`bootstrap` (new projects, started by the `bootstrap` command rather than triage) runs vision → architecture → plan → skeleton → review, with gates after the vision and the architecture. Override triage with `--workflow`. Artifacts: `00-request`, `10-understanding`, `20-discovery`, `30-design`, `40-plan`, `50-implementation`, `60-conclusion`, plus `status.md`.
+`bootstrap` (new projects, started by the `bootstrap` command rather than triage) runs vision → architecture → plan → skeleton → review. Override triage with `--workflow`. Artifacts: `00-request`, `10-understanding`, `20-discovery`, `30-design`, `40-plan`, `50-implementation`, `60-conclusion`, plus `status.md`.
 
 Agents: orchestrator, product-owner, business-analyst, ux-designer, architect, tech-lead, developer, tester, reviewer, security-reviewer, tech-writer. Any agent or command can be invoked manually.
 
@@ -56,9 +56,12 @@ Installed by default for every client that supports hooks (use `--no-hooks` to s
 
 What is specific to your project (secret file names, secret variable naming, generated paths, format/lint/test commands) lives in `.light-kit/hooks.config.json`, which `init` fills from what it finds in your repo. See `kit/hooks/README.md` for every hook and key. Hooks need Node 18+ on the machine running the AI client.
 
+## Decisions
+The agents decide and move on: they pick the best option, record it with a one-line reason, and tell you in one line. They stop to ask only when two or more options are genuinely equivalent, or when a fact only you have is missing. Questions are short, plain and functional, with trade-offs as a comparison table (`approval-summary` skill).
+
 ## Commits
 The agent commits as it goes, so history stays reviewable (`commit` skill, set up by `init`):
-- the plan is committed once validated, **before** implementation starts; gates (understanding, design) are committed when approved
+- the plan is committed once validated, **before** implementation starts; understanding and design are committed once settled
 - one commit per verified plan task, one per review fix, one for the conclusion
 - only the files of each unit are staged, messages follow your convention (Conventional Commits by default), and nothing is ever pushed
 - at the start of a request the agent records the base branch and base commit in `status.md` (so reviewers know exactly where to start: `git diff <base_commit>..HEAD`), and if you are on `main`, `master` or another protected branch it first moves to a new `<type>/<NNN-slug>` branch; a hook refuses commits on protected branches

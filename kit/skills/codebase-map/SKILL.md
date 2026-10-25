@@ -9,7 +9,9 @@ In a workspace, `.light-kit/...` paths below refer to the **project's own** `.li
 
 Goal: let later requests skip basic exploration. Keep it under about two pages.
 
-Write `.light-kit/codebase-map.md` with:
+Write `.light-kit/codebase-map.md`. Start with **In plain words**: at most 10 lines, no jargon, saying what the product does, for whom, and its main capabilities. This is what humans read when the project is too big to hold in their head; everything below is for the agents.
+
+Then:
 1. **Purpose** — what the system does, in two sentences.
 2. **Structure** — top-level directories and what lives in each; entry points.
 3. **Components and boundaries** — main modules or services, how they talk to each other, external dependencies.

@@ -11,7 +11,6 @@ Define the problem worth solving.
 
 - Identify users, the outcome they need and how success is measured.
 - Separate must-have from nice-to-have; set in-scope and out-of-scope.
-- Write blocking questions for the user, each with a proposed default.
 - Express outcomes as acceptance criteria (see `spec-writing`).
 
 Stay high-level: stack-specific rules come from `.light-kit/project-profile.md`, never assumptions. Read the earlier artifacts in `specs/<NNN-slug>/` before starting, and write only the artifact(s) listed in `writes`.

@@ -8,7 +8,7 @@ description: In a multi-project workspace, decide which project(s) a request tou
 Applies when `.light-kit/projects.md` exists: the folder you work from holds several projects, each with its own language, framework, tools and conventions. Never mix them up.
 
 ## 1. Choose the project(s)
-Read the registry `.light-kit/projects.md`. Decide from the request text, the paths it mentions and the current folder which project(s) it touches. If it is unclear, ask the user. A request that needs a project not in the registry is either a typo to confirm or a new project (use `bootstrap`).
+Read the registry `.light-kit/projects.md`. Decide from the request text, the paths it mentions and the current folder which project(s) it touches. If two projects are equally plausible, ask; otherwise pick the most likely one and say which. A request that needs a project not in the registry is either a typo to confirm or a new project (use `bootstrap`).
 
 ## 2. Load knowledge, nearest wins
 1. Workspace defaults: `.light-kit/project-profile.md` (commit policy, branch convention, cross-cutting rules).

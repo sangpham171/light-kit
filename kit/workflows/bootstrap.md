@@ -10,13 +10,13 @@ Use for a brand-new project, started with the `bootstrap` command (not chosen by
 steps:
 1. understand — agent: orchestrator — writes: 10-understanding.md
 2. vision (parallel) — agents: product-owner, business-analyst — writes: 10-understanding.md (users, outcomes, first-release scope, requirements)
-   - **Gate:** present the vision and first-release scope; wait for approval.
+   - **Decision point:** record the vision and first-release scope.
 3. architecture (parallel) — agents: architect, ux-designer — writes: 30-design.md (structure, key decisions as ADRs; skip ux-designer if there is no user-facing surface)
-   - **Gate:** present the architecture; wait for approval.
+   - **Decision point:** record the architecture and why.
 4. plan — agent: tech-lead — writes: 40-plan.md (skeleton tasks: repo layout, build and test commands, CI, one thin end-to-end slice)
 5. implement — agent: developer — skill: tech-debt — writes: 50-implementation.md (build the skeleton; every task verified; ends with the Technical debt section, resolved before review)
 6. verify-and-review (parallel) — agents: tester, reviewer, security-reviewer — writes: notes in 50-implementation.md
 7. fix — agent: developer — skill: review-cycle — writes: 50-implementation.md (fix the findings; repeat review and fix up to the configured Review turns, default 1)
 8. conclude — agent: tech-writer — writes: 60-conclusion.md and a project README; update `.light-kit/project-profile.md` with the real build, test and run commands
 
-Commit points (see the `commit` skill): commit the vision after its gate, the architecture and ADRs after theirs, the plan before building, then one commit per skeleton task, one per resolved debt item, one per finding fixed, and one for the conclusion.
+Commit points (see the `commit` skill): commit the vision once settled, the architecture and ADRs once chosen, the plan before building, then one commit per skeleton task, one per resolved debt item, one per finding fixed, and one for the conclusion.

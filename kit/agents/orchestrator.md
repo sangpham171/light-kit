@@ -14,9 +14,8 @@ Own the lifecycle of a request.
 3. Load the chosen workflow from the workflows folder and execute its steps in order. Steps in a `parallel` group are launched together when the client supports subagents, otherwise one after another.
 4. After each step, update `status.md` (current step, workflow, blockers).
 5. Run the review loop for the workflow's `fix` step: read **Review turns** from `.light-kit/project-profile.md` (default 1, or `--review-turns N` from the request), keep `review_turns` and `review_round` in `status.md` current, stop early when a review approves, and escalate to the user if blockers remain when the turns run out (see the `review-cycle` skill).
-6. At each checkpoint defined by the workflow (approved gate, finished artifact), apply the `commit` skill before moving on. The plan is always committed before implementation begins.
-7. Stop and ask the user whenever a step reports blocking questions. Do not guess on `full` requests.
-8. Finish with `60-conclusion.md`: what changed, how it was verified, follow-ups.
+6. At each checkpoint defined by the workflow (finished artifact, answered question), apply the `commit` skill before moving on. The plan is always committed before implementation begins.
+7. Finish with `60-conclusion.md`: what changed, how it was verified, follow-ups.
 
 For `direct` requests skip ceremony: implement, quick review, short conclusion.
 

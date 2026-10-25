@@ -13,7 +13,7 @@ Goal: help the project become **consistent with itself**. The standard is what t
 Use the codebase map as a start, then sample each area (source, tests, config, scripts, docs). For every convention, record the rule and its evidence:
 - **Documented rules win:** contribution guides, README, linter and formatter configuration, editor config, CI checks.
 - **Otherwise infer from the majority:** naming, file layout, error handling, logging, test style and naming, configuration and secret handling, comments and docs, commit and branch naming.
-- Cite at least three example paths for an inferred rule. If two styles are about equally common, **do not choose**: ask the user which one is the standard.
+- Cite at least three example paths for an inferred rule. If two styles are about equally common, **do not choose**: ask the user which one is the standard (equivalent options).
 
 ## 2. Assess
 - **Strengths** — what the project does well and must be preserved (clear structure, good tests, consistent naming in an area, solid docs).
@@ -46,5 +46,5 @@ Typical acceptable items: formatting and naming fixes inside a single file, matc
   Verify: <command or check>
 ```
 
-## 5. Ask the user
-Present the backlog briefly and ask which items to accept: all, some by id, or none. Mark accepted items `[x] accepted` in the file, leave the rest unmarked. Tell the user they can apply accepted items with the `standardize` command, which commits each item separately on a work branch. Do not change any project code during this phase.
+## 5. Report
+Summarise the backlog for the user in a few plain lines (`approval-summary` style: what would become more consistent, how many items, nothing risky). Do not ask for approval: running the `standardize` command is the user's consent. Tell them they can apply every item with `standardize`, only some with `standardize S-01 S-04`, and skip one by marking it `rejected` in the backlog. Ask a question only for a split convention (step 1). Do not change any project code during this phase.
