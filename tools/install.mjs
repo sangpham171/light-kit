@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Install light-kit into a project: node tools/install.mjs <target-dir> [--clients claude,copilot,cursor,codex] [--dry-run] [--no-hooks]
+// Install light-kit into a project: node tools/install.mjs <target-dir> [--clients claude,copilot,cursor,codex] [--dry-run] [--no-hooks] [--force | --force-all]
 // Levels: "project" (one project), "workspace" (a folder holding several projects, each with its own stack) or
 // "user" (your home folder: ~/.claude, ~/.copilot, ~/.cursor, ~/.codex, serving every project you open).
 // Without --clients the clients are detected from their folders; without --level it is "workspace" when 2+ nested repositories are found,
@@ -7,7 +7,8 @@
 // Idempotent and non-destructive:
 //  - instruction files (CLAUDE.md, AGENTS.md, ...) only get a marked light-kit block replaced or appended
 //  - other generated files are overwritten only if they carry the light-kit marker
-//  - existing files without the marker are left alone and reported
+//  - existing files without the marker are left alone and reported (--force overwrites them, seeds included;
+//    --force-all also replaces shared instruction files with the kit block alone; hook registrations are always merged, never replaced)
 import { mkdirSync, readFileSync, writeFileSync, existsSync, readdirSync, rmSync, rmdirSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, dirname, resolve, basename } from 'node:path';
@@ -72,7 +73,7 @@ export function mergeBlock(existing, block) {
   return existing + sep + block;
 }
 
-export function install(target, clients, { dryRun = false, hooks = true, level = 'project', projects = [], previousClients = [] } = {}) {
+export function install(target, clients, { dryRun = false, force = 'none', hooks = true, level = 'project', projects = [], previousClients = [] } = {}) {
   const kit = loadKit();
   const errors = lint(kit);
   if (errors.length) throw new Error(`kit lint failed:\n${errors.join('\n')}`);
@@ -89,9 +90,9 @@ export function install(target, clients, { dryRun = false, hooks = true, level =
     let next;
     if (f.hooks) {
       try { next = mergeHooks(current, { ...f.hooks, defaults: f.defaults }); } catch { report.skipped.push(`${f.path} (not valid JSON; add the light-kit hooks by hand)`); continue; }
-    } else if (f.block) next = mergeBlock(current ?? '', f.block);
-    else if (f.seed && exists) { report.unchanged.push(f.path); continue; } // seeds hold knowledge people fill in: never touched once present
-    else if (!exists || f.overwrite || isManaged(current)) next = f.content;
+    } else if (f.block) next = force === 'all' ? f.block : mergeBlock(current ?? '', f.block); // forced: the file becomes the block alone
+    else if (f.seed && exists && force === 'none') { report.unchanged.push(f.path); continue; } // seeds hold knowledge people fill in: never touched once present
+    else if (!exists || f.overwrite || force !== 'none' || isManaged(current)) next = f.content;
     else { report.skipped.push(f.path); continue; }
     if (next === current) { report.unchanged.push(f.path); continue; }
     if (!dryRun) { mkdirSync(dirname(abs), { recursive: true }); writeFileSync(abs, next); }
@@ -117,7 +118,7 @@ if (resolve(process.argv[1] ?? '') === fileURLToPath(import.meta.url)) {
   if (level && !['user', 'workspace', 'project'].includes(level)) fail('--level must be user, workspace or project');
   const given = args.find((a, i) => !a.startsWith('--') && !valueFlags.has(args[i - 1]));
   let target = given ?? (level === 'user' ? homedir() : null);
-  if (!target) fail('usage: install.mjs <target-dir> [--level user|workspace|project] [--clients a,b] [--projects p1,p2] [--dry-run] [--no-hooks]\n       install.mjs --level user   (installs into your home folder)');
+  if (!target) fail('usage: install.mjs <target-dir> [--level user|workspace|project] [--clients a,b] [--projects p1,p2] [--dry-run] [--no-hooks] [--force | --force-all]\n       install.mjs --level user   (installs into your home folder)');
   // Pointing at a client's own folder (~/.claude, proj/.cursor, ...) means "install for that client in the folder that holds it".
   const FOLDER_CLIENT = { '.claude': 'claude', '.copilot': 'copilot', '.cursor': 'cursor', '.codex': 'codex', '.agents': 'codex' };
   const folderClient = FOLDER_CLIENT[basename(resolve(target))];
@@ -149,7 +150,7 @@ if (resolve(process.argv[1] ?? '') === fileURLToPath(import.meta.url)) {
     }
   }
   const dryRun = args.includes('--dry-run');
-  const r = install(target, clients, { dryRun, hooks: !args.includes('--no-hooks'), level, projects, previousClients: folderClient ? saved.clients ?? [] : [] });
+  const r = install(target, clients, { dryRun, force: args.includes('--force-all') ? 'all' : args.includes('--force') ? 'kit' : 'none', hooks: !args.includes('--no-hooks'), level, projects, previousClients: folderClient ? saved.clients ?? [] : [] });
   const label = level === 'workspace' ? `workspace (${projects.length} project${projects.length === 1 ? '' : 's'}: ${paths.join(', ') || 'none found; init will discover them'})` : level === 'user' ? `user (${resolve(target)})` : level;
   console.log(`${dryRun ? '[dry run] ' : ''}level: ${label}`);
   console.log(`clients: ${clients.join(', ')} (${how})`);
