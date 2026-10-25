@@ -3,7 +3,7 @@ name: full
 description: Complex, ambiguous or risky requests. Clarify, discover, design, plan, implement and review in depth.
 ---
 
-# Strategy: full
+# Workflow: full
 
 Use when triage scores 7+, or ambiguity or risk is 2.
 

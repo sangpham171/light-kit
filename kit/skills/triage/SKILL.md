@@ -1,6 +1,6 @@
 ---
 name: triage
-description: Score a request's complexity and choose a strategy (direct, standard, full). Use at the start of every request.
+description: Score a request's complexity and choose a workflow (direct, standard, full). Use at the start of every request.
 ---
 
 # Triage
@@ -20,14 +20,14 @@ Read `00-request.md` and the relevant code, then score each criterion 0–2.
 - **3–6 → `standard`**
 - **7+, or Ambiguity = 2, or Risk = 2 → `full`**
 
-The user can override with an explicit strategy.
+The user can override with an explicit workflow.
 
 ## Output
 Append to `10-understanding.md`:
 ```
 ## Triage
 Scores: scope N, ambiguity N, risk N, novelty N, impact N (total N)
-Strategy: <direct|standard|full>
+Workflow: <direct|standard|full>
 Why: <one or two sentences>
 ```
 If the choice is `full`, say so to the user and list the open questions before doing anything else. If it is `direct`, proceed without asking.

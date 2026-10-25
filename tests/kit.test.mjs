@@ -12,9 +12,9 @@ test('kit lints clean', () => {
   assert.deepEqual(lint(loadKit()), []);
 });
 
-test('lint catches unknown agent in a strategy', () => {
+test('lint catches unknown agent in a workflow', () => {
   const kit = loadKit();
-  kit.strategies[0].body += '\n9. x — agent: nobody';
+  kit.workflows[0].body += '\n9. x — agent: nobody';
   assert.match(lint(kit).join('\n'), /unknown agent nobody/);
 });
 
@@ -41,7 +41,7 @@ test('install into empty dir, then second run changes nothing', () => {
   const first = install(dir, CLIENT_NAMES);
   assert.ok(first.written.length > 30);
   assert.ok(existsSync(join(dir, '.claude/agents/orchestrator.md')));
-  assert.ok(existsSync(join(dir, '.light-kit/strategies/full.md')));
+  assert.ok(existsSync(join(dir, '.light-kit/workflows/full.md')));
   const second = install(dir, CLIENT_NAMES);
   assert.equal(second.written.length, 0);
 });

@@ -10,5 +10,5 @@
 
 ## Triage
 Scores: scope _, ambiguity _, risk _, novelty _, impact _ (total _)
-Strategy: _
+Workflow: _
 Why: _

@@ -1,6 +1,6 @@
 ---
 request: NNN-slug
-strategy: <direct|standard|full>
+workflow: <direct|standard|full>
 step: <current step>
 state: <in-progress|waiting-for-user|done>
 ---

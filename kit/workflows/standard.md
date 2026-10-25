@@ -3,7 +3,7 @@ name: standard
 description: Medium requests. Discover, plan, implement and review.
 ---
 
-# Strategy: standard
+# Workflow: standard
 
 Use when triage scores 3–6.
 

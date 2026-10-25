@@ -3,7 +3,7 @@ name: direct
 description: Easy, clear, low-risk requests. Implement immediately with no clarification.
 ---
 
-# Strategy: direct
+# Workflow: direct
 
 Use when triage scores 0–2 with no ambiguity.
 

@@ -45,7 +45,7 @@ function load(dir) {
 export function loadKit() {
   return {
     agents: load('agents'), skills: load('skills'), prompts: load('prompts'),
-    strategies: load('strategies'), profiles: load('profiles'),
+    workflows: load('workflows'), profiles: load('profiles'),
     core: load('instructions').find((d) => d.meta.name === 'core'),
     templates: readdirSync(join(KIT_DIR, 'templates')).sort().map((f) => ({ file: f, text: readFileSync(join(KIT_DIR, 'templates', f), 'utf8') })),
   };
@@ -56,14 +56,14 @@ export function lint(kit) {
   const errors = [];
   const names = new Set(kit.agents.map((a) => a.meta.name));
   const skills = new Set(kit.skills.map((s) => s.meta.name));
-  for (const d of [...kit.agents, ...kit.skills, ...kit.prompts, ...kit.strategies, ...kit.profiles])
+  for (const d of [...kit.agents, ...kit.skills, ...kit.prompts, ...kit.workflows, ...kit.profiles])
     for (const k of ['name', 'description'])
       if (!d.meta[k]) errors.push(`${d.file}: missing ${k}`);
-  for (const s of kit.strategies) {
+  for (const s of kit.workflows) {
     for (const m of s.body.matchAll(/agents?:\s*([\w-]+(?:,\s*[\w-]+)*)/g))
-      for (const a of m[1].split(/,\s*/)) if (!names.has(a)) errors.push(`strategy ${s.meta.name}: unknown agent ${a}`);
+      for (const a of m[1].split(/,\s*/)) if (!names.has(a)) errors.push(`workflow ${s.meta.name}: unknown agent ${a}`);
     for (const m of s.body.matchAll(/skill:\s*([\w-]+)/g))
-      if (!skills.has(m[1])) errors.push(`strategy ${s.meta.name}: unknown skill ${m[1]}`);
+      if (!skills.has(m[1])) errors.push(`workflow ${s.meta.name}: unknown skill ${m[1]}`);
   }
   return errors;
 }
@@ -96,7 +96,7 @@ const PARALLEL_NOTE = {
 
 // Core instructions + pointers to the shared folder; goes in a marked block of the client's instruction file.
 export function instructionBlock(kit, client) {
-  return `${START}\n${kit.core.body.trimEnd()}\n\n## Kit files\nStrategies: \`${SHARED_DIR}/strategies/\` · Artifact templates: \`${SHARED_DIR}/templates/\` · Init profiles: \`${SHARED_DIR}/profiles/\`${PARALLEL_NOTE[client]}${END}\n`;
+  return `${START}\n${kit.core.body.trimEnd()}\n\n## Kit files\nWorkflows: \`${SHARED_DIR}/workflows/\` · Artifact templates: \`${SHARED_DIR}/templates/\` · Init profiles: \`${SHARED_DIR}/profiles/\`${PARALLEL_NOTE[client]}${END}\n`;
 }
 
 const agentList = (kit) => kit.agents.map((a) => `- **${a.meta.name}** — ${a.meta.description}`).join('\n');
@@ -155,7 +155,7 @@ export function build(kit, clients) {
   if (unknown.length) throw new Error(`unknown client(s): ${unknown.join(', ')} (known: ${CLIENT_NAMES.join(', ')})`);
   const files = [];
   // Shared by every client.
-  for (const s of kit.strategies) files.push({ path: `${SHARED_DIR}/strategies/${s.file}.md`, content: `${GENERATED}\n\n${s.body.trimEnd()}\n` });
+  for (const s of kit.workflows) files.push({ path: `${SHARED_DIR}/workflows/${s.file}.md`, content: `${GENERATED}\n\n${s.body.trimEnd()}\n` });
   for (const p of kit.profiles) files.push({ path: `${SHARED_DIR}/profiles/${p.file}.md`, content: `${GENERATED}\n\n${p.body.trimEnd()}\n` });
   for (const t of kit.templates) files.push({ path: `${SHARED_DIR}/templates/${t.file}`, content: t.text });
   // AGENTS.md is read by Copilot, Cursor and Codex; Claude Code uses CLAUDE.md.

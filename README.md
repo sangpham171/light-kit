@@ -2,7 +2,7 @@
 
 A high-level spec-driven development kit that works with any language or framework and with Claude Code, GitHub Copilot, Cursor and Codex.
 
-You write agents, skills, prompts and strategies once in `kit/` (client-neutral markdown). `tools/install.mjs` generates the files each client expects.
+You write agents, skills, prompts and workflows once in `kit/` (client-neutral markdown). `tools/install.mjs` generates the files each client expects.
 
 ## Quick start
 ```sh
@@ -17,13 +17,13 @@ Then, in your AI client, run the **init** command. It adapts to an existing proj
 ## How a request flows
 `request "<what you want>"` creates `specs/NNN-slug/` and triages the request:
 
-| Strategy | When | Steps |
+| Workflow | When | Steps |
 |---|---|---|
 | `direct` | easy, clear, low risk | understand → implement → review → conclude, no questions |
 | `standard` | medium | + discovery, plan; tester and reviewer in parallel |
 | `full` | complex, ambiguous or risky | clarify (gate) → discover → design (gate) → plan → implement → tester/reviewer/security in parallel → conclude |
 
-Override with `--strategy`. Artifacts: `00-request`, `10-understanding`, `20-discovery`, `30-design`, `40-plan`, `50-implementation`, `60-conclusion`, plus `status.md`.
+Override with `--workflow`. Artifacts: `00-request`, `10-understanding`, `20-discovery`, `30-design`, `40-plan`, `50-implementation`, `60-conclusion`, plus `status.md`.
 
 Agents: orchestrator, product-owner, business-analyst, ux-designer, architect, tech-lead, developer, tester, reviewer, security-reviewer, tech-writer. Any agent or command can be invoked manually.
 
@@ -34,9 +34,9 @@ Agents: orchestrator, product-owner, business-analyst, ux-designer, architect, t
 | Copilot | `.github/{agents,prompts,skills}`, `copilot-instructions.md` |
 | Cursor | `.cursor/{rules,commands}` |
 | Codex | `.codex/agents/*.toml`, `.agents/skills`, `AGENTS.md` (prompts in `.codex/prompts/` to copy to `~/.codex/prompts/`) |
-| all | `AGENTS.md`, `.light-kit/{strategies,templates,profiles}` |
+| all | `AGENTS.md`, `.light-kit/{workflows,templates,profiles}` |
 
 Client formats change often; they are defined in one place (`CLIENTS` in `tools/build.mjs`). Copilot and Cursor have no parallel subagents here, so parallel steps run sequentially there.
 
 ## Develop
-`npm test` lints the kit (e.g. strategies reference real agents) and tests generation and install.
+`npm test` lints the kit (e.g. workflows reference real agents) and tests generation and install.
