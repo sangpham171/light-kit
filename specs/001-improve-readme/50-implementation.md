@@ -7,8 +7,8 @@ runs:
 # Implementation log
 
 ## Progress
-- T1 — README rewritten as entry point: what it is, requirements, install, get started, commands, docs index (`de86680` is the spec commit; README/docs commit recorded in 60-conclusion).
-- T2 — reference material moved to `docs/`: installation, usage, model-routing, commits, safety-hooks, auditing, development.
+- T1 — `de86680` docs(spec): open request 001-improve-readme (request, understanding, status).
+- T2 — `3751e4b` docs(readme): README rewritten as the entry point (what it is, requirements, install, get started, commands, docs index); reference material moved to `docs/` (installation, usage, model-routing, commits, safety-hooks, auditing, development).
 
 ## Technical debt
 None introduced; no code, build or installer changes.
@@ -26,5 +26,5 @@ None introduced; no code, build or installer changes.
 
 ## Review rounds
 Round 1 of 1.
-- F-1.1 [should-fix] docs/usage.md — the adopt/greenfield behavior of `/light-init` (codebase map, assessment, standardization backlog, profile ownership) was dropped in the split — restored as "Setting up a project" — status: fixed.
+- F-1.1 [should-fix] docs/usage.md — the adopt/greenfield behavior of `/light-init` (codebase map, assessment, standardization backlog, profile ownership) was dropped in the split — restored as "Setting up a project" — status: fixed (`3751e4b`).
 Verdict: approve.
