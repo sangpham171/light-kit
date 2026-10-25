@@ -13,4 +13,6 @@ steps:
 3. review — agent: reviewer — writes: review notes in 50-implementation.md
 4. conclude — agent: orchestrator — writes: 60-conclusion.md (a few lines)
 
+Commit (see the `commit` skill): once, after the review passes, with the code and the request folder together.
+
 Do not ask the user questions. If a blocker appears, escalate to `standard`.

@@ -200,3 +200,22 @@ test('hooks config seed is never overwritten; --no-hooks installs none', () => {
   assert.equal(existsSync(join(bare, '.light-kit/hooks')), false);
   assert.equal(existsSync(join(bare, '.claude/settings.json')), false);
 });
+
+test('commit-checkpoint nudges when many files are uncommitted, and respects mode off', () => {
+  const d = project({ commit: { maxUncommittedFiles: 2 } });
+  spawnSync('git', ['init', '-q'], { cwd: d });
+  // the install itself left several untracked files, which is already over the threshold of 2
+  const r = run(d, 'claude', 'post-tool', write('a.txt', 'x'));
+  assert.match(JSON.parse(r.out).hookSpecificOutput.additionalContext, /uncommitted changes/);
+  writeFileSync(join(d, '.light-kit/project-profile.md'), '## Commit policy\nMode: off\n');
+  assert.doesNotMatch(run(d, 'claude', 'post-tool', write('a.txt', 'x')).out, /uncommitted/);
+  const nogit = project({ commit: { maxUncommittedFiles: 1 } });
+  assert.doesNotMatch(run(nogit, 'claude', 'post-tool', write('a.txt', 'x')).out, /uncommitted/);
+});
+
+test('commit skill and commit checkpoints are generated', () => {
+  const d = project();
+  assert.ok(existsSync(join(d, '.claude/skills/commit/SKILL.md')));
+  assert.match(readFileSync(join(d, '.light-kit/workflows/full.md'), 'utf8'), /plan \*\*before\*\* implementing/);
+  assert.match(readFileSync(join(d, 'CLAUDE.md'), 'utf8'), /Commit at every checkpoint/);
+});

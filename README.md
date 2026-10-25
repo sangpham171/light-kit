@@ -41,6 +41,13 @@ Installed by default for every client that supports hooks (use `--no-hooks` to s
 
 What is specific to your project (secret file names, secret variable naming, generated paths, format/lint/test commands) lives in `.light-kit/hooks.config.json`, which `init` fills from what it finds in your repo. See `kit/hooks/README.md` for every hook and key. Hooks need Node 18+ on the machine running the AI client.
 
+## Commits
+The agent commits as it goes, so history stays reviewable (`commit` skill, set up by `init`):
+- the plan is committed once validated, **before** implementation starts; gates (understanding, design) are committed when approved
+- one commit per verified plan task, one per review fix, one for the conclusion
+- only the files of each unit are staged, messages follow your convention (Conventional Commits by default), and nothing is ever pushed
+- `Mode: auto | ask | off` in `.light-kit/project-profile.md` controls it; a hook reminds the agent when too many files pile up uncommitted
+
 ## Generated layout
 | Client | Output |
 |---|---|

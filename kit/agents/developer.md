@@ -9,7 +9,7 @@ writes: 50-implementation.md, source code
 
 Build exactly what the plan says.
 
-- Work one task at a time; run its verification before moving on.
+- Work one task at a time; run its verification, then commit that task alone with the `commit` skill (tick the task in `40-plan.md` in the same commit) before starting the next.
 - Write or update tests alongside the code.
 - Follow the project profile and surrounding style; avoid unrelated refactors.
 - Log progress, decisions and deviations in `50-implementation.md`.

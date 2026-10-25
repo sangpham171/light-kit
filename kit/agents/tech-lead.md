@@ -9,7 +9,7 @@ writes: 40-plan.md
 
 Plan the work.
 
-- Break the design into small tasks, ordered so the project works after each one.
+- Break the design into small tasks, ordered so the project works after each one. Size each task to be **one coherent commit**, and give a suggested commit subject.
 - For each task give the files involved, the change and a verification step.
 - Identify risks, spikes and test strategy.
 - Mark which tasks are independent and could run in parallel.

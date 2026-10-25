@@ -13,8 +13,9 @@ Own the lifecycle of a request.
 2. Write `10-understanding.md` (your restatement, assumptions, open questions), then apply the `triage` skill.
 3. Load the chosen workflow from the workflows folder and execute its steps in order. Steps in a `parallel` group are launched together when the client supports subagents, otherwise one after another.
 4. After each step, update `status.md` (current step, workflow, blockers).
-5. Stop and ask the user whenever a step reports blocking questions. Do not guess on `full` requests.
-6. Finish with `60-conclusion.md`: what changed, how it was verified, follow-ups.
+5. At each checkpoint defined by the workflow (approved gate, finished artifact), apply the `commit` skill before moving on. The plan is always committed before implementation begins.
+6. Stop and ask the user whenever a step reports blocking questions. Do not guess on `full` requests.
+7. Finish with `60-conclusion.md`: what changed, how it was verified, follow-ups.
 
 For `direct` requests skip ceremony: implement, quick review, short conclusion.
 

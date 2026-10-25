@@ -14,6 +14,7 @@ Automatic guardrails that run inside your AI client. One script (`run.mjs`) serv
 | `post-edit-quality` | after a write | warn | Run your format and lint commands on the edited file. |
 | `warn-secret-output` | after a tool | warn | Tell the agent when output contains a secret. |
 | `session-context` | session start | warn | Point the agent at the profile, the codebase map and the active request. |
+| `commit-checkpoint` | after a write | warn | When many files are uncommitted, remind the agent to commit the finished unit (see the `commit` skill). |
 | `verify-on-stop` | agent finishing | off | Run your verify command; if it fails, make the agent keep working (once). |
 | `audit-log` | tool use | off | Append redacted tool activity to `.light-kit/audit.log`. |
 
@@ -33,6 +34,7 @@ Edit `.light-kit/hooks.config.json` (the `init` command does this for you, using
 | `spec.exempt` | globs that may change without an active request |
 | `quality.format` / `quality.lint` | commands for one file; `{file}` is replaced by its path |
 | `verify.command` | one command that verifies the whole project |
+| `commit.maxUncommittedFiles` | uncommitted-file count that triggers the commit reminder (default 8) |
 | `audit.file` | log location |
 
 Globs without `/` match file names anywhere; globs with `/` match from the project root.

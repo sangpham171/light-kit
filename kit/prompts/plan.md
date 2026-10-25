@@ -6,4 +6,4 @@ argument-hint: "<specs/NNN-slug>"
 
 # Plan
 
-For `$ARGUMENTS`: run the missing discovery and design steps of its workflow, then act as **tech-lead** to write `40-plan.md`. Do not implement.
+For `$ARGUMENTS`: run the missing discovery and design steps of its workflow, then act as **tech-lead** to write `40-plan.md`. Commit the plan once it is validated, with the `commit` skill. Do not implement.

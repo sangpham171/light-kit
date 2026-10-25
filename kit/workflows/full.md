@@ -19,3 +19,11 @@ steps:
 7. verify-and-review (parallel) — agents: tester, reviewer, security-reviewer — writes: notes in 50-implementation.md
    - Blockers loop back to step 6.
 8. conclude — agent: tech-writer — writes: 60-conclusion.md
+
+Commit points (see the `commit` skill):
+- after the clarify gate is approved, commit the understanding
+- after the design gate is approved, commit the discovery and design
+- after step 5, commit the plan **before** implementing; if the user asks for plan changes, commit the revised plan
+- during step 6, one commit per plan task, after its verification passes
+- during step 7, one commit per review finding fixed
+- after step 8, commit the conclusion

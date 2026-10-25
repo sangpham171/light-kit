@@ -10,7 +10,8 @@
     "warn-secret-output": "warn",
     "session-context": "warn",
     "verify-on-stop": "off",
-    "audit-log": "off"
+    "audit-log": "off",
+    "commit-checkpoint": "warn"
   },
   "sensitive": { "extraFiles": [], "allow": [], "extraEnvKeywords": [] },
   "secrets": { "extraPatterns": [] },
@@ -19,5 +20,6 @@
   "spec": { "exempt": [] },
   "quality": { "format": "", "lint": "", "timeoutSec": 60 },
   "verify": { "command": "", "timeoutSec": 300 },
+  "commit": { "maxUncommittedFiles": 8 },
   "audit": { "file": ".light-kit/audit.log" }
 }

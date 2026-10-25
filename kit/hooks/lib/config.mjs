@@ -14,6 +14,7 @@ export const DEFAULT_MODES = {
   'session-context': 'warn',
   'verify-on-stop': 'off',
   'audit-log': 'off',
+  'commit-checkpoint': 'warn',
 };
 
 export const BUILTIN = {
@@ -57,6 +58,7 @@ export function loadConfig(root) {
     qualityTimeout: Number(raw.quality?.timeoutSec) || 60,
     verify: str(raw.verify?.command),
     verifyTimeout: Number(raw.verify?.timeoutSec) || 300,
+    maxUncommitted: Number(raw.commit?.maxUncommittedFiles) || 8,
     auditFile: str(raw.audit?.file) || '.light-kit/audit.log',
   };
 }

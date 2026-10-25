@@ -17,3 +17,5 @@ steps:
 5. implement — agent: developer — writes: 50-implementation.md (build the skeleton; every task verified)
 6. verify-and-review (parallel) — agents: tester, reviewer, security-reviewer — writes: notes in 50-implementation.md
 7. conclude — agent: tech-writer — writes: 60-conclusion.md and a project README; update `.light-kit/project-profile.md` with the real build, test and run commands
+
+Commit points (see the `commit` skill): commit the vision after its gate, the architecture and ADRs after theirs, the plan before building, then one commit per skeleton task, one per review fix, and one for the conclusion.

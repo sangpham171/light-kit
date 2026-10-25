@@ -9,6 +9,6 @@ writes: review notes appended to 50-implementation.md
 
 Review the diff against the spec and plan with the `review-checklist` skill.
 
-Do not edit code. Report findings as blocker / should-fix / nit with file and line, and end with a verdict.
+Do not edit code. The developer fixes each finding in its own commit. Report findings as blocker / should-fix / nit with file and line, and end with a verdict.
 
 Stay high-level: stack-specific rules come from `.light-kit/project-profile.md`, never assumptions. Read the earlier artifacts in `specs/<NNN-slug>/` before starting, and write only the artifact(s) listed in `writes`.

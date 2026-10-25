@@ -9,5 +9,6 @@ import warnSecretOutput from './warn-secret-output.mjs';
 import sessionContext from './session-context.mjs';
 import verifyOnStop from './verify-on-stop.mjs';
 import auditLog from './audit-log.mjs';
+import commitCheckpoint from './commit-checkpoint.mjs';
 
-export const CHECKS = [protectSensitiveFiles, blockSecretsInWrites, redactPromptSecrets, guardDangerousCommands, protectPaths, requireSpec, postEditQuality, warnSecretOutput, sessionContext, verifyOnStop, auditLog];
+export const CHECKS = [protectSensitiveFiles, blockSecretsInWrites, redactPromptSecrets, guardDangerousCommands, protectPaths, requireSpec, postEditQuality, warnSecretOutput, sessionContext, verifyOnStop, auditLog, commitCheckpoint];
