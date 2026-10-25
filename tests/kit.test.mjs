@@ -137,3 +137,21 @@ test('tech debt and review cycle: skills, workflow steps, templates and config a
   assert.match(read('.claude/agents/tech-writer.md'), /Deferred technical debt/);
   assert.match(read('CLAUDE.md'), /Finish properly/);
 });
+
+test('concise communication rules live in the global instructions of every client, not in each agent', () => {
+  const dir = tmp();
+  install(dir, ['claude', 'codex', 'cursor']);
+  const read = (p) => readFileSync(join(dir, p), 'utf8');
+  for (const f of ['CLAUDE.md', 'AGENTS.md']) {
+    assert.match(read(f), /## Communication \(saves tokens\)/, f);
+    assert.match(read(f), /no greetings, praise, apologies, filler/, f);
+    assert.match(read(f), /Never trade clarity or safety for brevity/, f);
+  }
+  // stated once in the global instructions, not repeated in each agent
+  for (const a of ['orchestrator', 'developer', 'reviewer', 'tech-writer']) assert.doesNotMatch(read(`.claude/agents/${a}.md`), /Be concise/, a);
+  assert.match(read('.cursor/rules/light-kit-core.mdc') ?? '', /Communication/);
+  assert.match(read('.light-kit/project-profile.md'), /Style: concise/);
+  const home = tmp();
+  install(home, ['claude'], { level: 'user' });
+  assert.match(readFileSync(join(home, '.claude/CLAUDE.md'), 'utf8'), /## Communication \(saves tokens\)/);
+});

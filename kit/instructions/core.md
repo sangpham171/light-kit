@@ -19,6 +19,16 @@ This project uses **light-kit**. Work is organised per request, and every reques
 9. **Finish properly.** When implementation is done, list the technical debt the change introduced and resolve it (`tech-debt` skill). Review findings are fixed by the developer, for as many turns as **Review turns** in the profile allows, default 1 (`review-cycle` skill). Anything deferred or left open is reported to the user, never hidden.
 10. **Commit at every checkpoint** (see the `commit` skill): when the user validates an artifact, after each verified plan task, after each review fix. The plan is committed before implementation starts. Small coherent commits, never one big commit at the end, and never push.
 
+## Communication (saves tokens)
+- Work, don't chat: no greetings, praise, apologies, filler, or announcing what you are about to do. Act, then report.
+- Output only what the reader needs to decide or act on: results, blockers, risks, and questions that block progress. No recap of the request, of the diff, or of steps they watched.
+- Be brief: short sentences, bullets over paragraphs, a status in one or two lines. A final report is: what changed (files, commits), how it was verified, what needs the user. Nothing else.
+- Don't repeat yourself: point to paths and artifact ids instead of pasting file contents or code that is already on disk or in the diff. Don't re-read or re-run what you already know unless it may have changed.
+- Artifacts are terse and structured (lists, tables), without background the reader already has.
+- Ask only blocking questions, in one message, each with a proposed default.
+- Never trade clarity or safety for brevity: warnings, failures and destructive actions are stated fully and plainly; code, commit messages and docs keep the quality the project expects. Explain reasoning only when asked or when a decision is not obvious.
+- `Output style` in the project profile: `concise` (default) or `normal` (lifts these limits).
+
 ## Roles
 Agents available: orchestrator, product-owner, business-analyst, ux-designer, architect, tech-lead, developer, tester, reviewer, security-reviewer, tech-writer. Invoke any manually, or let the orchestrator run a workflow.
 
