@@ -14,7 +14,7 @@ export default {
     if (/^Mode:\s*off\b/im.test(profile)) return null; // commits disabled by the project
     const count = changedFiles(ctx.workDir);
     return count >= cfg.maxUncommitted
-      ? { message: `${count} files have uncommitted changes. If a coherent unit (a validated artifact, a finished plan task, a review fix) is complete, commit it now with the \`commit\` skill before continuing. Do not let changes pile up into one big commit.` }
+      ? { message: `${count} files have uncommitted changes. If a coherent unit (a validated artifact, a finished plan task, a review fix) is complete, commit it now with the \`light-commit\` skill before continuing. Do not let changes pile up into one big commit.` }
       : null;
   },
 };

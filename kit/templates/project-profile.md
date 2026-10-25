@@ -1,6 +1,6 @@
 # Project profile
 
-<!-- Written by `init`. Yours to edit; kit upgrades never overwrite this file. -->
+<!-- Written by `light-init`. Yours to edit; kit upgrades never overwrite this file. -->
 
 ## Languages and frameworks
 ## Commands (build / test / lint / run)

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
+import { mkdtempSync, readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { loadKit, lint, build, CLIENT_NAMES, START, END } from '../tools/build.mjs';
@@ -31,16 +31,16 @@ test('every client produces agents, prompts and skills', () => {
 test('prompt argument placeholders are client specific', () => {
   const kit = loadKit();
   const get = (c, p) => build(kit, [c]).find((f) => f.path === p).content;
-  assert.match(get('claude', '.claude/commands/request.md'), /\$ARGUMENTS/);
-  assert.match(get('copilot', '.github/prompts/request.prompt.md'), /\$\{input:request/);
-  assert.doesNotMatch(get('cursor', '.cursor/commands/request.md'), /\$ARGUMENTS/);
+  assert.match(get('claude', '.claude/commands/light-request.md'), /\$ARGUMENTS/);
+  assert.match(get('copilot', '.github/prompts/light-request.prompt.md'), /\$\{input:request/);
+  assert.doesNotMatch(get('cursor', '.cursor/commands/light-request.md'), /\$ARGUMENTS/);
 });
 
 test('install into empty dir, then second run changes nothing', () => {
   const dir = tmp();
   const first = install(dir, CLIENT_NAMES);
   assert.ok(first.written.length > 30);
-  assert.ok(existsSync(join(dir, '.claude/agents/orchestrator.md')));
+  assert.ok(existsSync(join(dir, '.claude/agents/light-orchestrator.md')));
   assert.ok(existsSync(join(dir, '.light-kit/workflows/full.md')));
   const second = install(dir, CLIENT_NAMES);
   assert.equal(second.written.length, 0);
@@ -63,10 +63,10 @@ test('existing instruction files are preserved', () => {
 test('unmanaged files are skipped, not overwritten', () => {
   const dir = tmp();
   mkdirSync(join(dir, '.claude/agents'), { recursive: true });
-  writeFileSync(join(dir, '.claude/agents/developer.md'), 'my own developer agent');
+  writeFileSync(join(dir, '.claude/agents/light-developer.md'), 'my own developer agent');
   const r = install(dir, ['claude']);
-  assert.ok(r.skipped.includes('.claude/agents/developer.md'));
-  assert.equal(readFileSync(join(dir, '.claude/agents/developer.md'), 'utf8'), 'my own developer agent');
+  assert.ok(r.skipped.includes('.claude/agents/light-developer.md'));
+  assert.equal(readFileSync(join(dir, '.claude/agents/light-developer.md'), 'utf8'), 'my own developer agent');
 });
 
 test('dry run writes nothing', () => {
@@ -89,22 +89,22 @@ test('bootstrap workflow and prompt are generated', () => {
   const dir = tmp();
   install(dir, ['claude']);
   assert.ok(existsSync(join(dir, '.light-kit/workflows/bootstrap.md')));
-  assert.ok(existsSync(join(dir, '.claude/commands/bootstrap.md')));
-  assert.ok(existsSync(join(dir, '.claude/skills/codebase-map/SKILL.md')));
+  assert.ok(existsSync(join(dir, '.claude/commands/light-bootstrap.md')));
+  assert.ok(existsSync(join(dir, '.claude/skills/light-codebase-map/SKILL.md')));
 });
 
 test('adopt assessment: skill, standardize workflow and command are generated and wired', () => {
   const dir = tmp();
   install(dir, ['claude']);
-  assert.ok(existsSync(join(dir, '.claude/skills/project-assessment/SKILL.md')));
+  assert.ok(existsSync(join(dir, '.claude/skills/light-project-assessment/SKILL.md')));
   assert.ok(existsSync(join(dir, '.light-kit/workflows/standardize.md')));
-  assert.ok(existsSync(join(dir, '.claude/commands/standardize.md')));
-  const init = readFileSync(join(dir, '.claude/commands/init.md'), 'utf8');
+  assert.ok(existsSync(join(dir, '.claude/commands/light-standardize.md')));
+  const init = readFileSync(join(dir, '.claude/commands/light-init.md'), 'utf8');
   assert.match(init, /project-assessment/);
   assert.match(init, /Do not change any project code now/);
   assert.doesNotMatch(init, /ask which items to accept/);
   assert.match(readFileSync(join(dir, '.light-kit/workflows/standardize.md'), 'utf8'), /skip items marked `rejected`/);
-  const skill = readFileSync(join(dir, '.claude/skills/project-assessment/SKILL.md'), 'utf8');
+  const skill = readFileSync(join(dir, '.claude/skills/light-project-assessment/SKILL.md'), 'utf8');
   assert.match(skill, /Never propose:\*\* refactors/);
   assert.match(skill, /Behavior-preserving/);
 });
@@ -113,16 +113,16 @@ test('tech debt and review cycle: skills, workflow steps, templates and config a
   const dir = tmp();
   install(dir, ['claude']);
   const read = (p) => readFileSync(join(dir, p), 'utf8');
-  assert.match(read('.claude/skills/tech-debt/SKILL.md'), /Resolve it/);
-  assert.match(read('.claude/skills/tech-debt/SKILL.md'), /Defer only with a reason/);
-  const cycle = read('.claude/skills/review-cycle/SKILL.md');
+  assert.match(read('.claude/skills/light-tech-debt/SKILL.md'), /Resolve it/);
+  assert.match(read('.claude/skills/light-tech-debt/SKILL.md'), /Defer only with a reason/);
+  const cycle = read('.claude/skills/light-review-cycle/SKILL.md');
   assert.match(cycle, /default \*\*1\*\*/);
   assert.match(cycle, /Stop early/);
   assert.match(cycle, /--review-turns N/);
   for (const w of ['direct', 'standard', 'full', 'bootstrap', 'standardize']) {
     const text = read(`.light-kit/workflows/${w}.md`);
-    assert.match(text, /implement — agent: developer — skill: tech-debt/, w);
-    assert.match(text, /fix — agent: developer — skill: review-cycle/, w);
+    assert.match(text, /implement — agent: light-developer — skill: light-tech-debt/, w);
+    assert.match(text, /fix — agent: light-developer — skill: light-review-cycle/, w);
   }
   assert.match(read('.light-kit/workflows/standardize.md'), /never fix debt beyond the backlog items/);
   assert.match(read('.light-kit/templates/50-implementation.md'), /## Technical debt/);
@@ -130,14 +130,14 @@ test('tech debt and review cycle: skills, workflow steps, templates and config a
   assert.match(read('.light-kit/templates/60-conclusion.md'), /Deferred technical debt and open findings/);
   assert.match(read('.light-kit/templates/status.md'), /review_turns/);
   assert.match(read('.light-kit/project-profile.md'), /Review turns: 1/);
-  assert.match(read('.claude/commands/request.md'), /--review-turns/);
-  assert.match(read('.claude/commands/init.md'), /Review turns/);
-  assert.match(read('.claude/commands/init.md'), /without asking/);
-  assert.match(read('.claude/agents/developer.md'), /tech-debt/);
-  assert.match(read('.claude/agents/developer.md'), /review-cycle/);
-  assert.match(read('.claude/agents/reviewer.md'), /Technical debt/);
-  assert.match(read('.claude/agents/orchestrator.md'), /Review turns/);
-  assert.match(read('.claude/agents/tech-writer.md'), /Deferred technical debt/);
+  assert.match(read('.claude/commands/light-request.md'), /--review-turns/);
+  assert.match(read('.claude/commands/light-init.md'), /Review turns/);
+  assert.match(read('.claude/commands/light-init.md'), /without asking/);
+  assert.match(read('.claude/agents/light-developer.md'), /tech-debt/);
+  assert.match(read('.claude/agents/light-developer.md'), /review-cycle/);
+  assert.match(read('.claude/agents/light-reviewer.md'), /Technical debt/);
+  assert.match(read('.claude/agents/light-orchestrator.md'), /Review turns/);
+  assert.match(read('.claude/agents/light-tech-writer.md'), /Deferred technical debt/);
   assert.match(read('CLAUDE.md'), /Finish properly/);
 });
 
@@ -151,7 +151,7 @@ test('concise communication rules live in the global instructions of every clien
     assert.match(read(f), /Never trade clarity or safety for brevity/, f);
   }
   // stated once in the global instructions, not repeated in each agent
-  for (const a of ['orchestrator', 'developer', 'reviewer', 'tech-writer']) assert.doesNotMatch(read(`.claude/agents/${a}.md`), /Be concise/, a);
+  for (const a of ['orchestrator', 'developer', 'reviewer', 'tech-writer']) assert.doesNotMatch(read(`.claude/agents/light-${a}.md`), /Be concise/, a);
   assert.match(read('.cursor/rules/light-kit-core.mdc') ?? '', /Communication/);
   assert.match(read('.light-kit/project-profile.md'), /Style: concise/);
   const home = tmp();
@@ -163,7 +163,7 @@ test('approval summaries: skill, global rule, gates and agents are wired', () =>
   const dir = tmp();
   install(dir, ['claude']);
   const read = (p) => readFileSync(join(dir, p), 'utf8');
-  const skill = read('.claude/skills/approval-summary/SKILL.md');
+  const skill = read('.claude/skills/light-approval-summary/SKILL.md');
   assert.match(skill, /One screen/);
   assert.match(skill, /Functional first/);
   assert.match(skill, /Trade-offs go in a table/);
@@ -177,10 +177,10 @@ test('approval summaries: skill, global rule, gates and agents are wired', () =>
   assert.match(read('CLAUDE.md'), /Decide, don't ask/);
   // the rule is global: no agent repeats it
   for (const a of ['orchestrator', 'product-owner', 'business-analyst', 'architect', 'ux-designer', 'tech-lead', 'tech-writer'])
-    assert.doesNotMatch(read(`.claude/agents/${a}.md`), /approval-summary|equivalent options|Decide, don't ask/, a);
+    assert.doesNotMatch(read(`.claude/agents/light-${a}.md`), /approval-summary|equivalent options|Decide, don't ask/, a);
   assert.match(read('CLAUDE.md'), /Everything the user reads/);
-  assert.match(read('.claude/skills/codebase-map/SKILL.md'), /In plain words/);
-  assert.match(read('.claude/skills/project-assessment/SKILL.md'), /approval-summary/);
+  assert.match(read('.claude/skills/light-codebase-map/SKILL.md'), /In plain words/);
+  assert.match(read('.claude/skills/light-project-assessment/SKILL.md'), /approval-summary/);
 });
 
 test('commit rules forbid trailers and AI attribution in the instructions', () => {
@@ -189,7 +189,53 @@ test('commit rules forbid trailers and AI attribution in the instructions', () =
   const read = (f) => readFileSync(join(dir, f), 'utf8');
   assert.match(read('CLAUDE.md'), /Clean commit messages/);
   assert.match(read('CLAUDE.md'), /never any AI attribution/);
-  assert.match(read('.claude/skills/commit/SKILL.md'), /Only the description of the change/);
-  assert.doesNotMatch(read('.claude/skills/commit/SKILL.md'), /Request: specs|Task: </);
+  assert.match(read('.claude/skills/light-commit/SKILL.md'), /Only the description of the change/);
+  assert.doesNotMatch(read('.claude/skills/light-commit/SKILL.md'), /Request: specs|Task: </);
   assert.doesNotMatch(read('.light-kit/project-profile.md'), /trailer "Request/);
+});
+
+test('everything the client shows carries the light- prefix', () => {
+  const dir = tmp();
+  install(dir, ['claude', 'copilot', 'cursor', 'codex']);
+  const names = (p) => readdirSync(join(dir, p));
+  for (const [p, strip] of [['.claude/agents', ''], ['.claude/commands', ''], ['.claude/skills', ''], ['.github/agents', ''], ['.github/prompts', ''], ['.github/skills', ''],
+    ['.cursor/commands', ''], ['.cursor/rules', ''], ['.codex/agents', ''], ['.codex/prompts', ''], ['.agents/skills', '']])
+    for (const n of names(p)) assert.match(n, /^light-/, `${p}/${n}`);
+  const loaded = loadKit();
+  for (const d of [...loaded.agents, ...loaded.skills, ...loaded.prompts]) assert.match(d.meta.name, /^light-/, d.meta.name);
+  // no bare names left in the instructions
+  const claudeMd = readFileSync(join(dir, 'CLAUDE.md'), 'utf8');
+  assert.match(claudeMd, /light-orchestrator/);
+  assert.match(claudeMd, /`light-init`/);
+  assert.doesNotMatch(claudeMd, /`init`|`commit` skill|apply the `triage`/);
+  const orch = readFileSync(join(dir, '.claude/agents/light-orchestrator.md'), 'utf8');
+  assert.match(orch, /name: light-orchestrator/);
+  assert.match(orch, /`light-project-scope` skill/);
+  const wf = readFileSync(join(dir, '.light-kit/workflows/full.md'), 'utf8');
+  assert.match(wf, /agents: light-product-owner, light-business-analyst/);
+  assert.match(wf, /skill: light-discovery/);
+  assert.doesNotMatch(wf, /agents?: (?!light-)[a-z]/);
+});
+
+test('upgrade removes obsolete generated files but never your own', () => {
+  const dir = tmp();
+  mkdirSync(join(dir, '.claude/agents'), { recursive: true });
+  mkdirSync(join(dir, '.claude/skills/commit'), { recursive: true });
+  mkdirSync(join(dir, '.claude/commands'), { recursive: true });
+  writeFileSync(join(dir, '.claude/agents/developer.md'), '---\nname: developer\n---\n<!-- light-kit:generated -->\nold');
+  writeFileSync(join(dir, '.claude/skills/commit/SKILL.md'), '---\nname: commit\n---\n<!-- light-kit:generated -->\nold');
+  writeFileSync(join(dir, '.claude/commands/init.md'), '---\n---\n<!-- light-kit:generated -->\nold');
+  writeFileSync(join(dir, '.claude/agents/mine.md'), 'my own agent');
+  writeFileSync(join(dir, '.claude/commands/deploy.md'), 'my own command');
+  const preview = install(dir, ['claude'], { dryRun: true });
+  assert.deepEqual(preview.removed.sort(), ['.claude/agents/developer.md', '.claude/commands/init.md', '.claude/skills/commit/SKILL.md']);
+  assert.ok(existsSync(join(dir, '.claude/agents/developer.md'))); // dry run keeps everything
+  const r = install(dir, ['claude']);
+  assert.equal(r.removed.length, 3);
+  assert.equal(existsSync(join(dir, '.claude/agents/developer.md')), false);
+  assert.equal(existsSync(join(dir, '.claude/skills/commit')), false); // emptied folder removed too
+  assert.ok(existsSync(join(dir, '.claude/agents/light-developer.md')));
+  assert.equal(readFileSync(join(dir, '.claude/agents/mine.md'), 'utf8'), 'my own agent');
+  assert.equal(readFileSync(join(dir, '.claude/commands/deploy.md'), 'utf8'), 'my own command');
+  assert.equal(install(dir, ['claude']).removed.length, 0); // idempotent
 });

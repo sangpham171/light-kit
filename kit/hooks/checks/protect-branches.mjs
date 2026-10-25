@@ -18,6 +18,6 @@ export default {
     if (!sub) return null;
     const branch = currentBranch(dir);
     if (!branch || !isProtectedBranch(dir, branch, cfg.protectedBranches)) return null;
-    return { message: `"git ${sub}" on protected branch "${branch}". Create a work branch first (\`request-branch\` skill: git checkout -b <type>/<NNN-slug>), then commit there.` };
+    return { message: `"git ${sub}" on protected branch "${branch}". Create a work branch first (\`light-request-branch\` skill: git checkout -b <type>/<NNN-slug>), then commit there.` };
   },
 };

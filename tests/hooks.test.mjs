@@ -215,7 +215,7 @@ test('commit-checkpoint nudges when many files are uncommitted, and respects mod
 
 test('commit skill and commit checkpoints are generated', () => {
   const d = project();
-  assert.ok(existsSync(join(d, '.claude/skills/commit/SKILL.md')));
+  assert.ok(existsSync(join(d, '.claude/skills/light-commit/SKILL.md')));
   assert.match(readFileSync(join(d, '.light-kit/workflows/full.md'), 'utf8'), /plan \*\*before\*\* implementing/);
   assert.match(readFileSync(join(d, 'CLAUDE.md'), 'utf8'), /Commit at every checkpoint/);
 });
@@ -260,9 +260,9 @@ test('session context shows the request branch and start commit; request-branch 
   writeFileSync(join(d, 'specs/002-y/status.md'), '---\nworkflow: full\nstep: plan\nstate: in-progress\nbase_branch: main\nbase_commit: 0123456789abcdef\nwork_branch: feat/002-y\n---\n');
   const ctx = JSON.parse(run(d, 'claude', 'session-start', {}).out).hookSpecificOutput.additionalContext;
   assert.match(ctx, /branch feat\/002-y \(started at 01234567\)/);
-  assert.ok(existsSync(join(d, '.claude/skills/request-branch/SKILL.md')));
+  assert.ok(existsSync(join(d, '.claude/skills/light-request-branch/SKILL.md')));
   assert.match(readFileSync(join(d, '.light-kit/templates/status.md'), 'utf8'), /base_commit/);
-  assert.match(readFileSync(join(d, '.claude/agents/reviewer.md'), 'utf8'), /base_commit/);
+  assert.match(readFileSync(join(d, '.claude/agents/light-reviewer.md'), 'utf8'), /base_commit/);
 });
 
 test('clean-commit-message blocks AI attribution in commits and PR text, allows everything else', () => {

@@ -8,13 +8,33 @@
 //  - instruction files (CLAUDE.md, AGENTS.md, ...) only get a marked light-kit block replaced or appended
 //  - other generated files are overwritten only if they carry the light-kit marker
 //  - existing files without the marker are left alone and reported
-import { mkdirSync, readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync, existsSync, readdirSync, rmSync, rmdirSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, dirname, resolve, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { build, loadKit, lint, mergeHooks, CLIENT_NAMES, CLIENT_FOLDERS, USER_CLIENT_FOLDERS, USER_NOTES, isManaged, START, END } from './build.mjs';
 
 const SKIP = (name) => name.startsWith('.');
+
+// Files an earlier version generated (they carry the light-kit marker) that this version no longer produces, e.g. after a rename.
+// Only marker files inside folders the kit writes to are touched; anything else is left alone.
+function findObsolete(target, files) {
+  const produced = new Set(files.map((f) => f.path));
+  const roots = new Set(files.filter((f) => f.content?.includes('light-kit:generated')).map((f) => (basename(f.path) === 'SKILL.md' ? dirname(dirname(f.path)) : dirname(f.path))));
+  const found = [];
+  const walk = (rel, depth) => {
+    let entries = [];
+    try { entries = readdirSync(join(target, rel), { withFileTypes: true }); } catch { return; }
+    for (const e of entries) {
+      const r = `${rel}/${e.name}`;
+      if (e.isDirectory()) { if (depth < 2) walk(r, depth + 1); continue; }
+      if (produced.has(r)) continue;
+      try { if (isManaged(readFileSync(join(target, r), 'utf8'))) found.push(r); } catch { /* unreadable: leave it */ }
+    }
+  };
+  for (const root of roots) walk(root, 1);
+  return found;
+}
 
 // Projects = sub-folders (up to two levels deep) that are their own repository. Monorepo projects are found later by `init`.
 export function detectProjects(target) {
@@ -56,7 +76,7 @@ export function install(target, clients, { dryRun = false, hooks = true, level =
   const kit = loadKit();
   const errors = lint(kit);
   if (errors.length) throw new Error(`kit lint failed:\n${errors.join('\n')}`);
-  const report = { written: [], unchanged: [], skipped: [] };
+  const report = { written: [], unchanged: [], skipped: [], removed: [] };
   const config = JSON.stringify({ clients: [...new Set([...previousClients, ...clients])], level, ...(level === 'workspace' && { projects: projects.map((p) => p.path) }), kit: 'light-kit' }, null, 2) + '\n';
   // At user level the config sits inside ~/.light-kit so the home folder itself stays clean (the hooks also read it).
   const configPath = level === 'user' ? '.light-kit/kit.config.json' : 'kit.config.json';
@@ -76,6 +96,14 @@ export function install(target, clients, { dryRun = false, hooks = true, level =
     if (next === current) { report.unchanged.push(f.path); continue; }
     if (!dryRun) { mkdirSync(dirname(abs), { recursive: true }); writeFileSync(abs, next); }
     report.written.push(f.path);
+  }
+  for (const rel of findObsolete(target, files)) {
+    if (!dryRun) {
+      rmSync(join(target, rel), { force: true });
+      const dir = dirname(join(target, rel)); // an emptied skill folder goes too
+      try { if (readdirSync(dir).length === 0) rmdirSync(dir); } catch { /* not empty or gone */ }
+    }
+    report.removed.push(rel);
   }
   return report;
 }
@@ -125,7 +153,9 @@ if (resolve(process.argv[1] ?? '') === fileURLToPath(import.meta.url)) {
   const label = level === 'workspace' ? `workspace (${projects.length} project${projects.length === 1 ? '' : 's'}: ${paths.join(', ') || 'none found; init will discover them'})` : level === 'user' ? `user (${resolve(target)})` : level;
   console.log(`${dryRun ? '[dry run] ' : ''}level: ${label}`);
   console.log(`clients: ${clients.join(', ')} (${how})`);
-  console.log(`written: ${r.written.length}, unchanged: ${r.unchanged.length}, skipped: ${r.skipped.length}`);
+  console.log(`written: ${r.written.length}, unchanged: ${r.unchanged.length}, skipped: ${r.skipped.length}${r.removed.length ? `, ${dryRun ? 'to remove' : 'removed'} (obsolete light-kit files): ${r.removed.length}` : ''}`);
+  for (const x of r.removed.slice(0, 8)) console.log(`  ${dryRun ? 'would remove' : 'removed'}: ${x}`);
+  if (r.removed.length > 8) console.log(`  … and ${r.removed.length - 8} more`);
   for (const s of r.skipped) console.log(`  skipped (exists, not managed by light-kit): ${s}`);
   if (level === 'user') for (const c of clients) if (USER_NOTES[c]) console.log(`note: ${USER_NOTES[c]}`);
   if (clients.includes('codex') && level !== 'user') console.log('note: Codex custom prompts are user-level — copy .codex/prompts/* to ~/.codex/prompts/ to use them.');
@@ -133,7 +163,7 @@ if (resolve(process.argv[1] ?? '') === fileURLToPath(import.meta.url)) {
     console.log(`hooks: need Node 18+ on the machine that runs the AI client. Edit ${level === 'user' ? '~/' : ''}.light-kit/hooks.config.json to tune them.`);
     if (clients.includes('codex')) console.log('note: Codex asks you to review and trust new hooks — run /hooks in Codex once.');
   }
-  if (level === 'user') console.log('user level: restart your AI clients. In each project, run the `init` command to enable the kit there (specs, profile, commit and branch workflow). Safety hooks (secrets, dangerous commands, sensitive files) already apply everywhere.');
-  else if (level === 'workspace') console.log('workspace: start your AI client from this folder (not from a project inside it), then run the `init` command to register and profile each project.');
-  else console.log('next: open your AI client and run the `init` command.');
+  if (level === 'user') console.log('user level: restart your AI clients. In each project, run the `light-init` command to enable the kit there (specs, profile, commit and branch workflow). Safety hooks (secrets, dangerous commands, sensitive files) already apply everywhere.');
+  else if (level === 'workspace') console.log('workspace: start your AI client from this folder (not from a project inside it), then run the `light-init` command to register and profile each project.');
+  else console.log('next: open your AI client and run the `light-init` command.');
 }

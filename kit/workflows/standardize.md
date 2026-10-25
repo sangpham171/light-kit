@@ -5,15 +5,15 @@ description: Apply the minor standardization items from the assessment backlog, 
 
 # Workflow: standardize
 
-Use after `init` (adopt mode) produced `.light-kit/standardization-backlog.md` and the user runs `standardize`. Started with that command, not chosen by triage. The assessment is the discovery; skip discovery.
+Use after `light-init` (adopt mode) produced `.light-kit/standardization-backlog.md` and the user runs `light-standardize`. Started with that command, not chosen by triage. The assessment is the discovery; skip discovery.
 
 steps:
-1. plan — agent: tech-lead — writes: 40-plan.md (one task per item, in backlog order, each with its Verify step and a commit subject)
-2. baseline — agent: tester — writes: 50-implementation.md (run the project's tests and lint now and record the result, so later runs can be compared)
-3. implement — agent: developer — skill: tech-debt — writes: 50-implementation.md (one item at a time; after each, rerun its Verify step and the baseline checks; the debt check covers only what the items' changes introduced)
-4. review — agent: reviewer — writes: notes in 50-implementation.md (confirm every change is cosmetic or additive and behavior-preserving; flag anything that goes beyond its item)
-5. fix — agent: developer — skill: review-cycle — writes: 50-implementation.md (fix the findings; repeat review and fix up to the configured Review turns, default 1)
-6. conclude — agent: tech-writer — writes: 60-conclusion.md (and tick the items done in the backlog)
+1. plan — agent: light-tech-lead — writes: 40-plan.md (one task per item, in backlog order, each with its Verify step and a commit subject)
+2. baseline — agent: light-tester — writes: 50-implementation.md (run the project's tests and lint now and record the result, so later runs can be compared)
+3. implement — agent: light-developer — skill: light-tech-debt — writes: 50-implementation.md (one item at a time; after each, rerun its Verify step and the baseline checks; the debt check covers only what the items' changes introduced)
+4. review — agent: light-reviewer — writes: notes in 50-implementation.md (confirm every change is cosmetic or additive and behavior-preserving; flag anything that goes beyond its item)
+5. fix — agent: light-developer — skill: light-review-cycle — writes: 50-implementation.md (fix the findings; repeat review and fix up to the configured Review turns, default 1)
+6. conclude — agent: light-tech-writer — writes: 60-conclusion.md (and tick the items done in the backlog)
 
 Rules:
 - Only items in the backlog: all of them, or the ids given to the command; skip items marked `rejected`. Never add items.
@@ -21,4 +21,4 @@ Rules:
 - Debt: never fix debt beyond the backlog items; list what you notice as `noticed`. Review fixes must stay within an item's scope.
 - If the baseline is already failing before any change, tell the user and continue only with items whose Verify step does not depend on it.
 
-Commit points (see the `commit` skill): the plan before implementing; one commit per item, with the item's tick in the backlog; one commit for the conclusion. Work happens on a work branch (see `request-branch`).
+Commit points (see the `light-commit` skill): the plan before implementing; one commit per item, with the item's tick in the backlog; one commit for the conclusion. Work happens on a work branch (see `light-request-branch`).

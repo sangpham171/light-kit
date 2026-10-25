@@ -139,8 +139,8 @@ const CLIENTS = {
     const rule = (name, description, body, alwaysApply = false) =>
       ({ path: `.cursor/rules/${name}.mdc`, content: withMarker(fm({ description: description.replace(/\n/g, ' '), alwaysApply }), body) });
     out.push(rule('light-kit-core', kit.core.meta.description, instructionBlock(kit, 'cursor').replace(START, '').replace(END, ''), true));
-    for (const a of kit.agents) out.push(rule(`agent-${a.meta.name}`, `Agent role: ${a.meta.description}`, a.body));
-    for (const s of kit.skills) out.push(rule(`skill-${s.meta.name}`, s.meta.description, s.body));
+    for (const a of kit.agents) out.push(rule(`${a.meta.name}`, `Agent role: ${a.meta.description}`, a.body));
+    for (const s of kit.skills) out.push(rule(`${s.meta.name}`, s.meta.description, s.body));
     for (const p of kit.prompts)
       out.push({ path: `.cursor/commands/${p.meta.name}.md`, content: `${GENERATED}\n\n${promptBody('cursor', p).trimEnd()}\n` });
     return out;

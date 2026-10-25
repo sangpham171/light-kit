@@ -53,7 +53,7 @@ test('CLI: root level auto-detected, clients detected from folders, projects reg
     assert.ok(existsSync(join(d, p, '.light-kit/project-profile.md')));
     assert.ok(existsSync(join(d, p, '.light-kit/hooks.config.json')));
   }
-  assert.ok(existsSync(join(d, '.claude/agents/orchestrator.md')) && existsSync(join(d, '.claude/skills/project-scope/SKILL.md')));
+  assert.ok(existsSync(join(d, '.claude/agents/light-orchestrator.md')) && existsSync(join(d, '.claude/skills/light-project-scope/SKILL.md')));
   assert.equal(existsSync(join(d, 'api/.claude')), false); // kit files only at the root
 });
 
@@ -178,10 +178,10 @@ test('hooks: branch protection looks at the repository being committed to', () =
 
 test('workspace instructions are generated', () => {
   const d = mk('api/.git', 'web/.git'); asRoot(d);
-  const init = readFileSync(join(d, '.claude/commands/init.md'), 'utf8');
+  const init = readFileSync(join(d, '.claude/commands/light-init.md'), 'utf8');
   assert.match(init, /Workspace procedure/);
-  assert.match(readFileSync(join(d, '.claude/skills/request-branch/SKILL.md'), 'utf8'), /repos:/);
-  assert.match(readFileSync(join(d, '.claude/agents/orchestrator.md'), 'utf8'), /project-scope/);
+  assert.match(readFileSync(join(d, '.claude/skills/light-request-branch/SKILL.md'), 'utf8'), /repos:/);
+  assert.match(readFileSync(join(d, '.claude/agents/light-orchestrator.md'), 'utf8'), /project-scope/);
   assert.match(readFileSync(join(d, 'CLAUDE.md'), 'utf8'), /projects\.md/);
 });
 
@@ -197,10 +197,10 @@ test('user level: files land where each client reads user-wide config', () => {
   const h = home();
   userInstall(h, ['claude', 'copilot', 'cursor', 'codex']);
   const has = (p) => existsSync(join(h, p));
-  for (const p of ['.claude/agents/orchestrator.md', '.claude/commands/request.md', '.claude/skills/commit/SKILL.md', '.claude/CLAUDE.md', '.claude/settings.json',
-    '.copilot/agents/reviewer.agent.md', '.copilot/skills/triage/SKILL.md', '.copilot/copilot-instructions.md', '.copilot/hooks/light-kit.json',
-    '.cursor/commands/request.md', '.cursor/hooks.json',
-    '.codex/agents/developer.toml', '.codex/prompts/request.md', '.codex/AGENTS.md', '.codex/hooks.json', '.agents/skills/triage/SKILL.md',
+  for (const p of ['.claude/agents/light-orchestrator.md', '.claude/commands/light-request.md', '.claude/skills/light-commit/SKILL.md', '.claude/CLAUDE.md', '.claude/settings.json',
+    '.copilot/agents/light-reviewer.agent.md', '.copilot/skills/light-triage/SKILL.md', '.copilot/copilot-instructions.md', '.copilot/hooks/light-kit.json',
+    '.cursor/commands/light-request.md', '.cursor/hooks.json',
+    '.codex/agents/light-developer.toml', '.codex/prompts/light-request.md', '.codex/AGENTS.md', '.codex/hooks.json', '.agents/skills/light-triage/SKILL.md',
     '.light-kit/workflows/full.md', '.light-kit/templates/project-profile.md', '.light-kit/hooks/run.mjs', '.light-kit/hooks.config.json', '.light-kit/kit.config.json'])
     assert.ok(has(p), p);
   for (const p of ['CLAUDE.md', 'AGENTS.md', 'kit.config.json', '.github', '.cursor/rules', '.copilot/prompts', '.light-kit/project-profile.md', '.light-kit/projects.md', 'specs'])
@@ -210,17 +210,17 @@ test('user level: files land where each client reads user-wide config', () => {
 
 test('user level: shared kit paths point at ~/.light-kit, project knowledge stays relative', () => {
   const h = home(); userInstall(h, ['claude']);
-  const init = readFileSync(join(h, '.claude/commands/init.md'), 'utf8');
+  const init = readFileSync(join(h, '.claude/commands/light-init.md'), 'utf8');
   assert.match(init, /~\/\.light-kit\/templates\/project-profile\.md/);
   assert.doesNotMatch(init, /[^~/]\.light-kit\/templates/);
   assert.match(init, /not enabled yet/);
   const block = readFileSync(join(h, '.claude/CLAUDE.md'), 'utf8');
   assert.match(block, /Workflows: `~\/\.light-kit\/workflows\/`/);
   assert.match(block, /Project profile: `\.light-kit\/project-profile\.md`/);
-  assert.match(readFileSync(join(h, '.claude/agents/orchestrator.md'), 'utf8'), /\.light-kit\/projects\.md/);
+  assert.match(readFileSync(join(h, '.claude/agents/light-orchestrator.md'), 'utf8'), /\.light-kit\/projects\.md/);
   // the same kit installed at project level keeps plain relative paths
   const p = mk(); install(p, ['claude']);
-  assert.doesNotMatch(readFileSync(join(p, '.claude/commands/init.md'), 'utf8'), /~\/\.light-kit/);
+  assert.doesNotMatch(readFileSync(join(p, '.claude/commands/light-init.md'), 'utf8'), /~\/\.light-kit/);
 });
 
 test('user level: hooks run from $HOME, existing user settings are kept, re-run is a no-op', () => {
@@ -270,7 +270,7 @@ test('user level hooks: safety applies in every project, workflow hooks only whe
   assert.match(wr(enabled, 'src/a.txt').out, /no active request/);
   assert.equal(userHook(h, plain, 'pre-tool', bash('git commit -m x')).code, 0); // not forced on other repos
   assert.equal(userHook(h, enabled, 'pre-tool', bash('git commit -m x')).code, 2);
-  assert.match(JSON.parse(userHook(h, plain, 'session-start', {}).out).hookSpecificOutput.additionalContext, /run the `init` command/);
+  assert.match(JSON.parse(userHook(h, plain, 'session-start', {}).out).hookSpecificOutput.additionalContext, /run the `light-init` command/);
   assert.match(JSON.parse(userHook(h, enabled, 'session-start', {}).out || '{"hookSpecificOutput":{"additionalContext":""}}').hookSpecificOutput.additionalContext, /^((?!not set up).)*$/s);
 });
 
@@ -311,7 +311,7 @@ test('CLI: pointing at a client folder installs in its parent, for that client o
   assert.match(r.stdout, /is the claude client folder, so installing into/);
   assert.match(r.stdout, /level: user/);
   assert.match(r.stdout, /clients: claude \(from the folder you gave\)/);
-  assert.ok(existsSync(join(h, '.claude/agents/orchestrator.md')));
+  assert.ok(existsSync(join(h, '.claude/agents/light-orchestrator.md')));
   assert.ok(existsSync(join(h, '.light-kit/hooks/run.mjs')));
   assert.equal(existsSync(join(h, '.claude/.claude')), false); // no nesting
   assert.equal(existsSync(join(h, '.claude/.light-kit')), false);
