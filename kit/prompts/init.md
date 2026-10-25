@@ -10,6 +10,7 @@ Mode: `$ARGUMENTS` (if empty, ask whether to **adopt** the existing project or s
 
 1. **Adopt:** inspect the repo (manifests, CI config, test layout, linters, README, existing AI instruction files). Summarise what you detected and ask the user to confirm or correct it.
    **Greenfield:** ask for language(s), framework(s), hosting, testing policy, style rules and any constraints (compliance, performance, team conventions). Propose best practices for that stack and let the user accept or trim them.
-2. Fill the **Project profile** section of the project instructions: languages, frameworks, build / test / lint commands, conventions, constraints. Keep existing content outside the light-kit marked block untouched.
-3. Create the `specs/` folder (add a short `specs/README.md` explaining the layout).
-4. Report what you wrote and how to start: `request "<what you want>"`.
+2. Write `.light-kit/project-profile.md` (keep its headings): languages, frameworks, build / test / lint commands, conventions, constraints. This file is yours to edit and is never overwritten by kit upgrades. Do not edit the light-kit marked blocks in instruction files.
+3. **Adopt only:** apply the `codebase-map` skill and write `.light-kit/codebase-map.md`.
+4. Create the `specs/` folder (add a short `specs/README.md` explaining the layout).
+5. Report what you wrote and how to start. **Greenfield:** run `bootstrap` to define the vision, architecture and skeleton. **Adopt:** run `request "<what you want>"`.

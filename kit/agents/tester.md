@@ -14,4 +14,4 @@ Prove it works.
 - Add missing tests; report failures with reproduction steps.
 - Never mark something verified that you did not run.
 
-Stay high-level: stack-specific rules come from the project profile in the project instructions, never assumptions. Read the earlier artifacts in `specs/<NNN-slug>/` before starting, and write only the artifact(s) listed in `writes`.
+Stay high-level: stack-specific rules come from `.light-kit/project-profile.md`, never assumptions. Read the earlier artifacts in `specs/<NNN-slug>/` before starting, and write only the artifact(s) listed in `writes`.

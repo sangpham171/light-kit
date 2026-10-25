@@ -96,7 +96,7 @@ const PARALLEL_NOTE = {
 
 // Core instructions + pointers to the shared folder; goes in a marked block of the client's instruction file.
 export function instructionBlock(kit, client) {
-  return `${START}\n${kit.core.body.trimEnd()}\n\n## Kit files\nWorkflows: \`${SHARED_DIR}/workflows/\` · Artifact templates: \`${SHARED_DIR}/templates/\` · Init profiles: \`${SHARED_DIR}/profiles/\`${PARALLEL_NOTE[client]}${END}\n`;
+  return `${START}\n${kit.core.body.trimEnd()}\n\n## Kit files\nWorkflows: \`${SHARED_DIR}/workflows/\` · Artifact templates: \`${SHARED_DIR}/templates/\` · Init profiles: \`${SHARED_DIR}/profiles/\` · Project profile: \`${SHARED_DIR}/project-profile.md\`${PARALLEL_NOTE[client]}${END}\n`;
 }
 
 const agentList = (kit) => kit.agents.map((a) => `- **${a.meta.name}** — ${a.meta.description}`).join('\n');
@@ -157,7 +157,13 @@ export function build(kit, clients) {
   // Shared by every client.
   for (const s of kit.workflows) files.push({ path: `${SHARED_DIR}/workflows/${s.file}.md`, content: `${GENERATED}\n\n${s.body.trimEnd()}\n` });
   for (const p of kit.profiles) files.push({ path: `${SHARED_DIR}/profiles/${p.file}.md`, content: `${GENERATED}\n\n${p.body.trimEnd()}\n` });
-  for (const t of kit.templates) files.push({ path: `${SHARED_DIR}/templates/${t.file}`, content: t.text });
+  for (const t of kit.templates) {
+    if (t.file === 'project-profile.md') continue;
+    files.push({ path: `${SHARED_DIR}/templates/${t.file}`, content: t.text });
+  }
+  // Seed only: no generated marker, so the installer never overwrites it once init has filled it in.
+  const seed = kit.templates.find((t) => t.file === 'project-profile.md');
+  files.push({ path: `${SHARED_DIR}/project-profile.md`, content: seed.text });
   // AGENTS.md is read by Copilot, Cursor and Codex; Claude Code uses CLAUDE.md.
   const agentsClient = clients.find((c) => c !== 'claude') ?? 'codex';
   if (clients.some((c) => c !== 'claude'))

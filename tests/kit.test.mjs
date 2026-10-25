@@ -74,3 +74,21 @@ test('dry run writes nothing', () => {
   install(dir, ['claude'], { dryRun: true });
   assert.equal(existsSync(join(dir, 'CLAUDE.md')), false);
 });
+
+test('re-install keeps a filled-in project profile', () => {
+  const dir = tmp();
+  install(dir, ['claude']);
+  const profile = join(dir, '.light-kit/project-profile.md');
+  writeFileSync(profile, '# Project profile\nTypeScript, vitest\n');
+  install(dir, ['claude']);
+  assert.match(readFileSync(profile, 'utf8'), /TypeScript, vitest/);
+  assert.doesNotMatch(readFileSync(join(dir, 'CLAUDE.md'), 'utf8'), /Languages and frameworks/);
+});
+
+test('bootstrap workflow and prompt are generated', () => {
+  const dir = tmp();
+  install(dir, ['claude']);
+  assert.ok(existsSync(join(dir, '.light-kit/workflows/bootstrap.md')));
+  assert.ok(existsSync(join(dir, '.claude/commands/bootstrap.md')));
+  assert.ok(existsSync(join(dir, '.claude/skills/codebase-map/SKILL.md')));
+});

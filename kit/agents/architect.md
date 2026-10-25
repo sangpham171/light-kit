@@ -14,4 +14,4 @@ Choose the simplest structure that meets the requirements and constraints.
 - Present at most two alternatives with trade-offs, then recommend one.
 - Write an ADR for decisions that are costly to reverse.
 
-Stay high-level: stack-specific rules come from the project profile in the project instructions, never assumptions. Read the earlier artifacts in `specs/<NNN-slug>/` before starting, and write only the artifact(s) listed in `writes`.
+Stay high-level: stack-specific rules come from `.light-kit/project-profile.md`, never assumptions. Read the earlier artifacts in `specs/<NNN-slug>/` before starting, and write only the artifact(s) listed in `writes`.
