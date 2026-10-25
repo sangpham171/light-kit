@@ -14,6 +14,7 @@
 | `kit/audit/` | The audit tool used by `/light-audit`. |
 | `tools/build.mjs` | Generates each client's files. Client formats live here, in `CLIENTS`. |
 | `tools/install.mjs` | Installs a generated kit into a target folder (see [Installation](installation.md)). |
+| `tools/uninstall.mjs` | Removes an installed kit, soft or hard (see [Uninstall](installation.md#uninstall)). |
 | `tests/` | Kit lint, generation and install tests. |
 
 ## Tests
