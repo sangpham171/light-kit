@@ -136,6 +136,15 @@ test('session start injects profile and active request context per client', () =
   assert.match(JSON.parse(run(d, 'copilot', 'session-start', {}).out).additionalContext, /001-x/);
 });
 
+test('session start reports the thinking effort the client exposes', () => {
+  const d = project();
+  const transcript = join(d, 'session.jsonl');
+  writeFileSync(transcript, `${JSON.stringify({ type: 'assistant', effort: 'high' })}\n`);
+  const c = JSON.parse(run(d, 'claude', 'session-start', { transcript_path: transcript }).out).hookSpecificOutput;
+  assert.match(c.additionalContext, /thinking effort "high"/);
+  assert.doesNotMatch(run(d, 'claude', 'session-start', {}).out, /thinking effort/);
+});
+
 test('verify-on-stop blocks a failing finish once, and never loops', () => {
   const d = project({ hooks: { 'verify-on-stop': 'block' }, verify: { command: 'node -e "console.error(\'2 tests failed\');process.exit(1)"' } });
   const r = JSON.parse(run(d, 'claude', 'stop', {}).out);

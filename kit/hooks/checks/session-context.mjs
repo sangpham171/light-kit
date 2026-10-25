@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { activeRequests, listProjectDirs } from '../lib/specs.mjs';
+import { detectEffort } from '../lib/effort.mjs';
 
 export default {
   id: 'session-context',
@@ -18,6 +19,8 @@ export default {
       const where = join(relative(ctx.root, r.home), 'specs', r.name);
       lines.push(`Active request ${where}${r.workflow ? ` (${r.workflow} workflow)` : ''}: step ${r.step || 'unknown'}, state ${r.state || 'unknown'}${r.work_branch ? `, branch ${r.work_branch}` : ''}${r.base_commit && r.base_commit !== 'none' ? ` (started at ${r.base_commit.slice(0, 8)})` : ''}.`);
     }
+    const effort = detectEffort(ctx);
+    if (effort) lines.push(`The client reports thinking effort "${effort}"; use it as \`thinking:\` in the \`runs:\` headers you write.`);
     return lines.length ? { message: lines.join('\n') } : null;
   },
 };
