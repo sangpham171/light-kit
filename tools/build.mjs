@@ -29,6 +29,7 @@ export function parseDoc(text) {
 
 const q = (s) => JSON.stringify(String(s)); // safe YAML scalar
 
+
 function load(dir) {
   const p = join(KIT_DIR, dir);
   if (!existsSync(p)) return [];
@@ -298,6 +299,8 @@ export function build(kitIn, clients, { hooks = true, level = 'project', project
       files.push({ path: `${x.path}/${SHARED_DIR}/hooks.config.json`, content: tpl('project-hooks.config.json'), seed: true });
     }
   }
+  // Seed: the user's tier-to-model table, read by the orchestrator at run time; empty values mean the client's own default model.
+  files.push({ path: `${SHARED_DIR}/models.json`, content: kit.templates.find((t) => t.file === 'models.json').text, seed: true });
   // AGENTS.md is read by Copilot, Cursor and Codex; Claude Code uses CLAUDE.md.
   const shared = user ? USER_SHARED : SHARED_DIR;
   const agentsClient = clients.find((c) => c !== 'claude') ?? 'codex';
