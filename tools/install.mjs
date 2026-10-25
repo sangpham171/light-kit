@@ -19,7 +19,7 @@ const SKIP = (name) => name.startsWith('.');
 
 // Files an earlier version generated (they carry the light-kit marker) that this version no longer produces, e.g. after a rename.
 // Only marker files inside folders the kit writes to are touched; anything else is left alone.
-function findObsolete(target, files) {
+export function findObsolete(target, files) {
   const produced = new Set(files.map((f) => f.path));
   const roots = new Set(files.filter((f) => f.content?.includes('light-kit:generated')).map((f) => (basename(f.path) === 'SKILL.md' ? dirname(dirname(f.path)) : dirname(f.path))));
   const found = [];
