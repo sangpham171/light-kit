@@ -42,8 +42,18 @@ function load(dir) {
   });
 }
 
+function loadHooks() {
+  const base = join(KIT_DIR, 'hooks');
+  const walk = (dir) => readdirSync(dir).sort().flatMap((f) => {
+    const full = join(dir, f);
+    return statSync(full).isDirectory() ? walk(full) : [full];
+  });
+  return walk(base).map((full) => ({ rel: full.slice(base.length + 1), text: readFileSync(full, 'utf8') }));
+}
+
 export function loadKit() {
   return {
+    hooks: loadHooks(),
     agents: load('agents'), skills: load('skills'), prompts: load('prompts'),
     workflows: load('workflows'), profiles: load('profiles'),
     core: load('instructions').find((d) => d.meta.name === 'core'),
@@ -150,7 +160,51 @@ const CLIENTS = {
 };
 export const CLIENT_NAMES = Object.keys(CLIENTS);
 
-export function build(kit, clients) {
+// ---------- hooks ----------
+export const HOOK_MARK = '.light-kit/hooks/run.mjs';
+const EVENTS = ['pre-tool', 'post-tool', 'prompt', 'session-start', 'stop'];
+const TOOL_MATCH = {
+  claude: { pre: 'Bash|Read|Write|Edit|MultiEdit|NotebookEdit', post: 'Bash|Read|Write|Edit|MultiEdit|NotebookEdit' },
+  codex: { pre: 'Bash|apply_patch|Edit|Write', post: 'Bash|apply_patch|Edit|Write' },
+  cursor: { pre: 'Shell|Read|Write|Delete', post: 'Shell|Read|Write' },
+};
+// Per client: file, shape and event names. Copilot has no verified "stop" payload, so it gets no stop hook.
+const HOOK_CLIENTS = {
+  claude: { path: '.claude/settings.json', shape: 'grouped', prefix: '"$CLAUDE_PROJECT_DIR"/', names: { 'pre-tool': 'PreToolUse', 'post-tool': 'PostToolUse', prompt: 'UserPromptSubmit', 'session-start': 'SessionStart', stop: 'Stop' } },
+  codex: { path: '.codex/hooks.json', shape: 'grouped', prefix: '"$(git rev-parse --show-toplevel)"/', names: { 'pre-tool': 'PreToolUse', 'post-tool': 'PostToolUse', prompt: 'UserPromptSubmit', 'session-start': 'SessionStart', stop: 'Stop' } },
+  cursor: { path: '.cursor/hooks.json', shape: 'flat', prefix: '', names: { 'pre-tool': 'preToolUse', 'post-tool': 'postToolUse', prompt: 'beforeSubmitPrompt', 'session-start': 'sessionStart', stop: 'stop' } },
+  copilot: { path: '.github/hooks/light-kit.json', shape: 'copilot', prefix: '', names: { 'pre-tool': 'preToolUse', 'post-tool': 'postToolUse', prompt: 'userPromptSubmitted', 'session-start': 'sessionStart' } },
+};
+
+export function hookRegistration(client) {
+  const c = HOOK_CLIENTS[client];
+  const hooks = {};
+  for (const ev of EVENTS) {
+    const name = c.names[ev];
+    if (!name) continue;
+    const command = `node ${c.prefix}${HOOK_MARK} --client ${client} --event ${ev}`;
+    const matcher = ev === 'pre-tool' ? TOOL_MATCH[client]?.pre : ev === 'post-tool' ? TOOL_MATCH[client]?.post : undefined;
+    if (c.shape === 'grouped') hooks[name] = [{ ...(matcher && { matcher }), hooks: [{ type: 'command', command, timeout: 60 }] }];
+    else if (c.shape === 'flat') hooks[name] = [{ command, ...(matcher && { matcher }), timeout: 60 }];
+    else hooks[name] = [{ type: 'command', command, timeoutSec: 60 }];
+  }
+  return { path: c.path, hooks: { ...(c.shape !== 'grouped' && { version: 1 }), hooks } };
+}
+
+// Merge our entries into a client's hooks JSON, keeping the user's own hooks. Replaces any earlier light-kit entries.
+export function mergeHooks(existingText, desired) {
+  const cur = existingText ? JSON.parse(existingText) : {};
+  cur.hooks ??= {};
+  if (desired.version) cur.version ??= desired.version;
+  for (const [ev, list] of Object.entries(cur.hooks)) {
+    const kept = list.filter((e) => !JSON.stringify(e).includes(HOOK_MARK));
+    if (kept.length) cur.hooks[ev] = kept; else delete cur.hooks[ev];
+  }
+  for (const [ev, list] of Object.entries(desired.hooks)) cur.hooks[ev] = [...(cur.hooks[ev] ?? []), ...list];
+  return JSON.stringify(cur, null, 2) + '\n';
+}
+
+export function build(kit, clients, { hooks = true } = {}) {
   const unknown = clients.filter((c) => !CLIENTS[c]);
   if (unknown.length) throw new Error(`unknown client(s): ${unknown.join(', ')} (known: ${CLIENT_NAMES.join(', ')})`);
   const files = [];
@@ -169,5 +223,13 @@ export function build(kit, clients) {
   if (clients.some((c) => c !== 'claude'))
     files.push({ path: 'AGENTS.md', block: `${instructionBlock(kit, agentsClient).replace(END, '')}\n## Agents\n${agentList(kit)}\n${END}` });
   for (const c of clients) files.push(...CLIENTS[c](kit));
+  if (hooks) {
+    for (const h of kit.hooks) {
+      if (h.rel === 'hooks.config.json') files.push({ path: `${SHARED_DIR}/hooks.config.json`, content: h.text }); // seed: never overwritten
+      else if (h.rel.endsWith('.md')) files.push({ path: `${SHARED_DIR}/hooks/${h.rel}`, content: `${GENERATED}\n\n${h.text.trimEnd()}\n` });
+      else files.push({ path: `${SHARED_DIR}/hooks/${h.rel}`, content: `// light-kit:generated\n${h.text}` });
+    }
+    for (const c of clients) files.push(hookRegistration(c));
+  }
   return files;
 }

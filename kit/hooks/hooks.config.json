@@ -1,0 +1,23 @@
+{
+  "hooks": {
+    "protect-sensitive-files": "block",
+    "block-secrets-in-writes": "block",
+    "redact-prompt-secrets": "block",
+    "guard-dangerous-commands": "block",
+    "protect-paths": "block",
+    "require-spec": "warn",
+    "post-edit-quality": "warn",
+    "warn-secret-output": "warn",
+    "session-context": "warn",
+    "verify-on-stop": "off",
+    "audit-log": "off"
+  },
+  "sensitive": { "extraFiles": [], "allow": [], "extraEnvKeywords": [] },
+  "secrets": { "extraPatterns": [] },
+  "commands": { "extraDeny": [], "allow": [] },
+  "protect": { "paths": [] },
+  "spec": { "exempt": [] },
+  "quality": { "format": "", "lint": "", "timeoutSec": 60 },
+  "verify": { "command": "", "timeoutSec": 300 },
+  "audit": { "file": ".light-kit/audit.log" }
+}

@@ -24,4 +24,8 @@ Agents available: orchestrator, product-owner, business-analyst, ux-designer, ar
 
 ## Project knowledge
 - `.light-kit/project-profile.md` — languages, frameworks, build/test commands, conventions, constraints. Written by `init`, never overwritten by upgrades.
+- `.light-kit/hooks.config.json` — tunes the safety hooks (see below). Written by `init`, never overwritten by upgrades.
 - `.light-kit/codebase-map.md` — structure of an existing codebase, written by `init` in adopt mode. Read it before discovery; update it when the structure changes.
+
+## Safety hooks
+Hooks run automatically in clients that support them. They block reads and edits of sensitive files, secrets in files or prompts, dangerous commands and edits to protected paths. They warn when work starts without an active request, report format and lint problems after edits, and flag secrets in tool output. If a hook blocks you, do not work around it: explain it to the user and propose a safe alternative. Never edit `.light-kit/hooks/` or the hook registration files.

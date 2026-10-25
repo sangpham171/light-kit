@@ -31,6 +31,16 @@ Then, in your AI client, run the **init** command:
 
 Agents: orchestrator, product-owner, business-analyst, ux-designer, architect, tech-lead, developer, tester, reviewer, security-reviewer, tech-writer. Any agent or command can be invoked manually.
 
+## Safety hooks
+Installed by default for every client that supports hooks (use `--no-hooks` to skip). They protect against the common mistakes of agent-driven work, with no stack assumptions built in:
+- block reading or editing files that hold secrets, and writing secrets into files or prompts
+- block dangerous commands (mass deletion, force push, hard reset, piping downloads into a shell, environment dumps, destructive database statements)
+- protect version-control internals, the hooks themselves and paths you declare generated or locked
+- warn when work starts without an active request, run your format/lint commands after edits, flag secrets in tool output, and give each session its context
+- optional: verify before the agent finishes, and an audit log
+
+What is specific to your project (secret file names, secret variable naming, generated paths, format/lint/test commands) lives in `.light-kit/hooks.config.json`, which `init` fills from what it finds in your repo. See `kit/hooks/README.md` for every hook and key. Hooks need Node 18+ on the machine running the AI client.
+
 ## Generated layout
 | Client | Output |
 |---|---|
@@ -38,7 +48,8 @@ Agents: orchestrator, product-owner, business-analyst, ux-designer, architect, t
 | Copilot | `.github/{agents,prompts,skills}`, `copilot-instructions.md` |
 | Cursor | `.cursor/{rules,commands}` |
 | Codex | `.codex/agents/*.toml`, `.agents/skills`, `AGENTS.md` (prompts in `.codex/prompts/` to copy to `~/.codex/prompts/`) |
-| all | `AGENTS.md`, `.light-kit/{workflows,templates,profiles,project-profile.md}` |
+| all | `AGENTS.md`, `.light-kit/{workflows,templates,profiles,project-profile.md,hooks.config.json,hooks/}` |
+| hooks | `.claude/settings.json`, `.codex/hooks.json`, `.cursor/hooks.json`, `.github/hooks/light-kit.json` (merged, your own hooks are kept) |
 
 Client formats change often; they are defined in one place (`CLIENTS` in `tools/build.mjs`). Copilot and Cursor have no parallel subagents here, so parallel steps run sequentially there.
 
