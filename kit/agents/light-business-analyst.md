@@ -1,6 +1,7 @@
 ---
 name: light-business-analyst
 description: Turns intent into precise requirements, business rules, edge cases and data needs.
+purpose: structure
 tools: [read, write]
 writes: 10-understanding.md (requirements section)
 ---

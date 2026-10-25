@@ -1,6 +1,7 @@
 ---
 name: light-status
 description: Show the state of requests in specs/ — workflow, current step, blockers.
+purpose: structure
 argument-hint: "[specs/NNN-slug]"
 ---
 

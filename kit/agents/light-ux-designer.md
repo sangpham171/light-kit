@@ -1,6 +1,7 @@
 ---
 name: light-ux-designer
 description: Designs the user-facing experience: flows, states, wording and accessibility. Skipped when there is no user interface.
+purpose: structure
 tools: [read, write]
 writes: 30-design.md (experience section)
 ---

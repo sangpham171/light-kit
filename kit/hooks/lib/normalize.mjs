@@ -67,6 +67,7 @@ export function normalize(client, event, p, installRoot) {
     command: Array.isArray(cmd) ? cmd.join(' ') : typeof cmd === 'string' ? cmd : '',
     text: kind === 'write' ? texts.join('\n') : '',
     output: allStrings(out).join('\n'),
+    model: (() => { const m = p.model_id ?? p.model; return typeof m === 'string' ? m : (m?.id ?? m?.name ?? ''); })(),
     prompt: p.prompt ?? p.initialPrompt ?? p.initial_prompt ?? '',
     stopActive: Boolean(p.stop_hook_active) || Number(p.loop_count) > 0,
   };

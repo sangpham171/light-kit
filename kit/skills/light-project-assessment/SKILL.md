@@ -1,6 +1,7 @@
 ---
 name: light-project-assessment
 description: For an existing project, assess what is good and where it deviates from its own conventions, then propose only minor, behavior-preserving standardization items. Used by init in adopt mode.
+purpose: compensation
 ---
 
 # Project assessment

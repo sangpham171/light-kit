@@ -1,6 +1,7 @@
 ---
 name: bootstrap
 description: New project. Define the vision, choose the architecture, plan and build a minimal working skeleton.
+purpose: structure
 ---
 
 # Workflow: bootstrap

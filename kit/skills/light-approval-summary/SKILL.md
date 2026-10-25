@@ -1,6 +1,7 @@
 ---
 name: light-approval-summary
 description: When to ask the user to decide (only between equivalent options, or for a fact only they have) and how to present it: short, plain, functional, trade-offs as a comparison table.
+purpose: preference
 ---
 
 # Deciding with the user

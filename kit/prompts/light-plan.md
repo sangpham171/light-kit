@@ -1,6 +1,7 @@
 ---
 name: light-plan
 description: Produce or refresh the plan (discovery, design, 40-plan.md) for an existing request folder.
+purpose: structure
 argument-hint: "<specs/NNN-slug>"
 ---
 

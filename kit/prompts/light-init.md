@@ -1,6 +1,7 @@
 ---
 name: light-init
 description: Set up light-kit for this project — detect or ask for language, framework and constraints, then fill the project profile.
+purpose: structure
 argument-hint: "[adopt | greenfield]"
 ---
 

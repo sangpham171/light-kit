@@ -1,6 +1,7 @@
 ---
 name: light-review
 description: Review the implementation of a request (reviewer, plus tester and security-reviewer when the workflow asks).
+purpose: structure
 argument-hint: "<specs/NNN-slug>"
 ---
 

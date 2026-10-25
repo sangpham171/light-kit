@@ -11,6 +11,7 @@ export const DEFAULT_MODES = {
   'protect-paths': 'block',
   'protect-branches': 'block',
   'clean-commit-message': 'block',
+  'audit-reminder': 'warn',
   'require-spec': 'warn',
   'post-edit-quality': 'warn',
   'warn-secret-output': 'warn',
@@ -109,6 +110,7 @@ export function loadConfig(layers) {
     verifyTimeout: Number(raw.verify?.timeoutSec) || 300,
     maxUncommitted: Number(raw.commit?.maxUncommittedFiles) || 8,
     suggestInit: raw.session?.suggestInit !== false,
+    auditRemind: raw.audit?.remind !== false,
     auditFile: str(raw.audit?.file) || '.light-kit/audit.log',
   };
 }

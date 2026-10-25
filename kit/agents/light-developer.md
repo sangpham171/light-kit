@@ -1,6 +1,7 @@
 ---
 name: light-developer
 description: Implements the plan task by task with tests, following project conventions.
+purpose: structure
 tools: [read, write, execute]
 writes: 50-implementation.md, source code
 ---

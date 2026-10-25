@@ -1,6 +1,7 @@
 ---
 name: light-security-reviewer
 description: Reviews changes for security and privacy risks. Involve when risk is high or data, auth or dependencies are touched.
+purpose: structure
 tools: [read, search]
 writes: security notes appended to 50-implementation.md
 ---

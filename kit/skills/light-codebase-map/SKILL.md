@@ -1,6 +1,7 @@
 ---
 name: light-codebase-map
 description: Survey an existing codebase once and write a reusable map to .light-kit/codebase-map.md.
+purpose: structure
 ---
 
 # Codebase map

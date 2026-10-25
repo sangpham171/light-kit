@@ -1,6 +1,7 @@
 ---
 name: direct
 description: Easy, clear, low-risk requests. Implement immediately with no clarification.
+purpose: structure
 ---
 
 # Workflow: direct

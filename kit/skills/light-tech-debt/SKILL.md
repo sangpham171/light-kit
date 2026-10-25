@@ -1,6 +1,7 @@
 ---
 name: light-tech-debt
 description: When implementation is done, list the technical debt the change introduced, then resolve it. Used by the developer before review.
+purpose: compensation
 ---
 
 # Technical debt

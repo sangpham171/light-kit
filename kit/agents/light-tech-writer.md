@@ -1,6 +1,7 @@
 ---
 name: light-tech-writer
 description: Updates user and developer documentation and writes the final summary of a request.
+purpose: structure
 tools: [read, write]
 writes: 60-conclusion.md, project docs
 ---

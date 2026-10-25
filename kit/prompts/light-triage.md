@@ -1,6 +1,7 @@
 ---
 name: light-triage
 description: Score a request and recommend a workflow without executing it.
+purpose: structure
 argument-hint: "<request or specs folder>"
 ---
 

@@ -1,6 +1,7 @@
 ---
 name: light-bootstrap
 description: Start a new project — define the vision, choose the architecture, plan and build the initial skeleton.
+purpose: structure
 argument-hint: "<what the project is for>"
 ---
 

@@ -1,6 +1,7 @@
 ---
 name: light-standardize
 description: Apply the standardization items from the init assessment, one verified commit each.
+purpose: structure
 argument-hint: "[item ids, e.g. S-01 S-04]"
 ---
 

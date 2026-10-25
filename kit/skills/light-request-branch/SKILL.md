@@ -1,6 +1,7 @@
 ---
 name: light-request-branch
 description: At the start of a request, record the git starting point (branch and commit) in status.md and move off a protected branch onto a work branch. Use before the first commit or any implementation.
+purpose: structure
 ---
 
 # Request branch

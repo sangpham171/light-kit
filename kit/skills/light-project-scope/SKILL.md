@@ -1,6 +1,7 @@
 ---
 name: light-project-scope
 description: In a multi-project workspace, decide which project(s) a request touches, load each project's own knowledge, and decide where the request's artifacts and commits go. Use first when .light-kit/projects.md exists.
+purpose: structure
 ---
 
 # Project scope

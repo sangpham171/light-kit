@@ -1,6 +1,7 @@
 ---
 name: light-triage
 description: Score a request's complexity and choose a workflow (direct, standard, full). Use at the start of every request.
+purpose: compensation
 ---
 
 # Triage

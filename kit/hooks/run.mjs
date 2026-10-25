@@ -34,7 +34,7 @@ try {
     if (!res?.message) continue;
     if (mode === 'block' && event === 'stop') stopBlock += `${res.message}\n`;
     else if (mode === 'block') denies.push(`[${check.id}] ${res.message}`);
-    else notes.push(check.id === 'session-context' ? res.message : `light-kit warning [${check.id}]: ${res.message}`);
+    else notes.push(['session-context', 'audit-reminder'].includes(check.id) ? res.message : `light-kit warning [${check.id}]: ${res.message}`);
   }
   const out = respond(ctx, { denies, notes, stopBlock: stopBlock.trim() });
   if (out.stdout) process.stdout.write(out.stdout);

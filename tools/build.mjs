@@ -1,7 +1,7 @@
 // Generator: canonical kit/ -> per-client files. Pure (no disk writes); install.mjs writes the result.
 // Client file conventions live in the CLIENTS table below — the single place to update when a client changes.
 import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const KIT_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'kit');
@@ -42,8 +42,8 @@ function load(dir) {
   });
 }
 
-function loadHooks() {
-  const base = join(KIT_DIR, 'hooks');
+function loadFiles(sub) {
+  const base = join(KIT_DIR, sub);
   const walk = (dir) => readdirSync(dir).sort().flatMap((f) => {
     const full = join(dir, f);
     return statSync(full).isDirectory() ? walk(full) : [full];
@@ -53,7 +53,8 @@ function loadHooks() {
 
 export function loadKit() {
   return {
-    hooks: loadHooks(),
+    hooks: loadFiles('hooks'),
+    audit: loadFiles('audit'),
     agents: load('agents'), skills: load('skills'), prompts: load('prompts'),
     workflows: load('workflows'), profiles: load('profiles'),
     core: load('instructions').find((d) => d.meta.name === 'core'),
@@ -75,6 +76,14 @@ export function lint(kit) {
     for (const m of s.body.matchAll(/skill:\s*([\w-]+)/g))
       if (!skills.has(m[1])) errors.push(`workflow ${s.meta.name}: unknown skill ${m[1]}`);
   }
+  // every agent, skill, command and workflow says why it exists, so the audit knows which test applies
+  const PURPOSES = ['compensation', 'preference', 'enforcement', 'structure'];
+  for (const d of [...kit.agents, ...kit.skills, ...kit.prompts, ...kit.workflows])
+    if (!PURPOSES.includes(d.meta.purpose)) errors.push(`${d.file}: purpose must be one of ${PURPOSES.join(', ')}`);
+  const rules = JSON.parse(kit.audit.find((f) => f.rel === 'rules.json').text);
+  const titles = [...kit.core.body.matchAll(/^## (.+)$/gm)].map((m) => m[1].trim()).filter((t) => t !== 'Rules');
+  const ruleTitles = [...kit.core.body.matchAll(/^\d+\. \*\*(.+?)\*\*/gm)].map((m) => `Rules: ${m[1].replace(/\.$/, '')}`);
+  for (const k of [...titles, ...ruleTitles]) if (!PURPOSES.includes(rules[k])) errors.push(`audit/rules.json: no purpose for core "${k}"`);
   return errors;
 }
 
@@ -247,6 +256,25 @@ export const CLIENT_FOLDERS = {
   codex: (has) => has('.codex') || has('.agents'),
 };
 
+// What the audit reads in an installed kit: every component with its purpose and the files generated for it.
+function auditManifest(kit, files, clients, level) {
+  const strip = (p) => basename(p).replace(/\.(agent\.md|prompt\.md|md|toml|mdc)$/, '');
+  const where = (paths, id, dirs) => paths.filter((p) => dirs.some((d) => p.includes(d)) && (basename(p) === 'SKILL.md' ? basename(dirname(p)) === id : strip(p) === id));
+  const paths = files.map((f) => f.path);
+  const comp = (type, d, dirs) => ({ type, id: d.meta.name, purpose: d.meta.purpose, description: d.meta.description, files: where(paths, d.meta.name, dirs) });
+  return {
+    generatedBy: 'light-kit', level, clients,
+    rules: JSON.parse(kit.audit.find((f) => f.rel === 'rules.json').text),
+    instructionFiles: files.filter((f) => f.block).map((f) => f.path),
+    components: [
+      ...kit.agents.map((d) => comp('agent', d, ['/agents/', '.cursor/rules/'])),
+      ...kit.skills.map((d) => comp('skill', d, ['/skills/', '.cursor/rules/'])),
+      ...kit.prompts.map((d) => comp('prompt', d, ['/commands/', '/prompts/'])),
+      ...kit.workflows.map((d) => ({ type: 'workflow', id: d.meta.name, purpose: d.meta.purpose, description: d.meta.description, files: [`${SHARED_DIR}/workflows/${d.file}.md`] })),
+    ],
+  };
+}
+
 export function build(kitIn, clients, { hooks = true, level = 'project', projects = [] } = {}) {
   const user = level === 'user';
   const kit = user ? adaptKit(kitIn) : kitIn;
@@ -288,5 +316,7 @@ export function build(kitIn, clients, { hooks = true, level = 'project', project
     }
     for (const c of clients) files.push(hookRegistration(c, level));
   }
+  files.push({ path: `${SHARED_DIR}/audit/audit.mjs`, content: `// light-kit:generated\n${kit.audit.find((f) => f.rel === 'audit.mjs').text}` });
+  files.push({ path: `${SHARED_DIR}/audit/manifest.json`, content: JSON.stringify(auditManifest(kit, files, clients, level), null, 2) + '\n', overwrite: true });
   return files;
 }

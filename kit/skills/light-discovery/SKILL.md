@@ -1,6 +1,7 @@
 ---
 name: light-discovery
 description: Explore the codebase and context for a request and write 20-discovery.md.
+purpose: compensation
 ---
 
 # Discovery

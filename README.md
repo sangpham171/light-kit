@@ -4,8 +4,16 @@ A high-level spec-driven development kit that works with any language or framewo
 
 You write agents, skills, prompts and workflows once in `kit/` (client-neutral markdown). `tools/install.mjs` generates the files each client expects.
 
+## Auditing the kit
+New models need less hand-holding, so guidance written for an older one becomes dead weight in every session. `/light-audit` reviews the kit itself and says what to shorten, merge or remove.
+- **Measure:** `node .light-kit/audit/audit.mjs` (or `node kit/audit/audit.mjs --source kit` in this repository) reports what is loaded every session versus on demand, unused skills and agents, stale references, repeated text, and the components worth testing.
+- **Judge by purpose:** every agent, skill, command, workflow and core rule is labelled `compensation` (exists because a model needed it), `structure` (process design), `preference` (your wishes) or `enforcement` (safety). Only compensation gets the necessity test; preferences and safety are never removed on model grounds.
+- **Necessity test:** a self-check, then for the costly or doubtful ones a probe: small tasks run twice in an empty folder through the client's non-interactive mode (for example `claude -p`), with and without the component. High confidence needs the probe.
+- **Result:** a report in `.light-kit/audits/<date>-<model>.md` with verdicts, evidence, confidence and tokens saved. In this repository, `/light-audit --apply` applies the high-confidence ones, one commit each; in an installed kit it never edits generated files (an upgrade would overwrite them), it only reports.
+- **When:** the session-start hook reminds you once per model when the model in use differs from the one the kit was last audited with (clients that do not report their model are skipped; turn it off with `audit.remind: false`).
+
 ## Names
-Everything your AI client lists is prefixed `light-`, so it never clashes with other frameworks: agents (`light-developer`), skills (`light-commit`), commands (`/light-init`, `/light-request`, `/light-bootstrap`, `/light-standardize`, `/light-triage`, `/light-plan`, `/light-implement`, `/light-review`, `/light-status`) and Cursor rules. The kit's own folder is `.light-kit`, and its hooks and workflows live inside it. Your project's request folders stay `specs/`. When you upgrade, the installer removes the obsolete generated files of the earlier names (only files carrying the light-kit marker; your own files are never touched).
+Everything your AI client lists is prefixed `light-`, so it never clashes with other frameworks: agents (`light-developer`), skills (`light-commit`), commands (`/light-init`, `/light-request`, `/light-bootstrap`, `/light-standardize`, `/light-triage`, `/light-plan`, `/light-implement`, `/light-review`, `/light-status`, `/light-audit`) and Cursor rules. The kit's own folder is `.light-kit`, and its hooks and workflows live inside it. Your project's request folders stay `specs/`. When you upgrade, the installer removes the obsolete generated files of the earlier names (only files carrying the light-kit marker; your own files are never touched).
 
 ## Three install levels
 | Level | Where | For |
@@ -84,4 +92,4 @@ The agent commits as it goes, so history stays reviewable (`light-commit` skill,
 Client formats change often; they are defined in one place (`CLIENTS` in `tools/build.mjs`). Copilot and Cursor have no parallel subagents here, so parallel steps run sequentially there.
 
 ## Develop
-`npm test` lints the kit (e.g. workflows reference real agents) and tests generation and install.
+`npm test` lints the kit (e.g. workflows reference real agents, every component has a `purpose`) and tests generation and install.

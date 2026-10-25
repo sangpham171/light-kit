@@ -1,6 +1,7 @@
 ---
 name: light-request
 description: Start a new request. Triage it and run the matching workflow end to end.
+purpose: structure
 argument-hint: "<what you want> [--workflow direct|standard|full] [--review-turns N]"
 ---
 

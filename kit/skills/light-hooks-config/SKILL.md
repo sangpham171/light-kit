@@ -1,6 +1,7 @@
 ---
 name: light-hooks-config
 description: Adapt the safety hooks to this project by filling .light-kit/hooks.config.json from what the project actually uses.
+purpose: structure
 ---
 
 # Hooks config

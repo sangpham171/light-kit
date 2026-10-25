@@ -1,6 +1,7 @@
 ---
 name: light-commit
 description: Commit work in small coherent units at every checkpoint (validated artifact, completed plan task, review fix). Use whenever a checkpoint in the workflow is reached.
+purpose: preference
 ---
 
 # Commit

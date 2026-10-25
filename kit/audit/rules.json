@@ -1,0 +1,22 @@
+{
+  "intro": "structure",
+  "Rules: Spec first": "structure",
+  "Rules: Triage every request": "structure",
+  "Rules: Artifacts live in `specs/<NNN-slug>/`": "structure",
+  "Rules: Follow project conventions": "structure",
+  "Rules: Small, verifiable steps": "compensation",
+  "Rules: Record decisions": "structure",
+  "Rules: Never invent facts": "compensation",
+  "Rules: Know where the work starts, and never work on a protected branch": "structure",
+  "Rules: Finish properly": "structure",
+  "Rules: Decide, don't ask": "preference",
+  "Rules: Clean commit messages": "preference",
+  "Rules: Commit at every checkpoint": "preference",
+  "Communication (saves tokens)": "preference",
+  "Roles": "structure",
+  "Agents": "structure",
+  "Commands": "structure",
+  "Project knowledge": "structure",
+  "Safety hooks": "enforcement",
+  "Kit files": "structure"
+}

@@ -1,6 +1,7 @@
 ---
 name: light-reviewer
 description: Reviews the implementation for correctness, spec fit, conventions and maintainability.
+purpose: structure
 tools: [read, search]
 writes: review notes appended to 50-implementation.md
 ---

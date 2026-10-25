@@ -1,6 +1,7 @@
 ---
 name: light-product-owner
 description: Clarifies the why: goals, users, value, scope and priorities. Writes the product intent and acceptance outcomes.
+purpose: structure
 tools: [read, write]
 writes: 10-understanding.md (product section)
 ---

@@ -1,6 +1,7 @@
 ---
 name: light-tech-lead
 description: Turns requirements and design into an ordered, verifiable implementation plan and guards technical quality.
+purpose: structure
 tools: [read, write]
 writes: 40-plan.md
 ---

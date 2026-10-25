@@ -1,6 +1,7 @@
 ---
 name: light-spec-writing
 description: Write clear, testable specs and plans (requirements, acceptance criteria, task lists).
+purpose: compensation
 ---
 
 # Spec writing

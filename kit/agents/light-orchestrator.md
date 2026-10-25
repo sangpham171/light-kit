@@ -1,6 +1,7 @@
 ---
 name: light-orchestrator
 description: Runs a request end to end: creates the request folder, triages, picks a workflow and invokes the other agents in sequence or in parallel.
+purpose: structure
 tools: [read, write, execute]
 writes: status.md, 10-understanding.md, 60-conclusion.md
 ---

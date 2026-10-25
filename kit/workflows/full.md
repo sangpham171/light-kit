@@ -1,6 +1,7 @@
 ---
 name: full
 description: Complex, ambiguous or risky requests. Clarify, discover, design, plan, implement and review in depth.
+purpose: structure
 ---
 
 # Workflow: full

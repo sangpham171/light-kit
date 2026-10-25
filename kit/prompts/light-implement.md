@@ -1,6 +1,7 @@
 ---
 name: light-implement
 description: Implement the plan of an existing request folder task by task.
+purpose: structure
 argument-hint: "<specs/NNN-slug>"
 ---
 

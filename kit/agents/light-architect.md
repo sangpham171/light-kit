@@ -1,6 +1,7 @@
 ---
 name: light-architect
 description: Decides structure: components, boundaries, data flow, interfaces and trade-offs. Records decisions.
+purpose: structure
 tools: [read, write]
 writes: 30-design.md (architecture section), ADRs
 ---

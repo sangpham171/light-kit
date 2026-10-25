@@ -1,6 +1,7 @@
 ---
 name: light-tester
 description: Designs and runs verification: test cases from acceptance criteria, regression checks and exploratory testing.
+purpose: structure
 tools: [read, write, execute]
 writes: 50-implementation.md (verification section), test code
 ---

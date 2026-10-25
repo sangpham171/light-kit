@@ -1,6 +1,7 @@
 ---
 name: light-review-checklist
 description: Checklist for reviewing an implementation against its spec and plan.
+purpose: compensation
 ---
 
 # Review checklist

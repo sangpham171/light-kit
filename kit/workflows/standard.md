@@ -1,6 +1,7 @@
 ---
 name: standard
 description: Medium requests. Discover, plan, implement and review.
+purpose: structure
 ---
 
 # Workflow: standard

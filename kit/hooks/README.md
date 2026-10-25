@@ -12,6 +12,7 @@ Automatic guardrails that run inside your AI client. One script (`run.mjs`) serv
 | `protect-paths` | before a write or mutating command | block | Version-control internals, hook files, and paths you declare protected. |
 | `protect-branches` | before a shell command | block | No `git commit`, `merge`, `cherry-pick` or `revert` on a protected branch (`main`, `master`, `trunk`, `develop`, `production`, `release/*`, the remote default, plus yours). Work on a branch instead. |
 | `clean-commit-message` | before a shell command | block | No AI attribution in commit messages or pull request text (`Co-Authored-By` an assistant, "Generated with …" credits, AI sign-offs), also when the message comes from a file. Human co-authors are fine. |
+| `audit-reminder` | session start | warn | Once per model: when the model in use differs from the one the kit was last audited with, suggest running `light-audit`. Silent for clients that do not report a model. |
 | `require-spec` | before a write | warn | Remind the agent to start a request before changing code. |
 | `post-edit-quality` | after a write | warn | Run your format and lint commands on the edited file. |
 | `warn-secret-output` | after a tool | warn | Tell the agent when output contains a secret. |
@@ -39,6 +40,7 @@ Edit `.light-kit/hooks.config.json` (the `light-init` command does this for you,
 | `branches.protected` | globs for more protected branches |
 | `commit.extraForbiddenText` | extra regexes that must not appear in commit or PR text |
 | `commit.maxUncommittedFiles` | uncommitted-file count that triggers the commit reminder (default 8) |
+| `audit.remind` | `false` stops the once-per-model audit reminder |
 | `audit.file` | log location |
 
 Globs without `/` match file names anywhere; globs with `/` match from the project root.

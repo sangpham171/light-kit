@@ -35,7 +35,7 @@ This project uses **light-kit**. Work is organised per request, and every reques
 Agents available: light-orchestrator, light-product-owner, light-business-analyst, light-ux-designer, light-architect, light-tech-lead, light-developer, light-tester, light-reviewer, light-security-reviewer, light-tech-writer. Invoke any manually, or let the orchestrator run a workflow.
 
 ## Commands
-`light-init`, `light-bootstrap` (new projects), `light-standardize` (apply the init assessment items), `light-request`, `light-triage`, `light-plan`, `light-implement`, `light-review`, `light-status`.
+`light-init`, `light-bootstrap` (new projects), `light-standardize` (apply the init assessment items), `light-request`, `light-triage`, `light-plan`, `light-implement`, `light-review`, `light-status`, `light-audit` (after a model upgrade: find guidance the model no longer needs).
 
 ## Project knowledge
 - `.light-kit/project-profile.md` — languages, frameworks, build/test commands, conventions, constraints. Written by `light-init`, never overwritten by upgrades.

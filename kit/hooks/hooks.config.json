@@ -7,6 +7,7 @@
     "protect-paths": "block",
     "protect-branches": "block",
     "clean-commit-message": "block",
+    "audit-reminder": "warn",
     "require-spec": "warn",
     "post-edit-quality": "warn",
     "warn-secret-output": "warn",
@@ -24,5 +25,5 @@
   "verify": { "command": "", "timeoutSec": 300 },
   "branches": { "protected": [] },
   "commit": { "maxUncommittedFiles": 8, "extraForbiddenText": [] },
-  "audit": { "file": ".light-kit/audit.log" }
+  "audit": { "file": ".light-kit/audit.log", "remind": true }
 }

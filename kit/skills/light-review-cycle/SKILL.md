@@ -1,6 +1,7 @@
 ---
 name: light-review-cycle
 description: The review and fix loop between reviewer and developer: finding format, what the developer must fix, how many turns to run, when to stop, and what to escalate.
+purpose: structure
 ---
 
 # Review cycle

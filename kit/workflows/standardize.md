@@ -1,6 +1,7 @@
 ---
 name: standardize
 description: Apply the minor standardization items from the assessment backlog, one verified commit per item, without changing behavior.
+purpose: structure
 ---
 
 # Workflow: standardize
