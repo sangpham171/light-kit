@@ -26,6 +26,7 @@ Agents available: orchestrator, product-owner, business-analyst, ux-designer, ar
 
 ## Project knowledge
 - `.light-kit/project-profile.md` — languages, frameworks, build/test commands, conventions, constraints. Written by `init`, never overwritten by upgrades.
+- `.light-kit/projects.md` — present only in a multi-project workspace: the registry of projects. Apply the `project-scope` skill first; each project keeps its own `.light-kit/` profile, map and hooks config, which override the workspace defaults. Never mix the conventions of different projects.
 - `.light-kit/hooks.config.json` — tunes the safety hooks (see below). Written by `init`, never overwritten by upgrades.
 - `.light-kit/codebase-map.md` — structure of an existing codebase, written by `init` in adopt mode. Read it before discovery; update it when the structure changes.
 

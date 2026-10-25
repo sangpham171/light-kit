@@ -9,7 +9,7 @@ Read `00-request.md` and the relevant code, then score each criterion 0–2.
 
 | Criterion | 0 | 1 | 2 |
 |---|---|---|---|
-| Scope | one file or function | one component | several components or services |
+| Scope | one file or function | one component | several components or services, or more than one project |
 | Ambiguity | clear, testable outcome | some gaps you can fill with sensible defaults | goals, users or rules unclear |
 | Risk | internal, easily reverted | user-visible or touches data | security, money, migrations, public API |
 | Novelty | pattern already in the codebase | variation of an existing pattern | new capability, dependency or architecture |

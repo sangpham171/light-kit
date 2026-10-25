@@ -33,6 +33,9 @@ If a task turns out too large for one coherent commit, split the task in the pla
 5. **Never push.** Pushing is the user's decision.
 6. Report the short hash and subject in `50-implementation.md`.
 
+## Workspaces
+Commit in the repository that owns the files, and never in one commit across two repositories. A cross-project request therefore produces commits in several repositories, each on its own work branch, in the order the plan gives. The request folder is committed in the repository that contains it.
+
 ## Examples
 - `docs(spec): clarify and approve request 007-export-report`
 - `docs(plan): plan request 007-export-report (6 tasks)`

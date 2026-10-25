@@ -1,0 +1,9 @@
+{
+  "sensitive": { "extraFiles": [], "allow": [], "extraEnvKeywords": [] },
+  "secrets": { "extraPatterns": [] },
+  "commands": { "extraDeny": [], "allow": [] },
+  "protect": { "paths": [] },
+  "spec": { "exempt": [] },
+  "quality": { "format": "", "lint": "" },
+  "verify": { "command": "" }
+}

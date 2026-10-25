@@ -105,8 +105,8 @@ const PARALLEL_NOTE = {
 };
 
 // Core instructions + pointers to the shared folder; goes in a marked block of the client's instruction file.
-export function instructionBlock(kit, client) {
-  return `${START}\n${kit.core.body.trimEnd()}\n\n## Kit files\nWorkflows: \`${SHARED_DIR}/workflows/\` · Artifact templates: \`${SHARED_DIR}/templates/\` · Init profiles: \`${SHARED_DIR}/profiles/\` · Project profile: \`${SHARED_DIR}/project-profile.md\`${PARALLEL_NOTE[client]}${END}\n`;
+export function instructionBlock(kit, client, shared = SHARED_DIR) {
+  return `${START}\n${kit.core.body.trimEnd()}\n\n## Kit files\nWorkflows: \`${shared}/workflows/\` · Artifact templates: \`${shared}/templates/\` · Init profiles: \`${shared}/profiles/\` · Project profile: \`${SHARED_DIR}/project-profile.md\`${PARALLEL_NOTE[client]}${END}\n`;
 }
 
 const agentList = (kit) => kit.agents.map((a) => `- **${a.meta.name}** — ${a.meta.description}`).join('\n');
@@ -176,19 +176,20 @@ const HOOK_CLIENTS = {
   copilot: { path: '.github/hooks/light-kit.json', shape: 'copilot', prefix: '', names: { 'pre-tool': 'preToolUse', 'post-tool': 'postToolUse', prompt: 'userPromptSubmitted', 'session-start': 'sessionStart' } },
 };
 
-export function hookRegistration(client) {
+export function hookRegistration(client, level = 'project') {
   const c = HOOK_CLIENTS[client];
+  const prefix = level === 'user' ? '"$HOME"/' : c.prefix;
   const hooks = {};
   for (const ev of EVENTS) {
     const name = c.names[ev];
     if (!name) continue;
-    const command = `node ${c.prefix}${HOOK_MARK} --client ${client} --event ${ev}`;
+    const command = `node ${prefix}${HOOK_MARK} --client ${client} --event ${ev}`;
     const matcher = ev === 'pre-tool' ? TOOL_MATCH[client]?.pre : ev === 'post-tool' ? TOOL_MATCH[client]?.post : undefined;
     if (c.shape === 'grouped') hooks[name] = [{ ...(matcher && { matcher }), hooks: [{ type: 'command', command, timeout: 60 }] }];
     else if (c.shape === 'flat') hooks[name] = [{ command, ...(matcher && { matcher }), timeout: 60 }];
     else hooks[name] = [{ type: 'command', command, timeoutSec: 60 }];
   }
-  return { path: c.path, hooks: { ...(c.shape !== 'grouped' && { version: 1 }), hooks } };
+  return { path: level === 'user' ? USER_PATHS[client](c.path) : c.path, hooks: { ...(c.shape !== 'grouped' && { version: 1 }), hooks } };
 }
 
 // Merge our entries into a client's hooks JSON, keeping the user's own hooks. Replaces any earlier light-kit entries.
@@ -204,32 +205,85 @@ export function mergeHooks(existingText, desired) {
   return JSON.stringify(cur, null, 2) + '\n';
 }
 
-export function build(kit, clients, { hooks = true } = {}) {
+// ---------- user level (the kit installed once in the home folder, for every project) ----------
+// Where each client reads user-wide files. null = no user-level equivalent, so the file is not installed.
+const USER_PATHS = {
+  claude: (p) => (p === 'CLAUDE.md' ? '.claude/CLAUDE.md' : p),
+  copilot: (p) => {
+    if (p.startsWith('.github/prompts/')) return null;
+    if (p === '.github/copilot-instructions.md') return '.copilot/copilot-instructions.md';
+    return p.replace(/^\.github\/(agents|skills|hooks)\//, '.copilot/$1/');
+  },
+  cursor: (p) => (p.startsWith('.cursor/rules/') ? null : p),
+  codex: (p) => (p === 'AGENTS.md' ? '.codex/AGENTS.md' : p),
+};
+export const USER_NOTES = {
+  copilot: 'Copilot: prompt files are not installed at user level (VS Code keeps them in its own profile folder); agents, skills, instructions and hooks are.',
+  cursor: 'Cursor: user rules live in its settings, not in files, so only commands and hooks are installed globally. Use a project-level install to get agent roles and skills as rules.',
+};
+export const USER_CLIENT_FOLDERS = {
+  claude: (has) => has('.claude'),
+  copilot: (has) => has('.copilot'),
+  cursor: (has) => has('.cursor'),
+  codex: (has) => has('.codex') || has('.agents'),
+};
+export const USER_SHARED = '~/.light-kit';
+
+// Shared kit files sit in ~/.light-kit at user level; project knowledge stays in each project's own .light-kit.
+const adaptText = (t) => t.replace(/(?<![~\w/])\.light-kit\/(workflows|templates|profiles)\b/g, `${USER_SHARED}/$1`);
+const adaptDocs = (list) => list.map((d) => ({ ...d, body: adaptText(d.body) }));
+export function adaptKit(kit) {
+  return { ...kit, agents: adaptDocs(kit.agents), skills: adaptDocs(kit.skills), prompts: adaptDocs(kit.prompts), workflows: adaptDocs(kit.workflows), profiles: adaptDocs(kit.profiles), core: { ...kit.core, body: adaptText(kit.core.body) } };
+}
+
+// Seed files are written once and never overwritten: they hold knowledge that people and `init` fill in.
+export const CLIENT_FOLDERS = {
+  claude: (has) => has('.claude') || has('CLAUDE.md'),
+  cursor: (has) => has('.cursor'),
+  copilot: (has) => ['.github/copilot-instructions.md', '.github/agents', '.github/prompts', '.github/instructions', '.github/hooks'].some(has),
+  codex: (has) => has('.codex') || has('.agents'),
+};
+
+export function build(kitIn, clients, { hooks = true, level = 'project', projects = [] } = {}) {
+  const user = level === 'user';
+  const kit = user ? adaptKit(kitIn) : kitIn;
   const unknown = clients.filter((c) => !CLIENTS[c]);
   if (unknown.length) throw new Error(`unknown client(s): ${unknown.join(', ')} (known: ${CLIENT_NAMES.join(', ')})`);
   const files = [];
   // Shared by every client.
   for (const s of kit.workflows) files.push({ path: `${SHARED_DIR}/workflows/${s.file}.md`, content: `${GENERATED}\n\n${s.body.trimEnd()}\n` });
   for (const p of kit.profiles) files.push({ path: `${SHARED_DIR}/profiles/${p.file}.md`, content: `${GENERATED}\n\n${p.body.trimEnd()}\n` });
-  for (const t of kit.templates) {
-    if (t.file === 'project-profile.md') continue;
-    files.push({ path: `${SHARED_DIR}/templates/${t.file}`, content: t.text });
-  }
+  // Every template is kept in the shared folder: `init` seeds a project's own files from them.
+  for (const t of kit.templates) files.push({ path: `${SHARED_DIR}/templates/${t.file}`, content: t.text, seed: true });
   // Seed only: no generated marker, so the installer never overwrites it once init has filled it in.
-  const seed = kit.templates.find((t) => t.file === 'project-profile.md');
-  files.push({ path: `${SHARED_DIR}/project-profile.md`, content: seed.text });
+  // (At user level there is no single project, so `init` creates each project's profile from the template.)
+  if (!user) files.push({ path: `${SHARED_DIR}/project-profile.md`, content: kit.templates.find((t) => t.file === 'project-profile.md').text, seed: true });
+  if (level === 'workspace') {
+    const tpl = (name) => kit.templates.find((t) => t.file === name).text;
+    const rows = projects.map((x) => `| ${x.path.split('/').pop()} | ${x.path} | <to fill> | <to fill> | ${x.repo ? 'yes' : 'no'} | <to fill> |`).join('\n');
+    files.push({ path: `${SHARED_DIR}/projects.md`, content: tpl('projects.md').trimEnd() + (rows ? `\n${rows}` : '') + '\n', seed: true });
+    for (const x of projects) {
+      files.push({ path: `${x.path}/${SHARED_DIR}/project-profile.md`, content: tpl('project-profile.md'), seed: true });
+      files.push({ path: `${x.path}/${SHARED_DIR}/hooks.config.json`, content: tpl('project-hooks.config.json'), seed: true });
+    }
+  }
   // AGENTS.md is read by Copilot, Cursor and Codex; Claude Code uses CLAUDE.md.
+  const shared = user ? USER_SHARED : SHARED_DIR;
   const agentsClient = clients.find((c) => c !== 'claude') ?? 'codex';
-  if (clients.some((c) => c !== 'claude'))
-    files.push({ path: 'AGENTS.md', block: `${instructionBlock(kit, agentsClient).replace(END, '')}\n## Agents\n${agentList(kit)}\n${END}` });
-  for (const c of clients) files.push(...CLIENTS[c](kit));
+  const agentsBlock = { block: `${instructionBlock(kit, agentsClient, shared).replace(END, '')}\n## Agents\n${agentList(kit)}\n${END}` };
+  if (user) { if (clients.includes('codex')) files.push({ path: USER_PATHS.codex('AGENTS.md'), ...agentsBlock }); } // only Codex reads a global AGENTS.md
+  else if (clients.some((c) => c !== 'claude')) files.push({ path: 'AGENTS.md', ...agentsBlock });
+  for (const c of clients) {
+    const own = CLIENTS[c](kit).map((f) => (f.block ? { ...f, block: instructionBlock(kit, c, shared) } : f));
+    files.push(...(user ? own.map((f) => ({ ...f, path: USER_PATHS[c](f.path) })).filter((f) => f.path) : own));
+  }
   if (hooks) {
     for (const h of kit.hooks) {
-      if (h.rel === 'hooks.config.json') files.push({ path: `${SHARED_DIR}/hooks.config.json`, content: h.text }); // seed: never overwritten
+      if (h.rel === 'hooks.config.json') files.push({ path: `${SHARED_DIR}/hooks.config.json`, content: h.text, seed: true }); // seed: never overwritten
       else if (h.rel.endsWith('.md')) files.push({ path: `${SHARED_DIR}/hooks/${h.rel}`, content: `${GENERATED}\n\n${h.text.trimEnd()}\n` });
       else files.push({ path: `${SHARED_DIR}/hooks/${h.rel}`, content: `// light-kit:generated\n${h.text}` });
     }
-    for (const c of clients) files.push(hookRegistration(c));
+    for (const c of clients) files.push(hookRegistration(c, level));
   }
   return files;
 }

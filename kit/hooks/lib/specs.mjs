@@ -15,4 +15,23 @@ export function listRequests(root) {
   });
 }
 
-export const activeRequests = (root) => listRequests(root).filter((r) => r.understood && r.state !== 'done');
+export const activeRequests = (...dirs) =>
+  [...new Set(dirs)].flatMap((home) => listRequests(home).filter((r) => r.understood && r.state !== 'done').map((r) => ({ ...r, home })));
+
+// Directories (below the root, a few levels deep) that carry their own .light-kit: the workspace's projects.
+export function listProjectDirs(root, depth = 3) {
+  const found = [];
+  const walk = (dir, d) => {
+    if (d > depth || found.length >= 200) return;
+    let entries = [];
+    try { entries = readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const e of entries) {
+      if (!e.isDirectory() || e.name.startsWith('.')) continue;
+      const full = join(dir, e.name);
+      if (existsSync(join(full, '.light-kit'))) found.push(full);
+      walk(full, d + 1);
+    }
+  };
+  walk(root, 1);
+  return found;
+}

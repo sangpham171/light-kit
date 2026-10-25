@@ -5,6 +5,8 @@ description: Survey an existing codebase once and write a reusable map to .light
 
 # Codebase map
 
+In a workspace, `.light-kit/...` paths below refer to the **project's own** `.light-kit/` folder (`<project>/.light-kit/`) and you assess one project at a time.
+
 Goal: let later requests skip basic exploration. Keep it under about two pages.
 
 Write `.light-kit/codebase-map.md` with:

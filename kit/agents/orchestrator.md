@@ -9,7 +9,7 @@ writes: status.md, 10-understanding.md, 60-conclusion.md
 
 Own the lifecycle of a request.
 
-1. Create `specs/<NNN-slug>/` and save the user's words verbatim in `00-request.md`. Then apply the `request-branch` skill: record `base_branch`, `base_commit` and `work_branch` in `status.md`, and if you are on a protected branch, switch to a new work branch **before any commit or implementation**.
+1. If the workspace has `.light-kit/projects.md`, apply the `project-scope` skill first: pick the project(s) and the folder where the request lives. Then create `specs/<NNN-slug>/` there and save the user's words verbatim in `00-request.md`. Then apply the `request-branch` skill: record `base_branch`, `base_commit` and `work_branch` in `status.md`, and if you are on a protected branch, switch to a new work branch **before any commit or implementation**.
 2. Write `10-understanding.md` (your restatement, assumptions, open questions), then apply the `triage` skill.
 3. Load the chosen workflow from the workflows folder and execute its steps in order. Steps in a `parallel` group are launched together when the client supports subagents, otherwise one after another.
 4. After each step, update `status.md` (current step, workflow, blockers).

@@ -25,3 +25,15 @@ export function gitSubcommand(w) {
   while (i < w.length && w[i].startsWith('-')) i += ['-C', '-c'].includes(w[i]) ? 2 : 1;
   return w[i] ?? '';
 }
+
+// Directory given with "git -C <dir>", if any.
+export function gitDirArg(w) {
+  const i = w.indexOf('-C');
+  return w[0] === 'git' && i > 0 ? w[i + 1] : '';
+}
+
+export const inRepo = (dir) => git(dir, ['rev-parse', '--is-inside-work-tree']).status === 0;
+export const changedFiles = (dir) => {
+  const r = git(dir, ['status', '--porcelain', '--', '.']);
+  return r.status === 0 ? r.stdout.split('\n').filter(Boolean).length : -1; // -1: not a repository
+};

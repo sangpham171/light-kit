@@ -1,14 +1,23 @@
 import { existsSync } from 'node:fs';
-import { join } from 'node:path';
-import { activeRequests } from '../lib/specs.mjs';
+import { join, relative } from 'node:path';
+import { activeRequests, listProjectDirs } from '../lib/specs.mjs';
 
 export default {
   id: 'session-context',
   events: ['session-start'],
-  run(ctx) {
+  run(ctx, cfg) {
+    if (ctx.userLevel && !ctx.kitEnabled) {
+      return cfg.suggestInit ? { message: 'light-kit is installed for your user but not set up in this project. Safety hooks apply here. To enable specs, the profile and the commit and branch workflow, run the `init` command.' } : null;
+    }
     const lines = [];
-    if (existsSync(join(ctx.root, '.light-kit', 'project-profile.md'))) lines.push('light-kit: read .light-kit/project-profile.md before working' + (existsSync(join(ctx.root, '.light-kit', 'codebase-map.md')) ? ' and .light-kit/codebase-map.md for the structure.' : '.'));
-    for (const r of activeRequests(ctx.root)) lines.push(`Active request specs/${r.name}${r.workflow ? ` (${r.workflow} workflow)` : ''}: step ${r.step || 'unknown'}, state ${r.state || 'unknown'}${r.work_branch ? `, branch ${r.work_branch}` : ''}${r.base_commit && r.base_commit !== 'none' ? ` (started at ${r.base_commit.slice(0, 8)})` : ''}.`);
+    const kit = (dir, file) => existsSync(join(dir, '.light-kit', file));
+    if (kit(ctx.root, 'projects.md')) lines.push('light-kit: this is a multi-project workspace. Read .light-kit/projects.md, then apply the `project-scope` skill to pick the project(s) before working; each project has its own .light-kit/ profile and map.');
+    else if (kit(ctx.root, 'project-profile.md')) lines.push('light-kit: read .light-kit/project-profile.md before working' + (kit(ctx.root, 'codebase-map.md') ? ' and .light-kit/codebase-map.md for the structure.' : '.'));
+    const projects = listProjectDirs(ctx.root);
+    for (const r of activeRequests(ctx.root, ...projects)) {
+      const where = join(relative(ctx.root, r.home), 'specs', r.name);
+      lines.push(`Active request ${where}${r.workflow ? ` (${r.workflow} workflow)` : ''}: step ${r.step || 'unknown'}, state ${r.state || 'unknown'}${r.work_branch ? `, branch ${r.work_branch}` : ''}${r.base_commit && r.base_commit !== 'none' ? ` (started at ${r.base_commit.slice(0, 8)})` : ''}.`);
+    }
     return lines.length ? { message: lines.join('\n') } : null;
   },
 };

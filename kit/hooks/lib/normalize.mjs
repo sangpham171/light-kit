@@ -1,7 +1,9 @@
 // Normalise each client's hook payload into one shape:
 // { client, event, root, rel(p), tool:{name,kind}, files[], command, text, output, prompt, stopActive }
-import { resolve, relative, isAbsolute } from 'node:path';
-import { findRoot } from './config.mjs';
+import { resolve, relative, isAbsolute, dirname } from 'node:path';
+import { existsSync, statSync } from 'node:fs';
+import { locate } from './config.mjs';
+import { realish } from './paths.mjs';
 
 const KINDS = {
   shell: ['bash', 'powershell', 'shell', 'sh', 'local_shell', 'run_terminal_cmd', 'terminal'],
@@ -33,9 +35,16 @@ const allStrings = (v, out = []) => {
 const patchPaths = (text) =>
   [...text.matchAll(/^\*\*\* (?:Add|Update|Delete) File: (.+)$/gm), ...text.matchAll(/^\+\+\+ (?:b\/)?(\S+)/gm)].map((m) => m[1].trim());
 
-export function normalize(client, event, p) {
-  const cwd = process.env.CLAUDE_PROJECT_DIR || p.cwd || p.workspace_roots?.[0] || process.cwd();
-  const root = findRoot(cwd);
+const existingDir = (p) => {
+  let d = p;
+  while (!existsSync(d)) { const up = dirname(d); if (up === d) break; d = up; }
+  try { return statSync(d).isDirectory() ? d : dirname(d); } catch { return d; }
+};
+
+// kitHome = where the kit is installed. root/scope/layers come from locate(); workDir = real folder for git/commands.
+export function normalize(client, event, p, installRoot) {
+  const kitHome = realish(installRoot);
+  const cwd = realish(p.cwd || p.workspace_roots?.[0] || process.cwd());
   let input = p.tool_input ?? p.toolArgs ?? {};
   if (typeof input === 'string') { try { input = JSON.parse(input); } catch { input = { command: input }; } }
   const name = p.tool_name ?? p.toolName ?? '';
@@ -46,9 +55,13 @@ export function normalize(client, event, p) {
   if (p.file_path) files.add(p.file_path);
   const cmd = input?.command ?? p.command;
   const out = p.tool_response ?? p.tool_result ?? p.toolResult ?? p.tool_output ?? '';
+  const first = [...files][0] ? realish(resolve(cwd, [...files][0])) : '';
+  const workDir = existingDir(first ? dirname(first) : cwd);
+  const { root, scope, layers, kitEnabled, userLevel } = locate(kitHome, first ? dirname(first) : cwd);
   return {
-    client, event, root, payload: p,
-    rel: (f) => { const abs = resolve(root, f); const r = relative(root, abs); return r.startsWith('..') || isAbsolute(r) ? abs : r; },
+    client, event, kitHome, root, scope, layers, kitEnabled, userLevel, payload: p, cwd, workDir,
+    layersFor: (dir) => locate(kitHome, dir).layers,
+    rel: (f) => { const abs = realish(resolve(cwd, f)); const r = relative(root, abs); return r.startsWith('..') || isAbsolute(r) ? abs : r; },
     tool: { name, kind },
     files: [...files],
     command: Array.isArray(cmd) ? cmd.join(' ') : typeof cmd === 'string' ? cmd : '',

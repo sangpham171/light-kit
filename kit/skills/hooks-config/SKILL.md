@@ -7,6 +7,12 @@ description: Adapt the safety hooks to this project by filling .light-kit/hooks.
 
 The hooks ship with stack-neutral defaults. Your job is to add what is specific to **this** project, discovered from the repo, never guessed. Edit only `.light-kit/hooks.config.json`; never edit the hook scripts.
 
+## Layers
+Hook settings stack from the outside in: your user-wide `~/.light-kit/hooks.config.json` (only when the kit is installed for your user), then a workspace's, then the project's. Lists add up; the nearer layer wins for modes and commands. A project's file only needs what is specific to that project.
+
+## Workspaces (several projects)
+Config is layered: `.light-kit/hooks.config.json` at the workspace root holds what applies to **every** project (secret-looking content, protected branches, commit reminders, modes). Each project's `<project>/.light-kit/hooks.config.json` holds what is specific to **its** stack (its sensitive files, secret variable names, generated paths, format / lint / verify commands). Lists add up; the nearer layer wins for modes and commands. Fill each project's file from that project only; never copy one project's entries into another. Paths and globs in a project file are relative to the workspace root, so prefix them with the project folder.
+
 ## Discover, then fill
 Ask yourself each question, answer it from the repo (manifests, scripts, CI, docs, ignore files), and confirm uncertain answers with the user.
 

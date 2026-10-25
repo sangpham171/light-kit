@@ -5,6 +5,8 @@ description: For an existing project, assess what is good and where it deviates 
 
 # Project assessment
 
+In a workspace, `.light-kit/...` paths below refer to the **project's own** `.light-kit/` folder (`<project>/.light-kit/`) and you assess one project at a time.
+
 Goal: help the project become **consistent with itself**. The standard is what the project already does and documents, not what you or this kit would prefer. Never propose refactors or breaking changes.
 
 ## 1. Find the project's standards

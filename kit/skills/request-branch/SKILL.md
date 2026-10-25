@@ -28,6 +28,11 @@ Reviewers use `base_commit` to find exactly what this request changed: `git log 
 
 Tell the user in one line which branch you created or kept, and the base commit's short hash.
 
+## Several repositories
+In a workspace the request may touch projects that are separate repositories. Do steps 1 and 2 **in each repository involved** (find it with `git -C <project> rev-parse --show-toplevel`; projects sharing a repository count once). One repository: use the plain fields above. Several: replace the three fields with one line of JSON in `status.md`:
+`repos: {"api": {"base_branch": "main", "base_commit": "<hash>", "work_branch": "feat/007-x"}, "web": {...}}`
+keyed by the repository's folder relative to the workspace. Create the work branch in every repository that will receive commits, using the same branch name.
+
 ## 3. Resuming
 When continuing an existing request, read `status.md`. If the current branch is not `work_branch`, switch to it when the working tree is clean; if it is not clean, ask the user.
 
