@@ -7,6 +7,8 @@
 ## Conventions (structure, naming, style, commit and branch rules)
 ## Constraints (compliance, performance, hosting, team rules)
 ## Testing policy
+## Review cycle
+Review turns: 1       <!-- developer-reviewer turns: one turn = a review, then the developer fixes the findings. Integer >= 1. Default 1. A request can override with --review-turns N -->
 ## Commit policy
 Mode: auto            <!-- auto = commit at each checkpoint, ask = propose first, off = never commit -->
 Branch convention: <type>/<NNN-slug>   <!-- type = feat, fix, docs, chore, refactor -->

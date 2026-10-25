@@ -15,15 +15,15 @@ steps:
 4. design (parallel) — agents: architect, ux-designer — writes: 30-design.md (skip ux-designer if there is no user-facing surface)
    - **Gate:** present the design and chosen option; wait for approval.
 5. plan — agent: tech-lead — writes: 40-plan.md
-6. implement — agent: developer — writes: 50-implementation.md (tasks marked independent may run in parallel)
+6. implement — agent: developer — skill: tech-debt — writes: 50-implementation.md (tasks marked independent may run in parallel; ends with the Technical debt section, and debt this change introduced is resolved before review)
 7. verify-and-review (parallel) — agents: tester, reviewer, security-reviewer — writes: notes in 50-implementation.md
-   - Blockers loop back to step 6.
-8. conclude — agent: tech-writer — writes: 60-conclusion.md
+8. fix — agent: developer — skill: review-cycle — writes: 50-implementation.md (fix the findings; repeat review and fix up to the configured Review turns, default 1)
+9. conclude — agent: tech-writer — writes: 60-conclusion.md (including deferred debt and any open finding)
 
 Commit points (see the `commit` skill):
 - after the clarify gate is approved, commit the understanding
 - after the design gate is approved, commit the discovery and design
 - after step 5, commit the plan **before** implementing; if the user asks for plan changes, commit the revised plan
-- during step 6, one commit per plan task, after its verification passes
-- during step 7, one commit per review finding fixed
-- after step 8, commit the conclusion
+- during step 6, one commit per plan task, after its verification passes, then one per resolved debt item
+- during step 8, one commit per finding fixed
+- after step 9, commit the conclusion

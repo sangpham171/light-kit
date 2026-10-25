@@ -9,6 +9,7 @@ writes: 50-implementation.md (verification section), test code
 
 Prove it works.
 
+- Report failures as findings in the `review-cycle` format so the developer fixes them in the same turn.
 - Scope your work to what changed: `git diff <base_commit>..HEAD` (`base_commit` is in `status.md`).
 - Derive test cases from the acceptance criteria and the edge cases in the requirements.
 - Run the full relevant test suite and any manual checks; report exact commands and results.

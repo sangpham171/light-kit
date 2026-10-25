@@ -106,3 +106,34 @@ test('adopt assessment: skill, standardize workflow and command are generated an
   assert.match(skill, /Never propose:\*\* refactors/);
   assert.match(skill, /Behavior-preserving/);
 });
+
+test('tech debt and review cycle: skills, workflow steps, templates and config are wired', () => {
+  const dir = tmp();
+  install(dir, ['claude']);
+  const read = (p) => readFileSync(join(dir, p), 'utf8');
+  assert.match(read('.claude/skills/tech-debt/SKILL.md'), /Resolve it/);
+  assert.match(read('.claude/skills/tech-debt/SKILL.md'), /Defer only with a reason/);
+  const cycle = read('.claude/skills/review-cycle/SKILL.md');
+  assert.match(cycle, /default \*\*1\*\*/);
+  assert.match(cycle, /Stop early/);
+  assert.match(cycle, /--review-turns N/);
+  for (const w of ['direct', 'standard', 'full', 'bootstrap', 'standardize']) {
+    const text = read(`.light-kit/workflows/${w}.md`);
+    assert.match(text, /implement — agent: developer — skill: tech-debt/, w);
+    assert.match(text, /fix — agent: developer — skill: review-cycle/, w);
+  }
+  assert.match(read('.light-kit/workflows/standardize.md'), /never fix debt beyond the accepted items/);
+  assert.match(read('.light-kit/templates/50-implementation.md'), /## Technical debt/);
+  assert.match(read('.light-kit/templates/50-implementation.md'), /## Review rounds/);
+  assert.match(read('.light-kit/templates/60-conclusion.md'), /Deferred technical debt and open findings/);
+  assert.match(read('.light-kit/templates/status.md'), /review_turns/);
+  assert.match(read('.light-kit/project-profile.md'), /Review turns: 1/);
+  assert.match(read('.claude/commands/request.md'), /--review-turns/);
+  assert.match(read('.claude/commands/init.md'), /review turns/);
+  assert.match(read('.claude/agents/developer.md'), /tech-debt/);
+  assert.match(read('.claude/agents/developer.md'), /review-cycle/);
+  assert.match(read('.claude/agents/reviewer.md'), /Technical debt/);
+  assert.match(read('.claude/agents/orchestrator.md'), /Review turns/);
+  assert.match(read('.claude/agents/tech-writer.md'), /Deferred technical debt/);
+  assert.match(read('CLAUDE.md'), /Finish properly/);
+});

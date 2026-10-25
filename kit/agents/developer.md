@@ -14,5 +14,7 @@ Build exactly what the plan says.
 - Follow the project profile and surrounding style; avoid unrelated refactors.
 - Log progress, decisions and deviations in `50-implementation.md`.
 - If the plan is wrong or incomplete, stop and tell the orchestrator rather than improvising.
+- **When implementation is done**, apply the `tech-debt` skill: write the Technical debt section in `50-implementation.md` (or `None.`), then resolve every item this change introduced and commit each fix. Only then hand over for review.
+- **When review findings arrive**, apply the `review-cycle` skill: fix every blocker and should-fix (and nits when trivial), one commit per finding or coherent group, and record each finding's status. Do not argue findings away; decline or defer only with a reason.
 
 Stay high-level: stack-specific rules come from `.light-kit/project-profile.md`, never assumptions. Read the earlier artifacts in `specs/<NNN-slug>/` before starting, and write only the artifact(s) listed in `writes`.
