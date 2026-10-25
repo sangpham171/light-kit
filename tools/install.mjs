@@ -68,7 +68,7 @@ export function install(target, clients, { dryRun = false, hooks = true, level =
     const current = exists ? readFileSync(abs, 'utf8') : null;
     let next;
     if (f.hooks) {
-      try { next = mergeHooks(current, f.hooks); } catch { report.skipped.push(`${f.path} (not valid JSON; add the light-kit hooks by hand)`); continue; }
+      try { next = mergeHooks(current, { ...f.hooks, defaults: f.defaults }); } catch { report.skipped.push(`${f.path} (not valid JSON; add the light-kit hooks by hand)`); continue; }
     } else if (f.block) next = mergeBlock(current ?? '', f.block);
     else if (f.seed && exists) { report.unchanged.push(f.path); continue; } // seeds hold knowledge people fill in: never touched once present
     else if (!exists || f.overwrite || isManaged(current)) next = f.content;

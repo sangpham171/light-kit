@@ -50,6 +50,7 @@ Agents: orchestrator, product-owner, business-analyst, ux-designer, architect, t
 Installed by default for every client that supports hooks (use `--no-hooks` to skip). They protect against the common mistakes of agent-driven work, with no stack assumptions built in:
 - block reading or editing files that hold secrets, and writing secrets into files or prompts
 - block dangerous commands (mass deletion, force push, hard reset, piping downloads into a shell, environment dumps, destructive database statements)
+- keep commit messages and pull request text clean: no AI attribution (`Co-Authored-By` an assistant, "Generated with …") and no trailers
 - protect version-control internals, the hooks themselves and paths you declare generated or locked
 - warn when work starts without an active request, run your format/lint commands after edits, flag secrets in tool output, and give each session its context
 - optional: verify before the agent finishes, and an audit log
@@ -63,7 +64,7 @@ The agents decide and move on: they pick the best option, record it with a one-l
 The agent commits as it goes, so history stays reviewable (`commit` skill, set up by `init`):
 - the plan is committed once validated, **before** implementation starts; understanding and design are committed once settled
 - one commit per verified plan task, one per review fix, one for the conclusion
-- only the files of each unit are staged, messages follow your convention (Conventional Commits by default), and nothing is ever pushed
+- only the files of each unit are staged, messages follow your convention (Conventional Commits by default) and contain only the change description (no trailers, no AI attribution: the instructions forbid it, a hook blocks it, and for Claude Code the installer switches off its own `attribution` setting unless you set one), and nothing is ever pushed
 - at the start of a request the agent records the base branch and base commit in `status.md` (so reviewers know exactly where to start: `git diff <base_commit>..HEAD`), and if you are on `main`, `master` or another protected branch it first moves to a new `<type>/<NNN-slug>` branch; a hook refuses commits on protected branches
 - `Mode: auto | ask | off` in `.light-kit/project-profile.md` controls it; a hook reminds the agent when too many files pile up uncommitted
 

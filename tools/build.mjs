@@ -189,7 +189,9 @@ export function hookRegistration(client, level = 'project') {
     else if (c.shape === 'flat') hooks[name] = [{ command, ...(matcher && { matcher }), timeout: 60 }];
     else hooks[name] = [{ type: 'command', command, timeoutSec: 60 }];
   }
-  return { path: level === 'user' ? USER_PATHS[client](c.path) : c.path, hooks: { ...(c.shape !== 'grouped' && { version: 1 }), hooks } };
+  // Claude Code adds a co-author trailer and PR credit by itself; switch both off unless the user already set their own value.
+  const defaults = client === 'claude' ? { attribution: { commit: '', pr: '' } } : undefined;
+  return { path: level === 'user' ? USER_PATHS[client](c.path) : c.path, hooks: { ...(c.shape !== 'grouped' && { version: 1 }), hooks }, defaults };
 }
 
 // Merge our entries into a client's hooks JSON, keeping the user's own hooks. Replaces any earlier light-kit entries.
@@ -197,6 +199,7 @@ export function mergeHooks(existingText, desired) {
   const cur = existingText ? JSON.parse(existingText) : {};
   cur.hooks ??= {};
   if (desired.version) cur.version ??= desired.version;
+  for (const [k, v] of Object.entries(desired.defaults ?? {})) cur[k] ??= v; // only keys the user has not set
   for (const [ev, list] of Object.entries(cur.hooks)) {
     const kept = list.filter((e) => !JSON.stringify(e).includes(HOOK_MARK));
     if (kept.length) cur.hooks[ev] = kept; else delete cur.hooks[ev];

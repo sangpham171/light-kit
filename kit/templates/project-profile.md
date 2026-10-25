@@ -14,4 +14,4 @@ Review turns: 1       <!-- developer-reviewer turns: one turn = a review, then t
 ## Commit policy
 Mode: auto            <!-- auto = commit at each checkpoint, ask = propose first, off = never commit -->
 Branch convention: <type>/<NNN-slug>   <!-- type = feat, fix, docs, chore, refactor -->
-Convention: Conventional Commits (type(scope): subject; trailer "Request: specs/<NNN-slug>")
+Convention: Conventional Commits (type(scope): subject), no trailers or AI attribution

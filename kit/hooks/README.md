@@ -11,6 +11,7 @@ Automatic guardrails that run inside your AI client. One script (`run.mjs`) serv
 | `guard-dangerous-commands` | before a shell command | block | Mass deletion, force push, hard reset, piping downloads into a shell, destructive database statements, environment dumps, printing secret variables, skipping verification. |
 | `protect-paths` | before a write or mutating command | block | Version-control internals, hook files, and paths you declare protected. |
 | `protect-branches` | before a shell command | block | No `git commit`, `merge`, `cherry-pick` or `revert` on a protected branch (`main`, `master`, `trunk`, `develop`, `production`, `release/*`, the remote default, plus yours). Work on a branch instead. |
+| `clean-commit-message` | before a shell command | block | No AI attribution in commit messages or pull request text (`Co-Authored-By` an assistant, "Generated with …" credits, AI sign-offs), also when the message comes from a file. Human co-authors are fine. |
 | `require-spec` | before a write | warn | Remind the agent to start a request before changing code. |
 | `post-edit-quality` | after a write | warn | Run your format and lint commands on the edited file. |
 | `warn-secret-output` | after a tool | warn | Tell the agent when output contains a secret. |
@@ -36,6 +37,7 @@ Edit `.light-kit/hooks.config.json` (the `init` command does this for you, using
 | `quality.format` / `quality.lint` | commands for one file; `{file}` is replaced by its path |
 | `verify.command` | one command that verifies the whole project |
 | `branches.protected` | globs for more protected branches |
+| `commit.extraForbiddenText` | extra regexes that must not appear in commit or PR text |
 | `commit.maxUncommittedFiles` | uncommitted-file count that triggers the commit reminder (default 8) |
 | `audit.file` | log location |
 
@@ -45,7 +47,7 @@ Globs without `/` match file names anywhere; globs with `/` match from the proje
 Installed once at a workspace root, the hooks serve every project below it. Settings are layered: `.light-kit/hooks.config.json` at the root, then `<project>/.light-kit/hooks.config.json` for the project the action is about (found from the file being edited, or the session's folder). Lists add up; the nearer layer wins for modes and commands. Format and lint commands run inside the project's folder, verify commands run per project that has changes, git checks look at the repository of the folder concerned, and requests are looked up in the project's `specs/` and the workspace's.
 
 ## User level
-Installed in the home folder, the hooks run in every project. The safety hooks (sensitive files, secrets, dangerous commands, protected paths) apply everywhere. The workflow hooks (`require-spec`, `commit-checkpoint`, `protect-branches`, and the session reminders) apply only in projects that have their own `.light-kit/`, so your other repositories are left alone; in a project without one, session start suggests running `init` (turn that off with `session.suggestInit: false`). Layers: `~/.light-kit/hooks.config.json`, then each folder with a `.light-kit` on the way down to the project.
+Installed in the home folder, the hooks run in every project. The safety hooks (sensitive files, secrets, dangerous commands, protected paths, clean commit messages) apply everywhere. The workflow hooks (`require-spec`, `commit-checkpoint`, `protect-branches`, and the session reminders) apply only in projects that have their own `.light-kit/`, so your other repositories are left alone; in a project without one, session start suggests running `init` (turn that off with `session.suggestInit: false`). Layers: `~/.light-kit/hooks.config.json`, then each folder with a `.light-kit` on the way down to the project.
 
 ## Client support
 Claude Code (`.claude/settings.json`), Codex (`.codex/hooks.json`; run `/hooks` once to trust them), Cursor (`.cursor/hooks.json`) and Copilot (`.github/hooks/light-kit.json`; no stop hook). Your own hooks in those files are kept. Blocking uses exit code 2 with the reason on stderr.

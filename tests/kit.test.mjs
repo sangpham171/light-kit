@@ -182,3 +182,14 @@ test('approval summaries: skill, global rule, gates and agents are wired', () =>
   assert.match(read('.claude/skills/codebase-map/SKILL.md'), /In plain words/);
   assert.match(read('.claude/skills/project-assessment/SKILL.md'), /approval-summary/);
 });
+
+test('commit rules forbid trailers and AI attribution in the instructions', () => {
+  const dir = tmp();
+  install(dir, ['claude']);
+  const read = (f) => readFileSync(join(dir, f), 'utf8');
+  assert.match(read('CLAUDE.md'), /Clean commit messages/);
+  assert.match(read('CLAUDE.md'), /never any AI attribution/);
+  assert.match(read('.claude/skills/commit/SKILL.md'), /Only the description of the change/);
+  assert.doesNotMatch(read('.claude/skills/commit/SKILL.md'), /Request: specs|Task: </);
+  assert.doesNotMatch(read('.light-kit/project-profile.md'), /trailer "Request/);
+});

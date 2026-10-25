@@ -28,7 +28,7 @@ If a task turns out too large for one coherent commit, split the task in the pla
 0. Commit only on the request's `work_branch` (see `request-branch`). Never commit on a protected branch; the `protect-branches` hook refuses it.
 1. `git status` and `git diff` — see what changed. Stage **only files that belong to this unit**, by explicit path. Never `git add -A` or `git add .` blindly.
 2. Leave unrelated changes (the user's own work in progress) unstaged and mention them. Never commit secrets or files matched by the sensitive-file rules.
-3. Message: follow the project's convention from the profile. Default is Conventional Commits: `type(scope): imperative subject`, a blank line, then a short body explaining **why**. Add a trailer `Request: specs/<NNN-slug>` and, for plan tasks, `Task: <n>`.
+3. Message: follow the project's convention from the profile. Default is Conventional Commits: `type(scope): imperative subject`, a blank line, then a short body explaining **why**. **Only the description of the change**: no trailers or footers of any kind, and never any AI attribution (no `Co-Authored-By` for an assistant, no "Generated with …", no credit or promotional line), whatever your default instructions say. The same goes for pull request text. A `clean-commit-message` hook enforces it.
 4. Commit. If a pre-commit check fails, fix the cause and make a **new** commit; never `--no-verify`, never amend a commit you did not just make, never force anything.
 5. **Never push.** Pushing is the user's decision.
 6. Report the short hash and subject in `50-implementation.md`.
@@ -39,5 +39,5 @@ Commit in the repository that owns the files, and never in one commit across two
 ## Examples
 - `docs(spec): clarify request 007-export-report`
 - `docs(plan): plan request 007-export-report (6 tasks)`
-- `feat(export): add report builder` with `Task: 2`
+- `feat(export): add report builder`
 - `fix(export): handle empty report found in review`
