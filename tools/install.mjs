@@ -10,7 +10,7 @@
 //  - existing files without the marker are left alone and reported
 import { mkdirSync, readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
 import { homedir } from 'node:os';
-import { join, dirname, resolve } from 'node:path';
+import { join, dirname, resolve, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { build, loadKit, lint, mergeHooks, CLIENT_NAMES, CLIENT_FOLDERS, USER_CLIENT_FOLDERS, USER_NOTES, isManaged, START, END } from './build.mjs';
 
@@ -52,12 +52,12 @@ export function mergeBlock(existing, block) {
   return existing + sep + block;
 }
 
-export function install(target, clients, { dryRun = false, hooks = true, level = 'project', projects = [] } = {}) {
+export function install(target, clients, { dryRun = false, hooks = true, level = 'project', projects = [], previousClients = [] } = {}) {
   const kit = loadKit();
   const errors = lint(kit);
   if (errors.length) throw new Error(`kit lint failed:\n${errors.join('\n')}`);
   const report = { written: [], unchanged: [], skipped: [] };
-  const config = JSON.stringify({ clients, level, ...(level === 'workspace' && { projects: projects.map((p) => p.path) }), kit: 'light-kit' }, null, 2) + '\n';
+  const config = JSON.stringify({ clients: [...new Set([...previousClients, ...clients])], level, ...(level === 'workspace' && { projects: projects.map((p) => p.path) }), kit: 'light-kit' }, null, 2) + '\n';
   // At user level the config sits inside ~/.light-kit so the home folder itself stays clean (the hooks also read it).
   const configPath = level === 'user' ? '.light-kit/kit.config.json' : 'kit.config.json';
   const files = [...build(kit, clients, { hooks, level, projects }), { path: configPath, content: config, overwrite: true }];
@@ -88,8 +88,16 @@ if (resolve(process.argv[1] ?? '') === fileURLToPath(import.meta.url)) {
   let level = opt('level') === 'root' ? 'workspace' : opt('level'); // "root" was the earlier name of "workspace"
   if (level && !['user', 'workspace', 'project'].includes(level)) fail('--level must be user, workspace or project');
   const given = args.find((a, i) => !a.startsWith('--') && !valueFlags.has(args[i - 1]));
-  const target = given ?? (level === 'user' ? homedir() : null);
+  let target = given ?? (level === 'user' ? homedir() : null);
   if (!target) fail('usage: install.mjs <target-dir> [--level user|workspace|project] [--clients a,b] [--projects p1,p2] [--dry-run] [--no-hooks]\n       install.mjs --level user   (installs into your home folder)');
+  // Pointing at a client's own folder (~/.claude, proj/.cursor, ...) means "install for that client in the folder that holds it".
+  const FOLDER_CLIENT = { '.claude': 'claude', '.copilot': 'copilot', '.cursor': 'cursor', '.codex': 'codex', '.agents': 'codex' };
+  const folderClient = FOLDER_CLIENT[basename(resolve(target))];
+  if (folderClient) {
+    const parent = dirname(resolve(target));
+    console.log(`note: ${resolve(target)} is the ${folderClient} client folder, so installing into ${parent} (the kit adds its own files inside the client folder).`);
+    target = parent;
+  }
   const isHome = resolve(target) === resolve(homedir());
   level ??= isHome ? 'user' : undefined;
 
@@ -103,8 +111,8 @@ if (resolve(process.argv[1] ?? '') === fileURLToPath(import.meta.url)) {
   const paths = level === 'workspace' ? [...new Set([...(projGiven ?? []), ...(saved.projects ?? []), ...found])] : [];
   const projects = paths.map((p) => ({ path: p, repo: existsSync(join(target, p, '.git')) }));
 
-  let clients = opt('clients')?.split(',') ?? saved.clients;
-  let how = opt('clients') ? 'from --clients' : saved.clients ? 'from saved config' : 'detected from folders';
+  let clients = opt('clients')?.split(',') ?? (folderClient ? [folderClient] : saved.clients);
+  let how = opt('clients') ? 'from --clients' : folderClient ? 'from the folder you gave' : saved.clients ? 'from saved config' : 'detected from folders';
   if (!clients) {
     clients = detectClients(target, paths, { user: level === 'user' });
     if (!clients.length) {
@@ -113,7 +121,7 @@ if (resolve(process.argv[1] ?? '') === fileURLToPath(import.meta.url)) {
     }
   }
   const dryRun = args.includes('--dry-run');
-  const r = install(target, clients, { dryRun, hooks: !args.includes('--no-hooks'), level, projects });
+  const r = install(target, clients, { dryRun, hooks: !args.includes('--no-hooks'), level, projects, previousClients: folderClient ? saved.clients ?? [] : [] });
   const label = level === 'workspace' ? `workspace (${projects.length} project${projects.length === 1 ? '' : 's'}: ${paths.join(', ') || 'none found; init will discover them'})` : level === 'user' ? `user (${resolve(target)})` : level;
   console.log(`${dryRun ? '[dry run] ' : ''}level: ${label}`);
   console.log(`clients: ${clients.join(', ')} (${how})`);

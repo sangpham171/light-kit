@@ -299,3 +299,38 @@ test('user level hooks: a project with its own registration for the client handl
   const own = spawnSync('node', [join(proj, '.light-kit/hooks/run.mjs'), '--client', 'claude', '--event', 'pre-tool'], { cwd: proj, input: JSON.stringify({ cwd: proj, tool_name: 'Read', tool_input: { file_path: '.env' } }), encoding: 'utf8' });
   assert.equal(own.status, 2);
 });
+
+test('CLI: pointing at a client folder installs in its parent, for that client only', () => {
+  const asHome = (dir, ...a) => spawnSync('node', ['tools/install.mjs', ...a], { encoding: 'utf8', env: { ...process.env, HOME: dir } });
+  const h = mk('.claude');
+  writeFileSync(join(h, '.claude/CLAUDE.md'), '# my notes\n');
+  mkdirSync(join(h, '.claude/agents'));
+  writeFileSync(join(h, '.claude/agents/mine.md'), 'mine');
+  const r = asHome(h, join(h, '.claude'));
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /is the claude client folder, so installing into/);
+  assert.match(r.stdout, /level: user/);
+  assert.match(r.stdout, /clients: claude \(from the folder you gave\)/);
+  assert.ok(existsSync(join(h, '.claude/agents/orchestrator.md')));
+  assert.ok(existsSync(join(h, '.light-kit/hooks/run.mjs')));
+  assert.equal(existsSync(join(h, '.claude/.claude')), false); // no nesting
+  assert.equal(existsSync(join(h, '.claude/.light-kit')), false);
+  assert.equal(existsSync(join(h, '.claude/kit.config.json')), false);
+  assert.equal(existsSync(join(h, '.codex')), false); // only the client that was named
+  assert.match(readFileSync(join(h, '.claude/CLAUDE.md'), 'utf8'), /^# my notes\n/);
+  assert.equal(readFileSync(join(h, '.claude/agents/mine.md'), 'utf8'), 'mine');
+  // adding another client later keeps the earlier one in the saved config
+  const again = asHome(h, join(h, '.codex'));
+  assert.match(again.stdout, /clients: codex/);
+  assert.deepEqual(JSON.parse(readFileSync(join(h, '.light-kit/kit.config.json'), 'utf8')).clients, ['claude', 'codex']);
+  // other folders map the same way, and a project's client folder means a project install
+  const p = mk('proj/.cursor');
+  const c = spawnSync('node', ['tools/install.mjs', join(p, 'proj/.cursor')], { encoding: 'utf8' });
+  assert.match(c.stdout, /level: project/);
+  assert.ok(existsSync(join(p, 'proj/.cursor/rules/light-kit-core.mdc')));
+  assert.equal(existsSync(join(p, 'proj/.cursor/.cursor')), false);
+  const h2 = mk('.agents');
+  const agents = asHome(h2, '--dry-run', join(h2, '.agents'));
+  assert.match(agents.stdout, /is the codex client folder/);
+  assert.match(agents.stdout, /clients: codex \(from the folder you gave\)/);
+});
