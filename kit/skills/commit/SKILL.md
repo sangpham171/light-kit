@@ -25,6 +25,7 @@ If the project is not a git repository, skip committing and say so once.
 If a task turns out too large for one coherent commit, split the task in the plan first.
 
 ## How
+0. Commit only on the request's `work_branch` (see `request-branch`). Never commit on a protected branch; the `protect-branches` hook refuses it.
 1. `git status` and `git diff` — see what changed. Stage **only files that belong to this unit**, by explicit path. Never `git add -A` or `git add .` blindly.
 2. Leave unrelated changes (the user's own work in progress) unstaged and mention them. Never commit secrets or files matched by the sensitive-file rules.
 3. Message: follow the project's convention from the profile. Default is Conventional Commits: `type(scope): imperative subject`, a blank line, then a short body explaining **why**. Add a trailer `Request: specs/<NNN-slug>` and, for plan tasks, `Task: <n>`.

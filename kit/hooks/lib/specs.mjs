@@ -11,7 +11,7 @@ export function listRequests(root) {
       const fm = readFileSync(join(base, 'status.md'), 'utf8').match(/^---\n([\s\S]*?)\n---/);
       for (const line of fm?.[1].split('\n') ?? []) { const m = line.match(/^(\w+):\s*(.*)$/); if (m) meta[m[1]] = m[2].trim(); }
     } catch { /* no status file */ }
-    return { name: d.name, understood: existsSync(join(base, '10-understanding.md')), workflow: meta.workflow, step: meta.step, state: meta.state };
+    return { name: d.name, understood: existsSync(join(base, '10-understanding.md')), workflow: meta.workflow, step: meta.step, state: meta.state, work_branch: meta.work_branch, base_commit: meta.base_commit };
   });
 }
 

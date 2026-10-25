@@ -15,7 +15,8 @@ This project uses **light-kit**. Work is organised per request, and every reques
 5. **Small, verifiable steps.** Each plan task has an acceptance check; run it before marking the task done.
 6. **Record decisions.** Deviations from the plan and non-obvious choices go in `50-implementation.md`.
 7. **Never invent facts** about the codebase. Read it, or say what is unknown.
-8. **Commit at every checkpoint** (see the `commit` skill): when the user validates an artifact, after each verified plan task, after each review fix. The plan is committed before implementation starts. Small coherent commits, never one big commit at the end, and never push.
+8. **Know where the work starts, and never work on a protected branch.** At the start of a request, apply the `request-branch` skill: record the base branch and base commit in `status.md`, and move to a new work branch if you are on `main`, `master` or another protected branch.
+9. **Commit at every checkpoint** (see the `commit` skill): when the user validates an artifact, after each verified plan task, after each review fix. The plan is committed before implementation starts. Small coherent commits, never one big commit at the end, and never push.
 
 ## Roles
 Agents available: orchestrator, product-owner, business-analyst, ux-designer, architect, tech-lead, developer, tester, reviewer, security-reviewer, tech-writer. Invoke any manually, or let the orchestrator run a workflow.

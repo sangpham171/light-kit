@@ -46,6 +46,7 @@ The agent commits as it goes, so history stays reviewable (`commit` skill, set u
 - the plan is committed once validated, **before** implementation starts; gates (understanding, design) are committed when approved
 - one commit per verified plan task, one per review fix, one for the conclusion
 - only the files of each unit are staged, messages follow your convention (Conventional Commits by default), and nothing is ever pushed
+- at the start of a request the agent records the base branch and base commit in `status.md` (so reviewers know exactly where to start: `git diff <base_commit>..HEAD`), and if you are on `main`, `master` or another protected branch it first moves to a new `<type>/<NNN-slug>` branch; a hook refuses commits on protected branches
 - `Mode: auto | ask | off` in `.light-kit/project-profile.md` controls it; a hook reminds the agent when too many files pile up uncommitted
 
 ## Generated layout

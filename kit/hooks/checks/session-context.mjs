@@ -8,7 +8,7 @@ export default {
   run(ctx) {
     const lines = [];
     if (existsSync(join(ctx.root, '.light-kit', 'project-profile.md'))) lines.push('light-kit: read .light-kit/project-profile.md before working' + (existsSync(join(ctx.root, '.light-kit', 'codebase-map.md')) ? ' and .light-kit/codebase-map.md for the structure.' : '.'));
-    for (const r of activeRequests(ctx.root)) lines.push(`Active request specs/${r.name}${r.workflow ? ` (${r.workflow} workflow)` : ''}: step ${r.step || 'unknown'}, state ${r.state || 'unknown'}.`);
+    for (const r of activeRequests(ctx.root)) lines.push(`Active request specs/${r.name}${r.workflow ? ` (${r.workflow} workflow)` : ''}: step ${r.step || 'unknown'}, state ${r.state || 'unknown'}${r.work_branch ? `, branch ${r.work_branch}` : ''}${r.base_commit && r.base_commit !== 'none' ? ` (started at ${r.base_commit.slice(0, 8)})` : ''}.`);
     return lines.length ? { message: lines.join('\n') } : null;
   },
 };

@@ -10,6 +10,7 @@ Automatic guardrails that run inside your AI client. One script (`run.mjs`) serv
 | `redact-prompt-secrets` | prompt submitted | block | Stop secrets from being sent to the model. |
 | `guard-dangerous-commands` | before a shell command | block | Mass deletion, force push, hard reset, piping downloads into a shell, destructive database statements, environment dumps, printing secret variables, skipping verification. |
 | `protect-paths` | before a write or mutating command | block | Version-control internals, hook files, and paths you declare protected. |
+| `protect-branches` | before a shell command | block | No `git commit`, `merge`, `cherry-pick` or `revert` on a protected branch (`main`, `master`, `trunk`, `develop`, `production`, `release/*`, the remote default, plus yours). Work on a branch instead. |
 | `require-spec` | before a write | warn | Remind the agent to start a request before changing code. |
 | `post-edit-quality` | after a write | warn | Run your format and lint commands on the edited file. |
 | `warn-secret-output` | after a tool | warn | Tell the agent when output contains a secret. |
@@ -34,6 +35,7 @@ Edit `.light-kit/hooks.config.json` (the `init` command does this for you, using
 | `spec.exempt` | globs that may change without an active request |
 | `quality.format` / `quality.lint` | commands for one file; `{file}` is replaced by its path |
 | `verify.command` | one command that verifies the whole project |
+| `branches.protected` | globs for more protected branches |
 | `commit.maxUncommittedFiles` | uncommitted-file count that triggers the commit reminder (default 8) |
 | `audit.file` | log location |
 

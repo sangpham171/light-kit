@@ -10,5 +10,6 @@ import sessionContext from './session-context.mjs';
 import verifyOnStop from './verify-on-stop.mjs';
 import auditLog from './audit-log.mjs';
 import commitCheckpoint from './commit-checkpoint.mjs';
+import protectBranches from './protect-branches.mjs';
 
-export const CHECKS = [protectSensitiveFiles, blockSecretsInWrites, redactPromptSecrets, guardDangerousCommands, protectPaths, requireSpec, postEditQuality, warnSecretOutput, sessionContext, verifyOnStop, auditLog, commitCheckpoint];
+export const CHECKS = [protectSensitiveFiles, blockSecretsInWrites, redactPromptSecrets, guardDangerousCommands, protectPaths, requireSpec, postEditQuality, warnSecretOutput, sessionContext, verifyOnStop, auditLog, commitCheckpoint, protectBranches];

@@ -6,4 +6,4 @@ argument-hint: "<specs/NNN-slug>"
 
 # Review
 
-For `$ARGUMENTS`: run the review step of its workflow using the `review-checklist` skill. Report blockers, should-fix items and a verdict. Do not edit code.
+For `$ARGUMENTS`: read `base_commit` and `work_branch` from its `status.md` to scope the review (`git diff <base_commit>..HEAD`), then run the review step of its workflow using the `review-checklist` skill. Report blockers, should-fix items and a verdict. Do not edit code.

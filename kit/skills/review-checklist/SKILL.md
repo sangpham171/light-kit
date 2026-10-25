@@ -5,6 +5,7 @@ description: Checklist for reviewing an implementation against its spec and plan
 
 # Review checklist
 
+0. **Scope** — start from `base_commit` in `status.md`; review `git log` and `git diff` from there to `HEAD`, on `work_branch`.
 1. **Spec fit** — every requirement and acceptance criterion in `10-understanding.md` / `40-plan.md` is met; nothing extra was added.
 2. **Correctness** — edge cases, error paths, concurrency and data handling.
 3. **Tests** — new behaviour is covered; tests fail without the change; the suite passes.

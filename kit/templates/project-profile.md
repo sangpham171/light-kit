@@ -9,4 +9,5 @@
 ## Testing policy
 ## Commit policy
 Mode: auto            <!-- auto = commit at each checkpoint, ask = propose first, off = never commit -->
+Branch convention: <type>/<NNN-slug>   <!-- type = feat, fix, docs, chore, refactor -->
 Convention: Conventional Commits (type(scope): subject; trailer "Request: specs/<NNN-slug>")

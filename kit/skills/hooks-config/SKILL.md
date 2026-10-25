@@ -21,6 +21,7 @@ Ask yourself each question, answer it from the repo (manifests, scripts, CI, doc
 | Which otherwise-blocked commands does the project legitimately need? | `commands.allow` |
 | What formats or lints a single file? Use `{file}` for the path. | `quality.format`, `quality.lint` |
 | What one command verifies the whole project (tests, build)? | `verify.command` |
+| Which branches must never receive direct commits (long-lived, release, deployment branches)? | `branches.protected` (globs, added to the defaults) |
 | Which source-adjacent paths may change without a request? | `spec.exempt` |
 
 ## Modes

@@ -219,3 +219,48 @@ test('commit skill and commit checkpoints are generated', () => {
   assert.match(readFileSync(join(d, '.light-kit/workflows/full.md'), 'utf8'), /plan \*\*before\*\* implementing/);
   assert.match(readFileSync(join(d, 'CLAUDE.md'), 'utf8'), /Commit at every checkpoint/);
 });
+
+function repo(branch, config) {
+  const d = project(config);
+  const g = (...a) => spawnSync('git', ['-c', 'user.email=t@t', '-c', 'user.name=t', ...a], { cwd: d, encoding: 'utf8' });
+  g('init', '-q', '-b', branch);
+  g('commit', '-q', '--allow-empty', '-m', 'init');
+  return { d, g };
+}
+
+test('protect-branches refuses commits on protected branches only', () => {
+  const { d, g } = repo('main');
+  for (const c of ['git commit -m x', 'git -C . commit -m x', 'git add . && git commit -m x', 'git merge feature', 'git cherry-pick abc'])
+    assert.equal(run(d, 'claude', 'pre-tool', bash(c)).code, 2, c);
+  assert.match(run(d, 'claude', 'pre-tool', bash('git commit -m x')).err, /protected branch "main"/);
+  assert.equal(run(d, 'claude', 'pre-tool', bash('git status')).code, 0);
+  assert.equal(run(d, 'claude', 'pre-tool', bash('git checkout -b feat/001-x')).code, 0);
+  g('checkout', '-q', '-b', 'feat/001-x');
+  assert.equal(run(d, 'claude', 'pre-tool', bash('git commit -m x')).code, 0);
+  assert.equal(run(d, 'cursor', 'pre-tool', { tool_name: 'Shell', tool_input: { command: 'echo git commit' } }).code, 0);
+});
+
+test('protect-branches: defaults, patterns, config, unborn and detached HEAD', () => {
+  for (const b of ['master', 'develop', 'release/1.2'])
+    assert.equal(run(repo(b).d, 'claude', 'pre-tool', bash('git commit -m x')).code, 2, b);
+  assert.equal(run(repo('staging').d, 'claude', 'pre-tool', bash('git commit -m x')).code, 0);
+  assert.equal(run(repo('staging', { branches: { protected: ['staging'] } }).d, 'claude', 'pre-tool', bash('git commit -m x')).code, 2);
+  assert.equal(run(repo('main', { hooks: { 'protect-branches': 'off' } }).d, 'claude', 'pre-tool', bash('git commit -m x')).code, 0);
+  const fresh = project(); spawnSync('git', ['init', '-q', '-b', 'main'], { cwd: fresh });
+  assert.equal(run(fresh, 'claude', 'pre-tool', bash('git commit -m first')).code, 0); // no commit yet: nothing to protect
+  const det = repo('main'); det.g('checkout', '-q', '--detach');
+  assert.equal(run(det.d, 'claude', 'pre-tool', bash('git commit -m x')).code, 0);
+  assert.equal(run(project(), 'claude', 'pre-tool', bash('git commit -m x')).code, 0); // not a repository
+});
+
+test('session context shows the request branch and start commit; request-branch skill is generated', () => {
+  const d = project();
+  mkdirSync(join(d, 'specs/002-y'), { recursive: true });
+  writeFileSync(join(d, 'specs/002-y/10-understanding.md'), '# u');
+  writeFileSync(join(d, 'specs/002-y/status.md'), '---\nworkflow: full\nstep: plan\nstate: in-progress\nbase_branch: main\nbase_commit: 0123456789abcdef\nwork_branch: feat/002-y\n---\n');
+  const ctx = JSON.parse(run(d, 'claude', 'session-start', {}).out).hookSpecificOutput.additionalContext;
+  assert.match(ctx, /branch feat\/002-y \(started at 01234567\)/);
+  assert.ok(existsSync(join(d, '.claude/skills/request-branch/SKILL.md')));
+  assert.match(readFileSync(join(d, '.light-kit/templates/status.md'), 'utf8'), /base_commit/);
+  assert.match(readFileSync(join(d, '.claude/agents/reviewer.md'), 'utf8'), /base_commit/);
+});

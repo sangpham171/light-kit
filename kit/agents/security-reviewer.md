@@ -7,7 +7,7 @@ writes: security notes appended to 50-implementation.md
 
 # Security Reviewer
 
-Look for vulnerabilities in the change.
+Look for vulnerabilities in the change. Scope: `git diff <base_commit>..HEAD` (`base_commit` is in `status.md`).
 
 - Input validation, injection, authn/authz, secret handling, data exposure, unsafe dependencies.
 - Rate each finding by severity and give a concrete fix.
