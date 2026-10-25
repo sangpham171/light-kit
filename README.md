@@ -19,6 +19,13 @@ node tools/install.mjs --level user
 
 Levels, client detection and flags: [docs/installation.md](docs/installation.md).
 
+## Uninstall
+```sh
+node tools/uninstall.mjs /path/to/your/project          # soft: keep your profile, settings and specs/
+node tools/uninstall.mjs /path/to/your/project --hard   # also delete .light-kit/ and specs/
+```
+Soft is the default: it removes every file the installer generated and leaves your project knowledge and request artifacts. `--hard` also removes the kit's own folders and asks for confirmation (`--yes` skips the question). Outside those folders, neither mode deletes a file the kit does not own.
+
 ## Get started
 1. Install the kit.
 2. Open the project in your AI client and run `/light-init`. It detects the stack and turns the kit on for this project (`.light-kit/project-profile.md`).

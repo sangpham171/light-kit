@@ -32,6 +32,21 @@ Re-running the installer is safe:
 - generated files are overwritten only if they carry the light-kit marker; your own files are skipped and listed
 - obsolete generated files from earlier kit versions are removed (only files carrying the light-kit marker)
 
+## Uninstall
+```sh
+node tools/uninstall.mjs /path/to/project [--soft | --hard] [--dry-run]
+```
+Soft is the default. Both modes are idempotent and leave alone any file the kit does not own (no light-kit marker and not a kit-owned seed), so your own agents, skills and hooks survive.
+
+| Mode | Removes | Keeps |
+|---|---|---|
+| `--soft` (default) | client agents, commands, skills, rules, prompts and TOML; the instruction blocks in `CLAUDE.md`, `AGENTS.md` and Copilot instructions; light-kit hook entries (`settings.json`, `hooks.json`) with your own hooks intact; the generated files in `.light-kit/{workflows,profiles,hooks}`; `.light-kit/{audit,templates}`; `kit.config.json` | `specs/`; `.light-kit/{project-profile.md,hooks.config.json,models.json,projects.md}`; the codebase map, assessment and backlog |
+| `--hard` | all of soft, plus the kit's own folders: `.light-kit/` and `specs/` | files outside the kit's folders that the kit does not own |
+
+Hard mode asks for confirmation; `--yes` skips the question, and without a terminal it refuses until `--yes` is passed. At user level hard removes `~/.light-kit/` only (there is no `specs/` at that level); at workspace level it also removes every registered project's `.light-kit/` and `specs/`.
+
+Target, `--level`, `--clients` and `--projects` work as for the installer, and the saved `kit.config.json` fills them in when omitted. `--dry-run` shows what would be removed without changing anything.
+
 ## Three install levels
 | Level | Where | For |
 |---|---|---|
