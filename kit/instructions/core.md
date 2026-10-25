@@ -22,7 +22,7 @@ This project uses **light-kit**. Work is organised per request, and every reques
 Agents available: orchestrator, product-owner, business-analyst, ux-designer, architect, tech-lead, developer, tester, reviewer, security-reviewer, tech-writer. Invoke any manually, or let the orchestrator run a workflow.
 
 ## Commands
-`init`, `bootstrap` (new projects), `request`, `triage`, `plan`, `implement`, `review`, `status`.
+`init`, `bootstrap` (new projects), `standardize` (apply accepted init assessment items), `request`, `triage`, `plan`, `implement`, `review`, `status`.
 
 ## Project knowledge
 - `.light-kit/project-profile.md` — languages, frameworks, build/test commands, conventions, constraints. Written by `init`, never overwritten by upgrades.

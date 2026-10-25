@@ -13,7 +13,7 @@ Omit `--clients` to reuse `kit.config.json` (or install all four). Use `--dry-ru
 - generated files are overwritten only if they carry the light-kit marker; your own files are skipped and listed
 
 Then, in your AI client, run the **init** command:
-- **Existing project (adopt):** detects your stack and conventions, writes `.light-kit/project-profile.md` and a one-time `.light-kit/codebase-map.md`. Nothing is restructured. Then use `request`.
+- **Existing project (adopt):** detects your stack and conventions, writes `.light-kit/project-profile.md` and a one-time `.light-kit/codebase-map.md`, then assesses the project against **its own** standards (what is good, what deviates). It proposes only minor, behavior-preserving, non-breaking fixes in `.light-kit/standardization-backlog.md` (never refactors) and changes nothing until you accept items. Apply the accepted ones with `standardize` (one verified commit per item, on a work branch), then use `request`.
 - **New project (greenfield):** asks for stack and constraints, proposes best practices, writes the profile. Then run `bootstrap` to define the vision, architecture and a working skeleton.
 
 `.light-kit/project-profile.md` is yours: kit upgrades never overwrite it.

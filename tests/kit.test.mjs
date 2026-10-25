@@ -92,3 +92,17 @@ test('bootstrap workflow and prompt are generated', () => {
   assert.ok(existsSync(join(dir, '.claude/commands/bootstrap.md')));
   assert.ok(existsSync(join(dir, '.claude/skills/codebase-map/SKILL.md')));
 });
+
+test('adopt assessment: skill, standardize workflow and command are generated and wired', () => {
+  const dir = tmp();
+  install(dir, ['claude']);
+  assert.ok(existsSync(join(dir, '.claude/skills/project-assessment/SKILL.md')));
+  assert.ok(existsSync(join(dir, '.light-kit/workflows/standardize.md')));
+  assert.ok(existsSync(join(dir, '.claude/commands/standardize.md')));
+  const init = readFileSync(join(dir, '.claude/commands/init.md'), 'utf8');
+  assert.match(init, /project-assessment/);
+  assert.match(init, /Do not change any project code now/);
+  const skill = readFileSync(join(dir, '.claude/skills/project-assessment/SKILL.md'), 'utf8');
+  assert.match(skill, /Never propose:\*\* refactors/);
+  assert.match(skill, /Behavior-preserving/);
+});
