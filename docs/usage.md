@@ -27,7 +27,7 @@ runs:
   - step: plan | agent: light-tech-lead | model: <model id> | thinking: <reasoning setting or unknown> | level: hard
 ---
 ```
-Each agent run adds one line (parallel or retried runs add their own). Agents write only what they know, `unknown` otherwise (a model usually knows its own name but not always its reasoning setting). The `session-context` hook detects the thinking effort from the client's own state and puts it in the session context: Claude Code (session transcript), Copilot in VS Code (VS Code state), Codex (`~/.codex/config.toml`). Cursor and Copilot CLI stay `unknown`. It covers the files in `specs/<NNN-slug>/` except `status.md`, plus the codebase map, assessment, backlog and audit reports. An `artifact-header` hook warns when a header is missing or incomplete.
+Each agent run adds one line (parallel or retried runs add their own). Agents write only what they know, `unknown` otherwise (a model usually knows its own name but not always its reasoning setting). The `session-context` hook detects the thinking effort from the client's own state where one exists: Claude Code (session transcript), VS Code-based clients (the chat model configuration in `state.vscdb`: Copilot, and Cursor when present) and Codex (`~/.codex/config.toml`). Otherwise it stays `unknown`. It covers the files in `specs/<NNN-slug>/` except `status.md`, plus the codebase map, assessment, backlog and audit reports. An `artifact-header` hook warns when a header is missing or incomplete.
 
 ## Agents
 light-orchestrator, light-product-owner, light-business-analyst, light-ux-designer, light-architect, light-tech-lead, light-developer, light-tester, light-reviewer, light-security-reviewer, light-tech-writer. Any agent or command can be invoked manually.
