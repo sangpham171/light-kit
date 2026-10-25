@@ -239,3 +239,19 @@ test('upgrade removes obsolete generated files but never your own', () => {
   assert.equal(readFileSync(join(dir, '.claude/commands/deploy.md'), 'utf8'), 'my own command');
   assert.equal(install(dir, ['claude']).removed.length, 0); // idempotent
 });
+
+test('artifact headers: every artifact template starts with the runs header and the rule is global', () => {
+  const dir = tmp();
+  install(dir, ['claude']);
+  const read = (p) => readFileSync(join(dir, p), 'utf8');
+  for (const t of ['00-request', '10-understanding', '20-discovery', '30-design', '40-plan', '50-implementation', '60-conclusion']) {
+    const text = read(`.light-kit/templates/${t}.md`);
+    assert.match(text, /^---\nruns:\n  - step: <step> \| agent: <agent> \| model: <model id> \| thinking: <reasoning setting or unknown> \| level: /, t);
+  }
+  assert.doesNotMatch(read('.light-kit/templates/status.md'), /runs:/); // state file, not an artifact
+  assert.match(read('CLAUDE.md'), /Sign your artifacts/);
+  assert.match(read('CLAUDE.md'), /otherwise `unknown`, never a guess/);
+  for (const s of ['light-codebase-map', 'light-project-assessment', 'light-audit']) assert.match(read(`.claude/skills/${s}/SKILL.md`), /`runs:` header/, s);
+  assert.match(read('.claude/skills/light-model-routing/SKILL.md'), /`runs:` header/);
+  assert.doesNotMatch(read('.light-kit/templates/50-implementation.md'), /task N: level/);
+});

@@ -11,6 +11,7 @@
   "Rules: Finish properly": "structure",
   "Rules: Decide, don't ask": "preference",
   "Rules: Clean commit messages": "preference",
+  "Rules: Sign your artifacts": "structure",
   "Rules: Commit at every checkpoint": "preference",
   "Communication (saves tokens)": "preference",
   "Roles": "structure",

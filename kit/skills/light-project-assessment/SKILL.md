@@ -6,8 +6,6 @@ purpose: compensation
 
 # Project assessment
 
-In a workspace, `.light-kit/...` paths below refer to the **project's own** `.light-kit/` folder (`<project>/.light-kit/`) and you assess one project at a time.
-
 Goal: help the project become **consistent with itself**. The standard is what the project already does and documents, not what you or this kit would prefer. Never propose refactors or breaking changes.
 
 ## 1. Find the project's standards
@@ -35,7 +33,7 @@ Typical acceptable items: formatting and naming fixes inside a single file, matc
 **Never propose:** refactors, restructuring or moving files, renaming anything exported or shared, dependency or tool upgrades and migrations, framework or architecture changes, performance work, rewrites, new features. If tempted, drop it. Do not list such ideas as observations either; the user can ask for them in a normal request.
 
 ## 4. Write the results (no project code is changed)
-`.light-kit/assessment.md`: *Summary*, *Standards found* (rule + evidence), *Strengths*, *Deviations*, *Gaps*, *Questions for the user* (the split conventions).
+`.light-kit/assessment.md` (and the backlog below), each starting with the `runs:` header (global rule): *Summary*, *Standards found* (rule + evidence), *Strengths*, *Deviations*, *Gaps*, *Questions for the user* (the split conventions).
 
 `.light-kit/standardization-backlog.md`: at most 15 items, most valuable first, grouped by theme. One block per item:
 ```

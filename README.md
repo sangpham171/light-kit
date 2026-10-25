@@ -68,6 +68,15 @@ Then, in your AI client, run the **`light-init`** command:
 
 The `bootstrap` workflow (new projects, started by the `light-bootstrap` command rather than triage) runs vision → architecture → plan → skeleton → review. Override triage with `--workflow`. Artifacts: `00-request`, `10-understanding`, `20-discovery`, `30-design`, `40-plan`, `50-implementation`, `60-conclusion`, plus `status.md`.
 
+Every artifact starts with a `runs:` header recording which agent produced it, with what, so you can see how a result came about:
+```
+---
+runs:
+  - step: plan | agent: light-tech-lead | model: <model id> | thinking: <reasoning setting or unknown> | level: hard
+---
+```
+Each agent run adds one line (parallel or retried runs add their own). Agents write only what they know, `unknown` otherwise (a model usually knows its own name but not always its reasoning setting). It covers the files in `specs/<NNN-slug>/` except `status.md`, plus the codebase map, assessment, backlog and audit reports. An `artifact-header` hook warns when a header is missing or incomplete.
+
 Agents: light-orchestrator, light-product-owner, light-business-analyst, light-ux-designer, light-architect, light-tech-lead, light-developer, light-tester, light-reviewer, light-security-reviewer, light-tech-writer. Any agent or command can be invoked manually.
 
 ## Safety hooks

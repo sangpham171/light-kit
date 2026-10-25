@@ -216,7 +216,8 @@ test('commit-checkpoint nudges when many files are uncommitted, and respects mod
 test('commit skill and commit checkpoints are generated', () => {
   const d = project();
   assert.ok(existsSync(join(d, '.claude/skills/light-commit/SKILL.md')));
-  assert.match(readFileSync(join(d, '.light-kit/workflows/full.md'), 'utf8'), /plan \*\*before\*\* implementing/);
+  assert.match(readFileSync(join(d, '.claude/skills/light-commit/SKILL.md'), 'utf8'), /plan is committed \*\*before\*\* any implementation starts/);
+  assert.doesNotMatch(readFileSync(join(d, '.light-kit/workflows/full.md'), 'utf8'), /Commit points/); // the commit skill is the single source
   assert.match(readFileSync(join(d, 'CLAUDE.md'), 'utf8'), /Commit at every checkpoint/);
 });
 
@@ -262,7 +263,7 @@ test('session context shows the request branch and start commit; request-branch 
   assert.match(ctx, /branch feat\/002-y \(started at 01234567\)/);
   assert.ok(existsSync(join(d, '.claude/skills/light-request-branch/SKILL.md')));
   assert.match(readFileSync(join(d, '.light-kit/templates/status.md'), 'utf8'), /base_commit/);
-  assert.match(readFileSync(join(d, '.claude/agents/light-reviewer.md'), 'utf8'), /base_commit/);
+  assert.match(readFileSync(join(d, '.claude/skills/light-review-cycle/SKILL.md'), 'utf8'), /git diff <base_commit>\.\.HEAD/); // review scope is defined once
 });
 
 test('clean-commit-message blocks AI attribution in commits and PR text, allows everything else', () => {
@@ -318,4 +319,68 @@ test('Claude attribution is switched off in settings unless the user set their o
   install(c, ['cursor']);
   assert.equal(JSON.parse(readFileSync(join(c, '.cursor/hooks.json'), 'utf8')).attribution, undefined);
   assert.equal(install(a, ['claude']).written.length, 0);
+});
+
+// ---------- artifact provenance header ----------
+const HEADER = (extra = '') => `---\nruns:\n  - step: plan | agent: light-tech-lead | model: m-1 | thinking: effort high | level: hard${extra}\n---\n\n# Plan\n`;
+const writeFile = (d, rel, text) => { mkdirSync(join(d, rel, '..'), { recursive: true }); writeFileSync(join(d, rel), text); };
+const warns = (r) => r.out.includes('runs:');
+
+test('artifact-header: warns when a request artifact or kit document lacks the runs header', () => {
+  const d = project(); withSpec(d);
+  writeFile(d, 'specs/001-x/40-plan.md', '# Plan\n- [ ] 1.');
+  const r = run(d, 'claude', 'post-tool', write('specs/001-x/40-plan.md'));
+  assert.equal(r.code, 0);
+  assert.match(JSON.parse(r.out).hookSpecificOutput.additionalContext, /specs\/001-x\/40-plan\.md must start with a `runs:` header/);
+  for (const f of ['.light-kit/codebase-map.md', '.light-kit/assessment.md', '.light-kit/standardization-backlog.md', '.light-kit/audits/2026-01-01-m.md']) {
+    writeFile(d, f, '# no header');
+    assert.ok(warns(run(d, 'claude', 'post-tool', write(f))), f);
+  }
+});
+
+test('artifact-header: quiet with a complete header, accepts unknown, ignores other files', () => {
+  const d = project(); withSpec(d);
+  writeFile(d, 'specs/001-x/40-plan.md', HEADER());
+  assert.equal(run(d, 'claude', 'post-tool', write('specs/001-x/40-plan.md')).out, '');
+  writeFile(d, 'specs/001-x/50-implementation.md', '---\nruns:\n  - step: implement | agent: light-developer | model: unknown | thinking: unknown | level: unknown\n---\n# x');
+  assert.equal(run(d, 'claude', 'post-tool', write('specs/001-x/50-implementation.md')).out, '');
+  writeFile(d, 'specs/001-x/status.md', '---\nstate: x\n---\n'); // state file: not an artifact
+  assert.equal(run(d, 'claude', 'post-tool', write('specs/001-x/status.md')).out, '');
+  writeFile(d, 'src/notes.md', '# no header');
+  assert.equal(run(d, 'claude', 'post-tool', write('src/notes.md')).out, '');
+  writeFile(d, 'specs/README.md', '# readme');
+  assert.equal(run(d, 'claude', 'post-tool', write('specs/README.md')).out, '');
+  assert.equal(run(d, 'claude', 'post-tool', write('.light-kit/project-profile.md')).out, ''); // the user's own file
+});
+
+test('artifact-header: each required field matters, several runs are fine, mode can be off', () => {
+  const d = project(); withSpec(d);
+  const bad = (line) => `---\nruns:\n  - ${line}\n---\n# x`;
+  for (const line of ['step: plan | agent: a | thinking: t', 'step: plan | agent: a | model: m', 'step: plan | model: m | thinking: t', 'model: m'])
+    { writeFile(d, 'specs/001-x/10-understanding.md', bad(line)); assert.ok(warns(run(d, 'claude', 'post-tool', write('specs/001-x/10-understanding.md'))), line); }
+  writeFile(d, 'specs/001-x/10-understanding.md', '---\nruns:\n  - step: understand | agent: light-orchestrator | model: m-1 | thinking: t | level: medium\n  - step: clarify | agent: light-product-owner | model: m-2 | thinking: t | level: medium\n---\n# x');
+  assert.equal(run(d, 'claude', 'post-tool', write('specs/001-x/10-understanding.md')).out, '');
+  writeFile(d, 'specs/001-x/20-discovery.md', '# no header');
+  writeFileSync(join(d, '.light-kit/hooks.config.json'), JSON.stringify({ hooks: { 'artifact-header': 'off' } }));
+  assert.equal(run(d, 'claude', 'post-tool', write('specs/001-x/20-discovery.md')).out, '');
+});
+
+test('artifact-header: other clients, nested projects and user level only where the kit is enabled', () => {
+  const d = project(); withSpec(d);
+  writeFile(d, 'specs/001-x/60-conclusion.md', '# no header');
+  assert.match(run(d, 'cursor', 'post-tool', { tool_name: 'Write', tool_input: { path: 'specs/001-x/60-conclusion.md', contents: 'x' } }, ).out, /runs:/);
+  const patch = '*** Begin Patch\n*** Update File: specs/001-x/60-conclusion.md\n@@\n-a\n+b\n*** End Patch';
+  assert.ok(warns(run(d, 'codex', 'post-tool', { tool_name: 'apply_patch', tool_input: { command: patch } }, )));
+  const h = mkdtempSync(join(tmpdir(), 'light-kit-hdr-'));
+  install(h, ['claude'], { level: 'user' });
+  mkdirSync(join(h, 'plain'));
+  writeFileSync(join(h, 'plain/10-notes.md'), 'x');
+  const hook = (cwd, f) => spawnSync('node', [join(h, '.light-kit/hooks/run.mjs'), '--client', 'claude', '--event', 'post-tool'], { cwd, input: JSON.stringify({ cwd, ...write(f) }), encoding: 'utf8' }).stdout;
+  mkdirSync(join(h, 'plain/specs/001-x'), { recursive: true });
+  writeFileSync(join(h, 'plain/specs/001-x/10-understanding.md'), '# no header');
+  assert.equal(hook(join(h, 'plain'), 'specs/001-x/10-understanding.md'), ''); // project not using the kit: left alone
+  mkdirSync(join(h, 'kitted/.light-kit'), { recursive: true });
+  mkdirSync(join(h, 'kitted/specs/001-x'), { recursive: true });
+  writeFileSync(join(h, 'kitted/specs/001-x/10-understanding.md'), '# no header');
+  assert.match(hook(join(h, 'kitted'), 'specs/001-x/10-understanding.md'), /runs:/);
 });

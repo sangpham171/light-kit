@@ -12,6 +12,7 @@ export const DEFAULT_MODES = {
   'protect-branches': 'block',
   'clean-commit-message': 'block',
   'audit-reminder': 'warn',
+  'artifact-header': 'warn',
   'require-spec': 'warn',
   'post-edit-quality': 'warn',
   'warn-secret-output': 'warn',

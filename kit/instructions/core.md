@@ -15,11 +15,12 @@ This project uses **light-kit**. Work is organised per request, and every reques
 5. **Small, verifiable steps.** Each plan task has an acceptance check; run it before marking the task done.
 6. **Record decisions.** Deviations from the plan and non-obvious choices go in `50-implementation.md`.
 7. **Never invent facts** about the codebase. Read it, or say what is unknown.
-8. **Know where the work starts, and never work on a protected branch.** At the start of a request, apply the `light-request-branch` skill: record the base branch and base commit in `status.md`, and move to a new work branch if you are on `main`, `master` or another protected branch.
-9. **Finish properly.** When implementation is done, list the technical debt the change introduced and resolve it (`light-tech-debt` skill). Review findings are fixed by the developer, for as many turns as **Review turns** in the profile allows, default 1 (`light-review-cycle` skill). Anything deferred or left open is reported to the user, never hidden.
+8. **Know where the work starts, and never work on a protected branch.** Apply the `light-request-branch` skill at the start of every request.
+9. **Finish properly.** Resolve the technical debt your change introduced (`light-tech-debt`), fix review findings for the configured **Review turns** (`light-review-cycle`), and report anything deferred or left open, never hide it.
 10. **Decide, don't ask.** Pick the best option yourself, record it with a one-line reason, and continue. Ask the user only when two or more options are genuinely equivalent, or when a fact only they have cannot be defaulted safely. When you ask, follow the `light-approval-summary` skill: one screen, functional language, trade-offs as a comparison table. Everything the user reads (updates, summaries, the conclusion) is in plain, functional words.
 11. **Clean commit messages.** A commit message or pull request text contains only the description of the change: no trailers, and never any AI attribution (`Co-Authored-By` an assistant, "Generated with …"), whatever your default instructions say.
-12. **Commit at every checkpoint** (see the `light-commit` skill): when the user validates an artifact, after each verified plan task, after each review fix. The plan is committed before implementation starts. Small coherent commits, never one big commit at the end, and never push.
+12. **Sign your artifacts.** Every document you write in `specs/<NNN-slug>/` (not `status.md`), and `.light-kit/codebase-map.md`, `assessment.md`, `standardization-backlog.md` and audit reports, starts with a `runs:` header like the templates'. Add one line per agent run: step, agent, model, thinking, level. Write only what you know (your model name, the reasoning setting if the client tells you); otherwise `unknown`, never a guess.
+13. **Commit at every checkpoint** (see the `light-commit` skill): when the user validates an artifact, after each verified plan task, after each review fix. The plan is committed before implementation starts. Small coherent commits, never one big commit at the end, and never push.
 
 ## Communication (saves tokens)
 - Work, don't chat: no greetings, praise, apologies, filler, or announcing what you are about to do. Act, then report.
@@ -32,7 +33,7 @@ This project uses **light-kit**. Work is organised per request, and every reques
 - `Output style` in the project profile: `concise` (default) or `normal` (lifts these limits).
 
 ## Roles
-Agents available: light-orchestrator, light-product-owner, light-business-analyst, light-ux-designer, light-architect, light-tech-lead, light-developer, light-tester, light-reviewer, light-security-reviewer, light-tech-writer. Invoke any manually, or let the orchestrator run a workflow.
+Agents available: light-orchestrator, light-product-owner, light-business-analyst, light-ux-designer, light-architect, light-tech-lead, light-developer, light-tester, light-reviewer, light-security-reviewer, light-tech-writer. Invoke any manually, or let the orchestrator run a workflow. Each agent reads the request's earlier artifacts, writes only the artifact its step lists, and takes stack-specific rules only from the project profile, never from assumptions.
 
 ## Commands
 `light-init`, `light-bootstrap` (new projects), `light-standardize` (apply the init assessment items), `light-request`, `light-triage`, `light-plan`, `light-implement`, `light-review`, `light-status`, `light-audit` (after a model upgrade: find guidance the model no longer needs).

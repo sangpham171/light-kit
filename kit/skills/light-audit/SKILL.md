@@ -33,7 +33,7 @@ Core rules and sections count as components. Hooks are deterministic guards: not
 Repeated text to merge; always-loaded text that could load on demand (move from core into a skill); a skill used by a single workflow (inline it); capabilities of the new model the kit works around.
 
 ## 5. Report
-Write `.light-kit/audits/<date>-<model>.md`: model, date, the previous audit and what changed since; every-session tokens now and after the proposed changes; a table `component | purpose | tokens | verdict (keep, shorten, merge, move, remove) | evidence | confidence`; proposed changes by tokens saved. Then record it: `node .light-kit/audit/audit.mjs --record "<your model id>"`. Tell the user in at most 8 plain lines: what could go, tokens saved, how sure.
+Write `.light-kit/audits/<date>-<model>.md` (starting with the `runs:` header, global rule): model, date, the previous audit and what changed since; every-session tokens now and after the proposed changes; a table `component | purpose | tokens | verdict (keep, shorten, merge, move, remove) | evidence | confidence`; proposed changes by tokens saved. Then record it: `node .light-kit/audit/audit.mjs --record "<your model id>"`. Tell the user in at most 8 plain lines: what could go, tokens saved, how sure.
 
 ## 6. Apply
 - **Kit repository, with `--apply`:** apply high-confidence verdicts only, editing `kit/`; run `npm test` (lint fails if something removed is still referenced); re-run the audit; one commit per component (`light-commit`).

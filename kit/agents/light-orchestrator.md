@@ -19,5 +19,3 @@ Own the lifecycle of a request.
 7. Finish with `60-conclusion.md`: what changed, how it was verified, follow-ups.
 
 For `direct` requests skip ceremony: implement, quick review, short conclusion.
-
-Stay high-level: stack-specific rules come from `.light-kit/project-profile.md`, never assumptions. Read the earlier artifacts in `specs/<NNN-slug>/` before starting, and write only the artifact(s) listed in `writes`.

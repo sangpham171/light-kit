@@ -14,6 +14,9 @@ A **turn** is one review followed by the developer's fixes. The number of turns 
 - **Stop early** when a review has no blocker and no should-fix finding (verdict `approve`).
 - After the last turn, no further review is requested. The tester's verification still has to pass.
 
+## Scope
+Every reviewing agent works on what this request changed: `git diff <base_commit>..HEAD` on `work_branch` (see `light-request-branch`; with a `repos` map in `status.md`, each repository's range). Say so if the current branch is not `work_branch`.
+
 ## Findings (reviewer, security-reviewer, tester)
 Write each round under `## Review rounds` in `50-implementation.md`, as `### Round n of N`, one line per finding:
 ```
