@@ -7,8 +7,8 @@ base_commit: 1fa8b30ca4bd40b2ba4ecd57363cf24a1cc7a8a9
 work_branch: feat/011-cache-token-usage
 review_turns: 1
 review_round: 1
-step: review
-state: in-progress
+step: done
+state: done
 ---
 
 Blockers / pending questions: none

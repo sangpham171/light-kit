@@ -33,13 +33,23 @@ The kit now reports cache reads and cache writes as their own figures: input cou
 
 ## Technical debt
 - Artifacts from requests 004–010 keep an `input` that includes cache reads; they are not rewritten, and the conclusion of this request says so.
+- The installed copy of the kit (request 010's code) still folds cache into input until it is reinstalled; the user reinstalls after each request, so it stays a follow-up.
 - Subagent transcripts are still not counted (pre-existing).
 
 ## Review rounds
-Round 1 of 1 (light-reviewer) — recorded after the review.
+### Round 1 of 1 (light-reviewer)
+- F-1.1 [should-fix] kit/hooks/checks/token-usage.mjs:36-38 — the last-cell rule made a table without a Time column count as filled, because the 004–007 tables end in Total — the Time column is now read from the header, and a table without one is unfilled — status: fixed (`f75e26d`).
+- F-1.2 [nit] tests/hooks.test.mjs — no test proved a legacy 5-column table still counts — added alongside a 4-column case — status: fixed (`f75e26d`).
+- F-1.3 [nit] tests/usage.test.mjs — the delta test never exercised a cache drop — added — status: fixed (`f75e26d`).
+- F-1.4 [nit] tests/usage.test.mjs:11, tests/hooks.test.mjs — titles still described the old inclusive input — retitled and comment corrected — status: fixed (`f75e26d`).
+- F-1.5 [nit] tests/hooks.test.mjs — hook header and template header were never compared — the test now asserts the hook's header equals the template's — status: fixed (`f75e26d`).
+- F-1.6 [nit] tests/usage.test.mjs — the plan's single-turn example was not asserted — added — status: fixed (`f75e26d`).
+- F-1.7 [nit] 50-implementation.md — the reinstall gap was missing from Technical debt — added — status: fixed.
+- F-1.8 [nit] 50-implementation.md — this section held a placeholder — this block replaces it — status: fixed.
+Verdict: changes requested in round 1; all findings fixed in `f75e26d`.
 
 ## Token usage
-Tokens: 11,593 input · 3,425,152 cache read · 0 cache write · 18,480 output · 3,455,225 total
-Time: 1m 58s
+Tokens: 17,986 input · 5,655,552 cache read · 0 cache write · 31,005 output · 5,704,543 total
+Time: 8m 31s
 
-Recomputed from the transcript at this file's write time: the installed hook still folds cache into input until the kit is reinstalled.
+Recomputed from the transcript at this file's last write: the installed hook still folds cache into input until the kit is reinstalled. The review round's work is included.
