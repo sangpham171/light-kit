@@ -7,7 +7,7 @@ You write agents, skills, prompts and workflows once in `kit/`; `tools/install.m
 ## Requirements
 - **Node 18 or newer** on the machine that runs your AI client.
 - At least one supported client: Claude Code, GitHub Copilot, Cursor or Codex.
-- macOS, Linux, WSL or Windows. The installer is plain Node and runs on all of them; the safety hooks expect a POSIX shell (see [Platforms](docs/installation.md#platforms)).
+- macOS, Linux, WSL or Windows. The installer is plain Node; the Claude Code and Codex safety hooks need a POSIX shell (see [Platforms](docs/installation.md#platforms)).
 
 ## Install
 
@@ -29,7 +29,7 @@ Every project on the machine (user level):
 ```sh
 node tools/install.mjs --level user
 ```
-On Windows the user-level folder is `%USERPROFILE%` (`C:\Users\<you>`); the user-level paths are `%USERPROFILE%\.claude`, `.copilot`, `.cursor`, `.codex`, `.agents` and `%USERPROFILE%\.light-kit`. At this level only the clients whose folder already exists are installed; pass `--clients` to create the others.
+This installs into your home folder — `~` (`/Users/<you>`, `/home/<you>`), or `%USERPROFILE%` (`C:\Users\<you>`) on Windows — creating `.claude`, `.copilot`, `.cursor`, `.codex`, `.agents` and `.light-kit` there (`%USERPROFILE%\.claude` on Windows). At this level only the clients whose folder already exists are installed; pass `--clients` to create the others.
 
 Several projects in one folder (workspace level):
 ```sh
@@ -53,7 +53,7 @@ Run `/light-init` once per project: it writes the project profile, codebase map 
 | **Cursor** | `.cursor/rules/*.mdc`, `.cursor/commands/`, hooks merged into `.cursor/hooks.json` | Open the project in Cursor; the `/light-*` commands are available in chat. |
 | **Codex** | `AGENTS.md`, `.codex/agents/*.toml`, `.agents/skills/`, hooks merged into `.codex/hooks.json` | Start `codex` in the project, run `/hooks` once to trust the hooks, and copy `.codex/prompts/*` to `~/.codex/prompts/` for the `/light-*` commands (a user-level install already places them there). |
 
-At user level, Copilot prompt files and Cursor rules are not installed globally (both clients keep them in their own settings); use a project-level install to get those.
+At project and workspace level, `AGENTS.md` is also written for Copilot and Cursor. At user level, Copilot prompt files and Cursor rules are not installed (VS Code keeps prompts in its profile folder, Cursor keeps user rules in its settings); use a project-level install to get those.
 
 Install levels, detection rules, all flags, the generated layout and uninstall: [docs/installation.md](docs/installation.md).
 
