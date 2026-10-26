@@ -393,3 +393,40 @@ test('artifact-header: other clients, nested projects and user level only where 
   writeFileSync(join(h, 'kitted/specs/001-x/10-understanding.md'), '# no header');
   assert.match(hook(join(h, 'kitted'), 'specs/001-x/10-understanding.md'), /runs:/);
 });
+
+const usageEntry = (input, output) => `${JSON.stringify({ type: 'assistant', message: { usage: { input_tokens: input, output_tokens: output } } })}\n`;
+const usageArtifact = (tokens = 'unknown') => `---\nruns:\n  - step: implement | agent: light-developer | model: m | thinking: high | level: medium\n---\n\n# Implementation log\n\n## Token usage\nTokens: ${tokens}\n`;
+
+test('token-usage: reports the step delta and accumulates the request totals', () => {
+  const d = project(); withSpec(d);
+  const f = join(d, 'session.jsonl');
+  writeFileSync(f, usageEntry(100, 20));
+  writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact());
+  const call = () => ({ ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's1' });
+  const first = JSON.parse(run(d, 'claude', 'post-tool', call()).out).hookSpecificOutput.additionalContext;
+  assert.match(first, /Token usage for 001-x step 50-implementation: 100\/20/);
+  assert.match(first, /Tokens: 100\/20 \(total 120\)/);
+  assert.match(first, /\| 50-implementation \| 100 \| 20 \| 120 \|/);
+  let state = JSON.parse(readFileSync(join(d, '.light-kit/usage.json'), 'utf8'));
+  assert.deepEqual(state.sessions.s1, { input: 100, output: 20 });
+  assert.deepEqual(state.requests['001-x'].steps['50-implementation'], { input: 100, output: 20 });
+
+  writeFileSync(f, usageEntry(50, 10), { flag: 'a' });
+  writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact('100/20'));
+  assert.equal(run(d, 'claude', 'post-tool', call()).out, ''); // already filled: no nag
+  state = JSON.parse(readFileSync(join(d, '.light-kit/usage.json'), 'utf8'));
+  assert.deepEqual(state.sessions.s1, { input: 150, output: 30 }); // the baseline still advances
+  assert.deepEqual(state.requests['001-x'].steps['50-implementation'], { input: 150, output: 30 });
+});
+
+test('token-usage: silent without a readable transcript, for other clients and for other files', () => {
+  const d = project(); withSpec(d);
+  writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact());
+  writeFile(d, 'src/notes.md', '# notes');
+  assert.equal(run(d, 'claude', 'post-tool', write('specs/001-x/50-implementation.md')).out, '');
+  const f = join(d, 'session.jsonl');
+  writeFileSync(f, usageEntry(10, 1));
+  assert.equal(run(d, 'codex', 'post-tool', { ...write('specs/001-x/50-implementation.md'), transcript_path: f }).out, '');
+  assert.equal(run(d, 'claude', 'post-tool', { ...write('src/notes.md'), transcript_path: f }).out, '');
+  assert.equal(existsSync(join(d, '.light-kit/usage.json')), false);
+});
