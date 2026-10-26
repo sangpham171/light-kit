@@ -54,5 +54,5 @@ Why: several components change, but the time reader extends the existing usage r
 - conclude: easy.
 
 ## Token usage
-Tokens: 0/0 (total 0)
+Tokens: 226326/3400 (total 229726)
 Time: unknown (installed hook does not report time yet)
