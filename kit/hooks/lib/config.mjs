@@ -52,10 +52,13 @@ export function findScope(root, start) {
 // At user level the kit is installed in the home folder (~/.light-kit) and serves every project. The marker is written by the installer.
 const isUserLevel = (home) => { try { return JSON.parse(readFileSync(join(home, '.light-kit', 'kit.config.json'), 'utf8')).level === 'user'; } catch { return false; } };
 
-// The nearest repository root at or above `start` (still below the user's home): the project boundary
-// the kit can use before the project has a `.light-kit` of its own.
+// The nearest repository root at or above `start`: the project boundary the kit can use before the
+// project has a `.light-kit` of its own. Inside the home folder the walk stops at home (home or its
+// parents are never the project); a project elsewhere is searched up to the filesystem root.
 const repoRootOf = (start, home) => {
-  for (let d = resolve(start); d !== home && inside(home, d); d = dirname(d)) if (existsSync(join(d, '.git'))) return d;
+  const from = resolve(start);
+  const stop = inside(home, from) ? home : '';
+  for (let d = from; d !== stop && dirname(d) !== d; d = dirname(d)) if (existsSync(join(d, '.git'))) return d;
   return '';
 };
 
