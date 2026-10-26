@@ -17,3 +17,4 @@ Requested by: <who>
 
 ## Token usage
 Tokens: unknown
+Time: unknown

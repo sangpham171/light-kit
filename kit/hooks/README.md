@@ -14,7 +14,7 @@ Automatic guardrails that run inside your AI client. One script (`run.mjs`) serv
 | `clean-commit-message` | before a shell command | block | No AI attribution in commit messages or pull request text (`Co-Authored-By` an assistant, "Generated with …" credits, AI sign-offs), also when the message comes from a file. Human co-authors are fine. |
 | `audit-reminder` | session start | warn | Once per model: when the model in use differs from the one the kit was last audited with, suggest running `light-audit`. Silent for clients that do not report a model. |
 | `artifact-header` | after a write | warn | Remind the agent that request artifacts, the codebase map, the assessment, the backlog and audit reports start with a `runs:` header (agent, model, thinking, level per run). |
-| `token-usage` | after a write | warn | Report the step's token consumption for a request artifact and keep the per-request totals in `.light-kit/usage.json` (or in `~/.light-kit/state/` when a user-level install meets a project without `.light-kit`). |
+| `token-usage` | after a write | warn | Report the step's token consumption and time spent for a request artifact and keep the per-request totals in `.light-kit/usage.json` (or in `~/.light-kit/state/` when a user-level install meets a project without `.light-kit`). |
 | `require-spec` | before a write | warn | Remind the agent to start a request before changing code. |
 | `post-edit-quality` | after a write | warn | Run your format and lint commands on the edited file. |
 | `warn-secret-output` | after a tool | warn | Tell the agent when output contains a secret. |
@@ -25,7 +25,7 @@ Automatic guardrails that run inside your AI client. One script (`run.mjs`) serv
 
 `warn` means "tell the agent and continue". `off` disables a hook.
 
-`token-usage` reads the Claude Code session transcript only; Copilot, Cursor and Codex keep `unknown`. Its baseline lives in `.light-kit/usage.json` (local state, safe to delete; add it to your ignore file if you do not want it committed). It acts on `specs/<id>/<step>.md` files whether or not the project ran `light-init`; under a user-level install in a project without `.light-kit/`, the state goes to `~/.light-kit/state/usage-<project>-<hash>.json` so the project is never touched.
+`token-usage` reads the Claude Code session transcript only; Copilot, Cursor and Codex keep `unknown`. Tokens come from `message.usage`, time from the entry timestamps: the gaps between consecutive entries, counting a gap over 15 minutes as idle. Its baseline lives in `.light-kit/usage.json` (local state, safe to delete; add it to your ignore file if you do not want it committed). It acts on `specs/<id>/<step>.md` files whether or not the project ran `light-init`; under a user-level install in a project without `.light-kit/`, the state goes to `~/.light-kit/state/usage-<project>-<hash>.json` so the project is never touched.
 
 ## Make them fit your project
 Edit `.light-kit/hooks.config.json` (the `light-init` command does this for you, using the `light-hooks-config` skill). Lists in the config **add to** the built-in defaults.

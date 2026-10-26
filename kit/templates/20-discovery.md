@@ -17,3 +17,4 @@ runs:
 
 ## Token usage
 Tokens: unknown
+Time: unknown

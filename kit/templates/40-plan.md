@@ -20,3 +20,4 @@ Each task = one verified, coherent commit.
 
 ## Token usage
 Tokens: unknown
+Time: unknown
