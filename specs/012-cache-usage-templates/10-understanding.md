@@ -33,7 +33,5 @@ Workflow: direct
 Why: six text templates plus their test and one doc line; the shape already exists in the conclusion template, so no new behaviour.
 
 ## Token usage
-Tokens: 0 input · 0 cache read · 0 cache write · 0 output · 0 total
-Time: 0s
-
-Written in the same turn as `00-request.md`; the hook counted that turn's usage once, on the request step.
+Tokens: 969 input · 44,928 cache read · 0 cache write · 829 output · 46,726 total
+Time: 5s

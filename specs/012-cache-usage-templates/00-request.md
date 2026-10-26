@@ -16,5 +16,5 @@ Requested by: light
 add cache read write to others templates
 
 ## Token usage
-Tokens: 37,680 input · 363,392 cache read · 0 cache write · 7,080 output · 408,152 total
-Time: 1m 56s
+Tokens: 37,848 input · 407,424 cache read · 0 cache write · 7,924 output · 453,196 total
+Time: 1m 58s
