@@ -62,7 +62,13 @@ export function deltaUsage(current, previous = {}) {
 }
 
 export const totalUsage = (u) => u.input + u.output;
-export const formatUsage = (u) => `${u.input}/${u.output}`;
+
+// Seven-digit totals are unreadable without grouping, and an unlabelled `a/b` hides which number is
+// which: every figure the kit prints or suggests goes through these two.
+const group = new Intl.NumberFormat('en-US');
+export const formatCount = (n) => group.format(Math.max(0, Math.round(num(n))));
+export const formatUsage = (u) =>
+  `${formatCount(u.input)} input · ${formatCount(u.output)} output · ${formatCount(totalUsage(u))} total`;
 
 // Whole seconds, the resolution a reader needs for a step.
 export function formatDuration(ms) {

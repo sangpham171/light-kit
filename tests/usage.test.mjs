@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { IDLE_MS, deltaUsage, formatDuration, formatUsage, totalUsage, usageFromTranscript } from '../kit/hooks/lib/usage.mjs';
+import { IDLE_MS, deltaUsage, formatCount, formatDuration, formatUsage, totalUsage, usageFromTranscript } from '../kit/hooks/lib/usage.mjs';
 
 const line = (o) => `${JSON.stringify(o)}\n`;
 const empty = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, calls: 0, timeMs: 0, timeKnown: false };
@@ -20,7 +20,17 @@ test('Claude Code: sums every assistant turn, including cached prompt tokens', (
   const u = usageFromTranscript(f);
   assert.deepEqual(u, { ...empty, input: 20, output: 5, cacheRead: 3, cacheWrite: 2, calls: 2 });
   assert.equal(totalUsage(u), 25);
-  assert.equal(formatUsage(u), '20/5');
+  assert.equal(formatUsage(u), '20 input · 5 output · 25 total');
+});
+
+test('formatting labels each figure and groups thousands', () => {
+  assert.equal(formatUsage({ input: 5_731_870, output: 62_833 }), '5,731,870 input · 62,833 output · 5,794,703 total');
+  assert.equal(formatUsage({ input: 0, output: 0 }), '0 input · 0 output · 0 total');
+  assert.equal(formatCount(999), '999');
+  assert.equal(formatCount(1000), '1,000');
+  assert.equal(formatCount(1_234.6), '1,235');
+  assert.equal(formatCount(-5), '0');
+  assert.equal(formatCount('x'), '0');
 });
 
 test('Claude Code: active time sums entry gaps and ignores idle gaps', () => {
