@@ -6,8 +6,8 @@ base_branch: main
 base_commit: 04f0420104c9e71396543325807bb7fb94486add
 work_branch: fix/006-token-usage-unknown
 review_turns: 1
-review_round: 0
-step: plan
+review_round: 1
+step: conclude
 state: in-progress
 ---
 
