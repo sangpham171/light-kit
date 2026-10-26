@@ -13,6 +13,7 @@ export const DEFAULT_MODES = {
   'clean-commit-message': 'block',
   'audit-reminder': 'warn',
   'artifact-header': 'warn',
+  'token-usage': 'warn',
   'require-spec': 'warn',
   'post-edit-quality': 'warn',
   'warn-secret-output': 'warn',

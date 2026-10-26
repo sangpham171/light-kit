@@ -14,5 +14,6 @@ import protectBranches from './protect-branches.mjs';
 import cleanCommitMessage from './clean-commit-message.mjs';
 import auditReminder from './audit-reminder.mjs';
 import artifactHeader from './artifact-header.mjs';
+import tokenUsage from './token-usage.mjs';
 
-export const CHECKS = [protectSensitiveFiles, blockSecretsInWrites, redactPromptSecrets, guardDangerousCommands, protectPaths, requireSpec, postEditQuality, warnSecretOutput, sessionContext, verifyOnStop, auditLog, commitCheckpoint, protectBranches, cleanCommitMessage, auditReminder, artifactHeader];
+export const CHECKS = [protectSensitiveFiles, blockSecretsInWrites, redactPromptSecrets, guardDangerousCommands, protectPaths, requireSpec, postEditQuality, warnSecretOutput, sessionContext, verifyOnStop, auditLog, commitCheckpoint, protectBranches, cleanCommitMessage, auditReminder, artifactHeader, tokenUsage];
