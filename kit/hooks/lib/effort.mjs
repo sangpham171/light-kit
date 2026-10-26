@@ -1,15 +1,33 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { homedir } from 'node:os';
-import { join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 
 // Clients store the reasoning ("thinking") effort in internal places, and the formats change between versions.
 // Every reader is best-effort: it returns '' when the value is absent or unreadable, never throws.
 
 const value = (v) => (typeof v === 'string' ? v.trim().replace(/^["']|["']$/g, '') : '');
 
-// Claude Code writes the effort on every assistant entry of the session transcript.
-export function effortFromTranscript(file) {
+// Recent other transcripts of the same project: at session start the current one holds no assistant turn yet.
+// Newest first, capped so a project with many sessions stays cheap to read.
+function siblingTranscripts(file, limit = 3) {
+  try {
+    const dir = dirname(file);
+    const self = basename(file);
+    return readdirSync(dir)
+      .filter((name) => name !== self && name.endsWith('.jsonl'))
+      .map((name) => {
+        const path = join(dir, name);
+        try { return { path, mtime: statSync(path).mtimeMs }; } catch { return null; } // vanished meanwhile
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.mtime - a.mtime)
+      .slice(0, limit)
+      .map((s) => s.path);
+  } catch { return []; } // no readable project directory
+}
+
+function scanTranscript(file) {
   if (!file) return '';
   try {
     const lines = readFileSync(file, 'utf8').trim().split('\n');
@@ -21,6 +39,19 @@ export function effortFromTranscript(file) {
       if (nested) return nested;
     }
   } catch { /* missing or unreadable transcript */ }
+  return '';
+}
+
+// Claude Code writes the effort on every assistant entry of the session transcript. A fresh session has
+// no assistant turn yet, so fall back to the newest transcript of the same project.
+export function effortFromTranscript(file) {
+  if (!file) return '';
+  const current = scanTranscript(file);
+  if (current || !existsSync(file)) return current; // a missing transcript is not a fresh session
+  for (const sibling of siblingTranscripts(file)) {
+    const found = scanTranscript(sibling);
+    if (found) return found; // a newer session may also be waiting for its first turn
+  }
   return '';
 }
 

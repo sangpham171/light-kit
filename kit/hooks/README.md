@@ -18,7 +18,7 @@ Automatic guardrails that run inside your AI client. One script (`run.mjs`) serv
 | `require-spec` | before a write | warn | Remind the agent to start a request before changing code. |
 | `post-edit-quality` | after a write | warn | Run your format and lint commands on the edited file. |
 | `warn-secret-output` | after a tool | warn | Tell the agent when output contains a secret. |
-| `session-context` | session start | warn | Point the agent at the profile, the codebase map and the active request, and report the client's thinking effort when it can be read (Claude Code, Copilot in VS Code, Codex). |
+| `session-context` | session start | warn | Point the agent at the profile, the codebase map and the active request, and report the client's thinking effort when it can be read (Claude Code, Copilot in VS Code, Codex). Reported also for a user-level install in a project without `.light-kit`; a fresh Claude Code session falls back to the newest transcript of the same project. |
 | `commit-checkpoint` | after a write | warn | When many files are uncommitted, remind the agent to commit the finished unit (see the `light-commit` skill). |
 | `verify-on-stop` | agent finishing | off | Run your verify command; if it fails, make the agent keep working (once). |
 | `audit-log` | tool use | off | Append redacted tool activity to `.light-kit/audit.log`. |

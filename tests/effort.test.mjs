@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { detectEffort, effortFromCodex, effortFromTranscript, effortFromVscode } from '../kit/hooks/lib/effort.mjs';
@@ -14,6 +14,25 @@ test('Claude Code: reads the newest effort from the transcript', () => {
   writeFileSync(f, line({ type: 'user' }) + line({ type: 'assistant', effort: 'low' }) + line({ type: 'assistant', effort: 'high' }));
   assert.equal(effortFromTranscript(f), 'high');
   assert.equal(detectEffort({ client: 'claude', payload: { transcript_path: f } }), 'high');
+});
+
+test('Claude Code: a fresh session falls back to the newest transcript of the project', () => {
+  const d = tmp('light-kit-effort-');
+  const older = join(d, 'older.jsonl');
+  const newer = join(d, 'newer.jsonl');
+  const current = join(d, 'current.jsonl');
+  writeFileSync(older, line({ type: 'assistant', effort: 'low' }));
+  writeFileSync(newer, line({ type: 'assistant', effort: 'high' }));
+  writeFileSync(current, line({ type: 'mode', mode: 'normal' }));
+  const idle = join(d, 'idle.jsonl'); // another window, also waiting for its first turn
+  writeFileSync(idle, line({ type: 'mode', mode: 'normal' }));
+  utimesSync(older, new Date(1_000), new Date(1_000));
+  utimesSync(newer, new Date(2_000), new Date(2_000));
+  utimesSync(idle, new Date(3_000), new Date(3_000));
+  assert.equal(effortFromTranscript(current), 'high'); // no assistant turn in this session yet
+  assert.equal(detectEffort({ client: 'claude', payload: { transcript_path: current } }), 'high');
+  writeFileSync(current, line({ type: 'assistant', effort: 'medium' }));
+  assert.equal(effortFromTranscript(current), 'medium'); // the current session wins once it has a value
 });
 
 test('Claude Code: falls back to the request metadata, and misses quietly', () => {

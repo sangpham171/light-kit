@@ -157,6 +157,17 @@ test('session start reports the thinking effort the client exposes', () => {
   assert.doesNotMatch(run(d, 'claude', 'session-start', {}).out, /thinking effort/);
 });
 
+test('session start reports the effort for a user-level install without project setup', () => {
+  const { home, proj } = userProject();
+  const previous = join(proj, 'previous.jsonl');
+  const current = join(proj, 'session.jsonl');
+  writeFileSync(previous, `${JSON.stringify({ type: 'assistant', effort: 'high' })}\n`);
+  writeFileSync(current, `${JSON.stringify({ type: 'mode', mode: 'normal' })}\n`);
+  const c = JSON.parse(userHook(home, proj, 'session-start', { transcript_path: current }).stdout).hookSpecificOutput;
+  assert.match(c.additionalContext, /not set up in this project/);
+  assert.match(c.additionalContext, /thinking effort "high"/);
+});
+
 test('verify-on-stop blocks a failing finish once, and never loops', () => {
   const d = project({ hooks: { 'verify-on-stop': 'block' }, verify: { command: 'node -e "console.error(\'2 tests failed\');process.exit(1)"' } });
   const r = JSON.parse(run(d, 'claude', 'stop', {}).out);
