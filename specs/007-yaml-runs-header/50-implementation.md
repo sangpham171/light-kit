@@ -30,4 +30,4 @@ runs:
 - Round 1 (direct workflow): no findings.
 
 ## Token usage
-Tokens: 1968830/17506 (total 1986336)
+Tokens: 2212462/23934 (total 2236396)

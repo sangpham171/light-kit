@@ -37,4 +37,4 @@ Workflow: direct
 Why: mechanical format fix with a clear, testable outcome, contained to the kit's own files.
 
 ## Token usage
-Tokens: 0/0 (total 0)
+Tokens: 141462/2649 (total 144111)

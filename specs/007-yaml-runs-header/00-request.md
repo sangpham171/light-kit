@@ -24,4 +24,4 @@ Nested mappings are not allowed in compact mappings at line 2, column 11:
 ```
 
 ## Token usage
-Tokens: 850688/22796 (total 873484)
+Tokens: 1230544/31052 (total 1261596)
