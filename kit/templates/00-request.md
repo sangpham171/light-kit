@@ -10,3 +10,6 @@ Requested by: <who>
 
 ## Original request
 <verbatim text from the user>
+
+## Token usage
+Tokens: unknown

@@ -247,9 +247,12 @@ test('artifact headers: every artifact template starts with the runs header and 
   for (const t of ['00-request', '10-understanding', '20-discovery', '30-design', '40-plan', '50-implementation', '60-conclusion']) {
     const text = read(`.light-kit/templates/${t}.md`);
     assert.match(text, /^---\nruns:\n  - step: <step> \| agent: <agent> \| model: <model id> \| thinking: <reasoning setting or unknown> \| level: /, t);
+    assert.match(text, /## Token usage/, t);
   }
+  assert.match(read('.light-kit/templates/60-conclusion.md'), /^\| \*\*Total\*\* \|/m);
   assert.doesNotMatch(read('.light-kit/templates/status.md'), /runs:/); // state file, not an artifact
   assert.match(read('CLAUDE.md'), /Sign your artifacts/);
+  assert.match(read('CLAUDE.md'), /token-usage/);
   assert.match(read('CLAUDE.md'), /otherwise `unknown`, never a guess/);
   for (const s of ['light-codebase-map', 'light-project-assessment', 'light-audit']) assert.match(read(`.claude/skills/${s}/SKILL.md`), /`runs:` header/, s);
   assert.match(read('.claude/skills/light-model-routing/SKILL.md'), /`runs:` header/);
