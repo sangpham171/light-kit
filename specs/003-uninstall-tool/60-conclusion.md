@@ -1,6 +1,10 @@
 ---
 runs:
-  - step: conclude | agent: light-tech-writer | model: deepseek-flash[1m] | thinking: unknown | level: easy
+  - step: conclude
+    agent: light-tech-writer
+    model: deepseek-flash[1m]
+    thinking: unknown
+    level: easy
 ---
 
 # Conclusion

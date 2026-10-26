@@ -1,6 +1,10 @@
 ---
 runs:
-  - step: request | agent: light-orchestrator | model: deepseek-flash[1m] | thinking: unknown | level: easy
+  - step: request
+    agent: light-orchestrator
+    model: deepseek-flash[1m]
+    thinking: unknown
+    level: easy
 ---
 
 # Request 003 — Uninstall tool with soft and hard modes

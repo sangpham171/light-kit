@@ -1,6 +1,10 @@
 ---
 runs:
-  - step: <step> | agent: <agent> | model: <model id> | thinking: <reasoning setting or unknown> | level: <easy|medium|hard|unknown>
+  - step: <step>
+    agent: <agent>
+    model: <model id>
+    thinking: <reasoning setting or unknown>
+    level: <easy|medium|hard|unknown>
 ---
 
 # Design

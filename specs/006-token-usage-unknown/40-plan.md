@@ -1,6 +1,10 @@
 ---
 runs:
-  - step: plan | agent: light-orchestrator | model: deepseek-flash[1m] | thinking: unknown | level: medium
+  - step: plan
+    agent: light-orchestrator
+    model: deepseek-flash[1m]
+    thinking: unknown
+    level: medium
 ---
 
 # Plan

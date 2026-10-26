@@ -1,8 +1,20 @@
 ---
 runs:
-  - step: implement | agent: light-orchestrator | model: deepseek-flash[1m] | thinking: unknown | level: easy
-  - step: review | agent: light-reviewer | model: deepseek-flash[1m] | thinking: unknown | level: easy
-  - step: fix | agent: light-orchestrator | model: deepseek-flash[1m] | thinking: unknown | level: easy
+  - step: implement
+    agent: light-orchestrator
+    model: deepseek-flash[1m]
+    thinking: unknown
+    level: easy
+  - step: review
+    agent: light-reviewer
+    model: deepseek-flash[1m]
+    thinking: unknown
+    level: easy
+  - step: fix
+    agent: light-orchestrator
+    model: deepseek-flash[1m]
+    thinking: unknown
+    level: easy
 ---
 
 # Implementation log

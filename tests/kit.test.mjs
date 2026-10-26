@@ -246,7 +246,7 @@ test('artifact headers: every artifact template starts with the runs header and 
   const read = (p) => readFileSync(join(dir, p), 'utf8');
   for (const t of ['00-request', '10-understanding', '20-discovery', '30-design', '40-plan', '50-implementation', '60-conclusion']) {
     const text = read(`.light-kit/templates/${t}.md`);
-    assert.match(text, /^---\nruns:\n  - step: <step> \| agent: <agent> \| model: <model id> \| thinking: <reasoning setting or unknown> \| level: /, t);
+    assert.match(text, /^---\nruns:\n  - step: <step>\n    agent: <agent>\n    model: <model id>\n    thinking: <reasoning setting or unknown>\n    level: <easy\|medium\|hard\|unknown>\n---/, t);
     assert.match(text, /## Token usage/, t);
   }
   assert.match(read('.light-kit/templates/60-conclusion.md'), /^\| \*\*Total\*\* \|/m);

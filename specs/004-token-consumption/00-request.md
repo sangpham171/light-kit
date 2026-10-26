@@ -1,6 +1,10 @@
 ---
 runs:
-  - step: request | agent: light-orchestrator | model: deepseek-flash[1m] | thinking: unknown | level: easy
+  - step: request
+    agent: light-orchestrator
+    model: deepseek-flash[1m]
+    thinking: unknown
+    level: easy
 ---
 
 # Request 004 — Record token consumption per step and per request

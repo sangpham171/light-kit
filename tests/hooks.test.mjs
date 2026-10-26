@@ -343,7 +343,7 @@ test('Claude attribution is switched off in settings unless the user set their o
 });
 
 // ---------- artifact provenance header ----------
-const HEADER = (extra = '') => `---\nruns:\n  - step: plan | agent: light-tech-lead | model: m-1 | thinking: effort high | level: hard${extra}\n---\n\n# Plan\n`;
+const HEADER = (extra = '') => `---\nruns:\n  - step: plan\n    agent: light-tech-lead\n    model: m-1\n    thinking: effort high\n    level: hard${extra}\n---\n\n# Plan\n`;
 const writeFile = (d, rel, text) => { mkdirSync(join(d, rel, '..'), { recursive: true }); writeFileSync(join(d, rel), text); };
 const warns = (r) => r.out.includes('runs:');
 
@@ -363,7 +363,7 @@ test('artifact-header: quiet with a complete header, accepts unknown, ignores ot
   const d = project(); withSpec(d);
   writeFile(d, 'specs/001-x/40-plan.md', HEADER());
   assert.equal(run(d, 'claude', 'post-tool', write('specs/001-x/40-plan.md')).out, '');
-  writeFile(d, 'specs/001-x/50-implementation.md', '---\nruns:\n  - step: implement | agent: light-developer | model: unknown | thinking: unknown | level: unknown\n---\n# x');
+  writeFile(d, 'specs/001-x/50-implementation.md', '---\nruns:\n  - step: implement\n    agent: light-developer\n    model: unknown\n    thinking: unknown\n    level: unknown\n---\n# x');
   assert.equal(run(d, 'claude', 'post-tool', write('specs/001-x/50-implementation.md')).out, '');
   writeFile(d, 'specs/001-x/status.md', '---\nstate: x\n---\n'); // state file: not an artifact
   assert.equal(run(d, 'claude', 'post-tool', write('specs/001-x/status.md')).out, '');
@@ -376,10 +376,10 @@ test('artifact-header: quiet with a complete header, accepts unknown, ignores ot
 
 test('artifact-header: each required field matters, several runs are fine, mode can be off', () => {
   const d = project(); withSpec(d);
-  const bad = (line) => `---\nruns:\n  - ${line}\n---\n# x`;
-  for (const line of ['step: plan | agent: a | thinking: t', 'step: plan | agent: a | model: m', 'step: plan | model: m | thinking: t', 'model: m'])
-    { writeFile(d, 'specs/001-x/10-understanding.md', bad(line)); assert.ok(warns(run(d, 'claude', 'post-tool', write('specs/001-x/10-understanding.md'))), line); }
-  writeFile(d, 'specs/001-x/10-understanding.md', '---\nruns:\n  - step: understand | agent: light-orchestrator | model: m-1 | thinking: t | level: medium\n  - step: clarify | agent: light-product-owner | model: m-2 | thinking: t | level: medium\n---\n# x');
+  const bad = (fields) => `---\nruns:\n  - ${fields.join('\n    ')}\n---\n# x`;
+  for (const fields of [['step: plan', 'agent: a', 'thinking: t'], ['step: plan', 'agent: a', 'model: m'], ['step: plan', 'model: m', 'thinking: t'], ['model: m']])
+    { writeFile(d, 'specs/001-x/10-understanding.md', bad(fields)); assert.ok(warns(run(d, 'claude', 'post-tool', write('specs/001-x/10-understanding.md'))), fields.join(' | ')); }
+  writeFile(d, 'specs/001-x/10-understanding.md', '---\nruns:\n  - step: understand\n    agent: light-orchestrator\n    model: m-1\n    thinking: t\n    level: medium\n  - step: clarify\n    agent: light-product-owner\n    model: m-2\n    thinking: t\n    level: medium\n---\n# x');
   assert.equal(run(d, 'claude', 'post-tool', write('specs/001-x/10-understanding.md')).out, '');
   writeFile(d, 'specs/001-x/20-discovery.md', '# no header');
   writeFileSync(join(d, '.light-kit/hooks.config.json'), JSON.stringify({ hooks: { 'artifact-header': 'off' } }));
@@ -414,7 +414,7 @@ test('user level, project without .light-kit: path checks resolve from the proje
 });
 
 const usageEntry = (input, output) => `${JSON.stringify({ type: 'assistant', message: { usage: { input_tokens: input, output_tokens: output } } })}\n`;
-const usageArtifact = (tokens = 'unknown') => `---\nruns:\n  - step: implement | agent: light-developer | model: m | thinking: high | level: medium\n---\n\n# Implementation log\n\n## Token usage\nTokens: ${tokens}\n`;
+const usageArtifact = (tokens = 'unknown') => `---\nruns:\n  - step: implement\n    agent: light-developer\n    model: m\n    thinking: high\n    level: medium\n---\n\n# Implementation log\n\n## Token usage\nTokens: ${tokens}\n`;
 
 test('token-usage: reports the step delta and accumulates the request totals', () => {
   const d = project(); withSpec(d);
@@ -493,7 +493,7 @@ test('token-usage: a conclusion table counts as filled only when a cell has a nu
   const d = project(); withSpec(d);
   const f = join(d, 'session.jsonl');
   writeFileSync(f, usageEntry(30, 5));
-  const conclusion = (row) => `---\nruns:\n  - step: conclude | agent: light-tech-writer | model: m | thinking: high | level: easy\n---\n\n# Conclusion\n\n## Token usage\n| Step | Input | Output | Total |\n|---|---|---|---|\n${row}\n`;
+  const conclusion = (row) => `---\nruns:\n  - step: conclude\n    agent: light-tech-writer\n    model: m\n    thinking: high\n    level: easy\n---\n\n# Conclusion\n\n## Token usage\n| Step | Input | Output | Total |\n|---|---|---|---|\n${row}\n`;
   const call = () => ({ ...write('specs/001-x/60-conclusion.md'), transcript_path: f, session_id: 's2' });
   writeFile(d, 'specs/001-x/60-conclusion.md', conclusion('| 50-implementation | unknown | unknown | unknown |'));
   assert.match(run(d, 'claude', 'post-tool', call()).out, /Token usage for 001-x step 60-conclusion/);
