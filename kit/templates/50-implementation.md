@@ -16,3 +16,6 @@ runs:
 <!-- Round n of N (see the `light-review-cycle` skill). One line per finding:
 - F-1.1 [blocker|should-fix|nit] <path:line> — <problem> — suggested fix — status: open | fixed (<hash>) | declined (<reason>) | deferred (<reason>)
 Verdict: approve | changes requested -->
+
+## Token usage
+Tokens: unknown
