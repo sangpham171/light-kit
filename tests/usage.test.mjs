@@ -18,14 +18,16 @@ test('Claude Code: sums every assistant turn, including cached prompt tokens', (
     + line({ type: 'assistant', message: { usage: { input_tokens: 5, output_tokens: 1 } } })
     + line({ type: 'assistant', message: { role: 'assistant', content: 'no usage' } }));
   const u = usageFromTranscript(f);
-  assert.deepEqual(u, { ...empty, input: 20, output: 5, cacheRead: 3, cacheWrite: 2, calls: 2 });
+  assert.deepEqual(u, { ...empty, input: 15, output: 5, cacheRead: 3, cacheWrite: 2, calls: 2 });
   assert.equal(totalUsage(u), 25);
-  assert.equal(formatUsage(u), '20 input · 5 output · 25 total');
+  assert.equal(formatUsage(u), '15 input · 3 cache read · 2 cache write · 5 output · 25 total');
 });
 
 test('formatting labels each figure and groups thousands', () => {
-  assert.equal(formatUsage({ input: 5_731_870, output: 62_833 }), '5,731,870 input · 62,833 output · 5,794,703 total');
-  assert.equal(formatUsage({ input: 0, output: 0 }), '0 input · 0 output · 0 total');
+  assert.equal(
+    formatUsage({ input: 63_200, cacheRead: 4_400_000, cacheWrite: 1100, output: 36_700 }),
+    '63,200 input · 4,400,000 cache read · 1,100 cache write · 36,700 output · 4,501,000 total');
+  assert.equal(formatUsage({ input: 0, output: 0 }), '0 input · 0 cache read · 0 cache write · 0 output · 0 total');
   assert.equal(formatCount(999), '999');
   assert.equal(formatCount(1000), '1,000');
   assert.equal(formatCount(1_234.6), '1,235');
@@ -69,14 +71,17 @@ test('missing and unreadable transcripts yield zeros, never an error', () => {
   assert.deepEqual(usageFromTranscript(''), empty);
 });
 
-test('delta carries tokens and time, clamping both when the record was reset', () => {
+test('delta carries tokens, cache and time, clamping both when the record was reset', () => {
   assert.deepEqual(
-    deltaUsage({ input: 120, output: 30, timeMs: 5000, timeKnown: true }, { input: 100, output: 20, timeMs: 2000 }),
-    { input: 20, output: 10, timeMs: 3000, timeKnown: true });
+    deltaUsage(
+      { input: 120, output: 30, cacheRead: 400, cacheWrite: 50, timeMs: 5000, timeKnown: true },
+      { input: 100, output: 20, cacheRead: 300, cacheWrite: 40, timeMs: 2000 }),
+    { input: 20, output: 10, cacheRead: 100, cacheWrite: 10, timeMs: 3000, timeKnown: true });
   assert.deepEqual(
     deltaUsage({ input: 5, output: 1, timeMs: 0, timeKnown: true }, { input: 100, output: 20, timeMs: 9000 }),
-    { input: 0, output: 0, timeMs: 0, timeKnown: true });
-  assert.deepEqual(deltaUsage({ input: 5, output: 1, timeMs: 0 }), { input: 5, output: 1, timeMs: 0, timeKnown: false });
+    { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, timeMs: 0, timeKnown: true });
+  assert.deepEqual(deltaUsage({ input: 5, output: 1, timeMs: 0 }),
+    { input: 5, output: 1, cacheRead: 0, cacheWrite: 0, timeMs: 0, timeKnown: false });
 });
 
 test('durations read at second resolution', () => {

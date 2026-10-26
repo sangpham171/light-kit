@@ -12,10 +12,11 @@ const STATE = '.light-kit/usage.json';
 // User-level install in a project that has not run `init`: keep the state in the kit folder, one file per
 // project, so reporting never creates `.light-kit/` in the project (which would look like an `init`).
 const USER_STATE = '.light-kit/state';
-const ZERO = { input: 0, output: 0, timeMs: 0 };
-// Bumped when the counting changes. A file from an older version restarts: comparing a deduplicated
-// total with a baseline that counted the same response several times would clamp a whole step to zero.
-const STATE_VERSION = 2;
+const ZERO = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, timeMs: 0 };
+// Bumped when the counting changes. A file from an older version restarts: comparing figures on
+// different scales (each response counted twice, or input that folded in cache reads) would attribute
+// a whole step to the wrong bucket. Version 3 splits cache reads and writes out of input.
+const STATE_VERSION = 3;
 
 const abs = (ctx, file) => (isAbsolute(file) ? file : join(ctx.cwd, file));
 
@@ -32,8 +33,9 @@ const filledTime = (value, timeKnown) => /^\d/.test(value) || (!timeKnown && /^u
 const timeFilled = (body, timeKnown) => {
   const line = body.match(/^Time:\s*(.+)$/im);
   if (line) return filledTime(line[1].trim(), timeKnown);
-  const rows = body.matchAll(/^\|\s*[^|\n]+\|\s*[^|\n]+\|\s*[^|\n]+\|\s*[^|\n]+\|\s*([^|\n]+)\|/gm);
-  return [...rows].some(([, cell]) => filledTime(cell.trim(), timeKnown));
+  // The last cell of a row is the time, whatever the number of columns (5 in older tables, 7 now).
+  const rows = body.matchAll(/^\|(.+)\|$/gm);
+  return [...rows].some(([, cells]) => filledTime(cells.split('|').at(-1).trim(), timeKnown));
 };
 const filled = (text, timeKnown) => {
   const body = section(text);
@@ -56,7 +58,7 @@ const saveState = (file, state) => {
 
 const rows = (steps) => Object.entries(steps)
   .sort(([a], [b]) => a.localeCompare(b))
-  .map(([id, u]) => `| ${id} | ${formatCount(u.input)} | ${formatCount(u.output)} | ${formatCount(totalUsage(u))} | ${timeOf(u)} |`)
+  .map(([id, u]) => `| ${id} | ${formatCount(u.input)} | ${formatCount(u.cacheRead)} | ${formatCount(u.cacheWrite)} | ${formatCount(u.output)} | ${formatCount(totalUsage(u))} | ${timeOf(u)} |`)
   .join('\n');
 
 export default {
@@ -82,13 +84,19 @@ export default {
     const state = readState(stateFile);
     const session = ctx.payload.session_id ?? ctx.payload.sessionId ?? transcript;
     const delta = deltaUsage(current, state.sessions[session] ?? ZERO);
-    state.sessions[session] = { input: current.input, output: current.output, timeMs: current.timeMs };
+    state.sessions[session] = {
+      input: current.input, output: current.output,
+      cacheRead: current.cacheRead, cacheWrite: current.cacheWrite,
+      timeMs: current.timeMs,
+    };
 
     const [, request, step] = hit.match;
     state.requests[request] ??= { steps: {} };
     const totals = (state.requests[request].steps[step] ??= { ...ZERO, timed: false });
     totals.input = (Number(totals.input) || 0) + delta.input;
     totals.output = (Number(totals.output) || 0) + delta.output;
+    totals.cacheRead = (Number(totals.cacheRead) || 0) + delta.cacheRead;
+    totals.cacheWrite = (Number(totals.cacheWrite) || 0) + delta.cacheWrite;
     if (delta.timeKnown) {
       totals.timeMs = (Number(totals.timeMs) || 0) + delta.timeMs;
       totals.timed = true;
@@ -99,8 +107,12 @@ export default {
 
     const steps = state.requests[request].steps;
     const stepList = Object.values(steps);
-    const requestTotal = stepList
-      .reduce((a, u) => ({ input: a.input + u.input, output: a.output + u.output }), { ...ZERO });
+    const requestTotal = stepList.reduce((a, u) => ({
+      input: a.input + (Number(u.input) || 0),
+      output: a.output + (Number(u.output) || 0),
+      cacheRead: a.cacheRead + (Number(u.cacheRead) || 0),
+      cacheWrite: a.cacheWrite + (Number(u.cacheWrite) || 0),
+    }), { ...ZERO });
     const requestTimed = stepList.some((u) => u.timed);
     const requestTimeMs = stepList.reduce((a, u) => a + (u.timed ? Number(u.timeMs) || 0 : 0), 0);
     const where = section(text) ? `In ${hit.rel}, set` : `Add a \`## Token usage\` section to ${hit.rel} and set`;
@@ -117,10 +129,10 @@ export default {
           ? `In ${hit.rel}, fill the table with the rows below.`
           : `${where} \`Tokens: ${formatUsage(totals)}\` and \`Time: ${timeOf(totals)}\`.`,
         conclusion ? 'Use one row per step plus the total row:' : 'Copy this table into 60-conclusion.md, one row per step plus the total row:',
-        '| Step | Input | Output | Total | Time |',
-        '|---|---|---|---|---|',
+        '| Step | Input | Cache read | Cache write | Output | Total | Time |',
+        '|---|---|---|---|---|---|---|',
         rows(steps),
-        `| **Total** | ${formatCount(requestTotal.input)} | ${formatCount(requestTotal.output)} | ${formatCount(totalUsage(requestTotal))} | ${requestTime} |`,
+        `| **Total** | ${formatCount(requestTotal.input)} | ${formatCount(requestTotal.cacheRead)} | ${formatCount(requestTotal.cacheWrite)} | ${formatCount(requestTotal.output)} | ${formatCount(totalUsage(requestTotal))} | ${requestTime} |`,
         'Write `unknown` when the client exposes no usage or time.',
       ].join('\n'),
     };

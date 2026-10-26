@@ -413,45 +413,48 @@ test('user level, project without .light-kit: path checks resolve from the proje
   assert.equal(userHook(home, proj, 'pre-tool', write('src/a.txt', 'x')).status, 0);
 });
 
-const usageEntry = (input, output, timestamp, id) => `${JSON.stringify({ type: 'assistant', ...(timestamp ? { timestamp } : {}), message: { ...(id ? { id } : {}), usage: { input_tokens: input, output_tokens: output } } })}\n`;
+const usageEntry = (input, output, timestamp, id, cacheRead = 0, cacheWrite = 0) => `${JSON.stringify({ type: 'assistant', ...(timestamp ? { timestamp } : {}), message: { ...(id ? { id } : {}), usage: { input_tokens: input, output_tokens: output, cache_read_input_tokens: cacheRead, cache_creation_input_tokens: cacheWrite } } })}\n`;
 const usageArtifact = (tokens = 'unknown', time = 'unknown') => `---\nruns:\n  - step: implement\n    agent: light-developer\n    model: m\n    thinking: high\n    level: medium\n---\n\n# Implementation log\n\n## Token usage\nTokens: ${tokens}\nTime: ${time}\n`;
 
 test('token-usage: reports the step delta, time and accumulated request totals', () => {
   const d = project(); withSpec(d);
   const f = join(d, 'session.jsonl');
-  writeFileSync(f, usageEntry(100, 20, '2026-01-01T00:00:00Z'));
+  writeFileSync(f, usageEntry(100, 20, '2026-01-01T00:00:00Z', 'm1', 300, 40));
   writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact());
   const call = () => ({ ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's1' });
   const first = JSON.parse(run(d, 'claude', 'post-tool', call()).out).hookSpecificOutput.additionalContext;
   assert.match(first, /Token usage — 001-x, step 50-implementation/);
-  assert.match(first, /This write: 100 input · 20 output · 120 total · time 0s/);
-  assert.match(first, /Step total: 100 input · 20 output · 120 total · time 0s/);
-  assert.match(first, /Request total: 100 input · 20 output · 120 total · time 0s/);
-  assert.match(first, /Tokens: 100 input · 20 output · 120 total/);
+  assert.match(first, /This write: 100 input · 300 cache read · 40 cache write · 20 output · 460 total · time 0s/);
+  assert.match(first, /Step total: 100 input · 300 cache read · 40 cache write · 20 output · 460 total · time 0s/);
+  assert.match(first, /Request total: 100 input · 300 cache read · 40 cache write · 20 output · 460 total · time 0s/);
+  assert.match(first, /Tokens: 100 input · 300 cache read · 40 cache write · 20 output · 460 total/);
   assert.match(first, /Time: 0s/);
-  assert.match(first, /\| 50-implementation \| 100 \| 20 \| 120 \| 0s \|/);
+  assert.match(first, /\| 50-implementation \| 100 \| 300 \| 40 \| 20 \| 460 \| 0s \|/);
   let state = JSON.parse(readFileSync(join(d, '.light-kit/usage.json'), 'utf8'));
-  assert.deepEqual(state.sessions.s1, { input: 100, output: 20, timeMs: 0 });
-  assert.deepEqual(state.requests['001-x'].steps['50-implementation'], { input: 100, output: 20, timeMs: 0, timed: true });
+  assert.deepEqual(state.sessions.s1, { input: 100, output: 20, cacheRead: 300, cacheWrite: 40, timeMs: 0 });
+  assert.deepEqual(state.requests['001-x'].steps['50-implementation'],
+    { input: 100, output: 20, cacheRead: 300, cacheWrite: 40, timeMs: 0, timed: true });
 
   writeFileSync(f, usageEntry(50, 10, '2026-01-01T00:00:30Z'), { flag: 'a' });
-  writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact('100 input · 20 output · 120 total', '0s'));
+  writeFile(d, 'specs/001-x/50-implementation.md',
+    usageArtifact('100 input · 300 cache read · 40 cache write · 20 output · 460 total', '0s'));
   assert.equal(run(d, 'claude', 'post-tool', call()).out, ''); // already filled: no nag
   state = JSON.parse(readFileSync(join(d, '.light-kit/usage.json'), 'utf8'));
-  assert.deepEqual(state.sessions.s1, { input: 150, output: 30, timeMs: 30_000 }); // the baseline still advances
-  assert.deepEqual(state.requests['001-x'].steps['50-implementation'], { input: 150, output: 30, timeMs: 30_000, timed: true });
+  assert.deepEqual(state.sessions.s1, { input: 150, output: 30, cacheRead: 300, cacheWrite: 40, timeMs: 30_000 }); // the baseline still advances
+  assert.deepEqual(state.requests['001-x'].steps['50-implementation'],
+    { input: 150, output: 30, cacheRead: 300, cacheWrite: 40, timeMs: 30_000, timed: true });
 });
 
 test('token-usage: groups thousands in the suggested section and the table', () => {
   const d = project(); withSpec(d);
   const f = join(d, 'session.jsonl');
-  writeFileSync(f, usageEntry(1_200_000, 34_000, '2026-01-01T00:00:00Z', 'm1'));
+  writeFileSync(f, usageEntry(1_200_000, 34_000, '2026-01-01T00:00:00Z', 'm1', 4_000_000, 10));
   writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact());
   const out = JSON.parse(run(d, 'claude', 'post-tool', { ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's5' }).out).hookSpecificOutput.additionalContext;
-  assert.match(out, /Tokens: 1,200,000 input · 34,000 output · 1,234,000 total/);
-  assert.match(out, /\| Step \| Input \| Output \| Total \| Time \|/); // matches the conclusion template
-  assert.match(out, /\| 50-implementation \| 1,200,000 \| 34,000 \| 1,234,000 \| 0s \|/);
-  assert.match(out, /\| \*\*Total\*\* \| 1,200,000 \| 34,000 \| 1,234,000 \| 0s \|/);
+  assert.match(out, /Tokens: 1,200,000 input · 4,000,000 cache read · 10 cache write · 34,000 output · 5,234,010 total/);
+  assert.match(out, /\| Step \| Input \| Cache read \| Cache write \| Output \| Total \| Time \|/); // matches the conclusion template
+  assert.match(out, /\| 50-implementation \| 1,200,000 \| 4,000,000 \| 10 \| 34,000 \| 5,234,010 \| 0s \|/);
+  assert.match(out, /\| \*\*Total\*\* \| 1,200,000 \| 4,000,000 \| 10 \| 34,000 \| 5,234,010 \| 0s \|/);
 });
 
 test('token-usage: time is unknown without timestamps, and the agent may write that', () => {
@@ -489,13 +492,14 @@ test('token-usage: user level reports in a project without .light-kit and keeps 
   assert.equal(existsSync(join(proj, '.light-kit')), false); // reporting must not look like an `init`
   writeFileSync(f, usageEntry(50, 10), { flag: 'a' });
   const second = JSON.parse(call().stdout).hookSpecificOutput.additionalContext;
-  assert.match(second, /This write: 50 input · 10 output · 60 total/); // the baseline advanced
-  assert.match(second, /Tokens: 150 input · 30 output · 180 total/);
+  assert.match(second, /This write: 50 input · 0 cache read · 0 cache write · 10 output · 60 total/); // the baseline advanced
+  assert.match(second, /Tokens: 150 input · 0 cache read · 0 cache write · 30 output · 180 total/);
   assert.equal(existsSync(join(proj, '.light-kit')), false);
   const dir = join(home, '.light-kit/state');
   const files = readdirSync(dir);
   assert.equal(files.length, 1);
-  assert.deepEqual(JSON.parse(readFileSync(join(dir, files[0]), 'utf8')).requests['001-x'].steps['50-implementation'], { input: 150, output: 30, timeMs: 0, timed: false });
+  assert.deepEqual(JSON.parse(readFileSync(join(dir, files[0]), 'utf8')).requests['001-x'].steps['50-implementation'],
+    { input: 150, output: 30, cacheRead: 0, cacheWrite: 0, timeMs: 0, timed: false });
 });
 
 test('user level: a project outside the home folder still anchors at its repository root', () => {
@@ -518,9 +522,10 @@ test('user level: a project outside the home folder still anchors at its reposit
   assert.equal(existsSync(join(proj, '.light-kit')), false);
 });
 
-test('token-usage: a pre-dedup state file restarts instead of clamping the first step to zero', () => {
+test('token-usage: a state file from another counting version restarts instead of clamping the first step to zero', () => {
   const d = project(); withSpec(d);
   writeFileSync(join(d, '.light-kit/usage.json'), JSON.stringify({
+    version: 2,
     sessions: { s1: { input: 9999, output: 999 } },
     requests: { '001-x': { steps: { '50-implementation': { input: 9999, output: 999 } } } },
   }));
@@ -529,26 +534,27 @@ test('token-usage: a pre-dedup state file restarts instead of clamping the first
   writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact());
   const call = () => ({ ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's1' });
   const out = JSON.parse(run(d, 'claude', 'post-tool', call()).out).hookSpecificOutput.additionalContext;
-  assert.match(out, /This write: 10 input · 1 output · 11 total/); // the repeated block counts once
+  assert.match(out, /This write: 10 input · 0 cache read · 0 cache write · 1 output · 11 total/); // the repeated block counts once
   const state = JSON.parse(readFileSync(join(d, '.light-kit/usage.json'), 'utf8'));
-  assert.equal(state.version, 2);
-  assert.deepEqual(state.sessions.s1, { input: 10, output: 1, timeMs: 2000 });
-  assert.deepEqual(state.requests['001-x'].steps['50-implementation'], { input: 10, output: 1, timeMs: 2000, timed: true });
+  assert.equal(state.version, 3);
+  assert.deepEqual(state.sessions.s1, { input: 10, output: 1, cacheRead: 0, cacheWrite: 0, timeMs: 2000 });
+  assert.deepEqual(state.requests['001-x'].steps['50-implementation'],
+    { input: 10, output: 1, cacheRead: 0, cacheWrite: 0, timeMs: 2000, timed: true });
 });
 
 test('token-usage: a conclusion table counts as filled only when tokens and time are set', () => {
   const d = project(); withSpec(d);
   const f = join(d, 'session.jsonl');
-  writeFileSync(f, usageEntry(30, 5, '2026-01-01T00:00:00Z'));
-  const conclusion = (row) => `---\nruns:\n  - step: conclude\n    agent: light-tech-writer\n    model: m\n    thinking: high\n    level: easy\n---\n\n# Conclusion\n\n## Token usage\n| Step | Input | Output | Total | Time |\n|---|---|---|---|---|\n${row}\n`;
+  writeFileSync(f, usageEntry(30, 5, '2026-01-01T00:00:00Z', 'm1', 200, 20));
+  const conclusion = (row) => `---\nruns:\n  - step: conclude\n    agent: light-tech-writer\n    model: m\n    thinking: high\n    level: easy\n---\n\n# Conclusion\n\n## Token usage\n| Step | Input | Cache read | Cache write | Output | Total | Time |\n|---|---|---|---|---|---|---|\n${row}\n`;
   const call = () => ({ ...write('specs/001-x/60-conclusion.md'), transcript_path: f, session_id: 's2' });
-  writeFile(d, 'specs/001-x/60-conclusion.md', conclusion('| 50-implementation | unknown | unknown | unknown | unknown |'));
+  writeFile(d, 'specs/001-x/60-conclusion.md', conclusion('| 50-implementation | unknown | unknown | unknown | unknown | unknown | unknown |'));
   const first = run(d, 'claude', 'post-tool', call()).out;
   assert.match(first, /Token usage — 001-x, step 60-conclusion/);
   assert.match(first, /fill the table with the rows below/); // the conclusion holds a table, not a `Tokens:` line
   assert.doesNotMatch(first, /set `Tokens:/);
-  writeFile(d, 'specs/001-x/60-conclusion.md', conclusion('| 50-implementation | 30 | 5 | 35 | unknown |'));
+  writeFile(d, 'specs/001-x/60-conclusion.md', conclusion('| 50-implementation | 30 | 200 | 20 | 5 | 255 | unknown |'));
   assert.match(run(d, 'claude', 'post-tool', call()).out, /Token usage/); // time known: `unknown` does not count
-  writeFile(d, 'specs/001-x/60-conclusion.md', conclusion('| 50-implementation | 30 | 5 | 35 | 0s |'));
+  writeFile(d, 'specs/001-x/60-conclusion.md', conclusion('| 50-implementation | 30 | 200 | 20 | 5 | 255 | 0s |'));
   assert.equal(run(d, 'claude', 'post-tool', call()).out, '');
 });
