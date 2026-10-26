@@ -12,9 +12,10 @@ const stamp = (v) => (typeof v === 'string' ? Date.parse(v) : NaN);
 
 // Claude Code writes one `usage` object per assistant turn and an ISO `timestamp` on every entry.
 // It also writes one entry per content block, repeating the same `message.usage`: count each message
-// id once, or a response is counted two to three times over. `input` is the whole prompt (fresh +
-// cache write + cache read), the number the client processed. Active time is the sum of the gaps
-// between consecutive timestamped entries, so tool runs count and idle gaps do not.
+// id once, or a response is counted two to three times over. `input` counts the uncached prompt
+// tokens; cache reads and writes are reported separately, because on a long session they dwarf it.
+// Active time is the sum of the gaps between consecutive timestamped entries, so tool runs count and
+// idle gaps do not.
 export function usageFromTranscript(file) {
   const usage = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, calls: 0, timeMs: 0, timeKnown: false };
   if (!file) return usage;
@@ -41,7 +42,7 @@ export function usageFromTranscript(file) {
       }
       const cacheRead = num(u.cache_read_input_tokens);
       const cacheWrite = num(u.cache_creation_input_tokens);
-      usage.input += num(u.input_tokens) + cacheWrite + cacheRead;
+      usage.input += num(u.input_tokens);
       usage.output += num(u.output_tokens);
       usage.cacheRead += cacheRead;
       usage.cacheWrite += cacheWrite;
@@ -56,19 +57,22 @@ export function deltaUsage(current, previous = {}) {
   return {
     input: Math.max(0, current.input - num(previous.input)),
     output: Math.max(0, current.output - num(previous.output)),
+    cacheRead: Math.max(0, num(current.cacheRead) - num(previous.cacheRead)),
+    cacheWrite: Math.max(0, num(current.cacheWrite) - num(previous.cacheWrite)),
     timeMs: Math.max(0, num(current.timeMs) - num(previous.timeMs)),
     timeKnown: Boolean(current.timeKnown),
   };
 }
 
-export const totalUsage = (u) => u.input + u.output;
+export const totalUsage = (u) =>
+  num(u.input) + num(u.cacheRead) + num(u.cacheWrite) + num(u.output);
 
 // Seven-digit totals are unreadable without grouping, and an unlabelled `a/b` hides which number is
 // which: every figure the kit prints or suggests goes through these two.
 const group = new Intl.NumberFormat('en-US');
 export const formatCount = (n) => group.format(Math.max(0, Math.round(num(n))));
 export const formatUsage = (u) =>
-  `${formatCount(u.input)} input · ${formatCount(u.output)} output · ${formatCount(totalUsage(u))} total`;
+  `${formatCount(u.input)} input · ${formatCount(u.cacheRead)} cache read · ${formatCount(u.cacheWrite)} cache write · ${formatCount(u.output)} output · ${formatCount(totalUsage(u))} total`;
 
 // Whole seconds, the resolution a reader needs for a step.
 export function formatDuration(ms) {
