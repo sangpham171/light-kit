@@ -455,13 +455,38 @@ test('token-usage: user level reports in a project without .light-kit and keeps 
   const f = join(home, 'session.jsonl');
   writeFileSync(f, usageEntry(100, 20));
   writeFile(proj, 'specs/001-x/50-implementation.md', usageArtifact());
-  const r = userHook(home, proj, 'post-tool', { ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's1' });
-  assert.match(JSON.parse(r.stdout).hookSpecificOutput.additionalContext, /Token usage for 001-x step 50-implementation: 100\/20/);
+  const call = () => userHook(home, proj, 'post-tool', { ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's1' });
+  assert.match(JSON.parse(call().stdout).hookSpecificOutput.additionalContext, /Token usage for 001-x step 50-implementation: 100\/20/);
   assert.equal(existsSync(join(proj, '.light-kit')), false); // reporting must not look like an `init`
+  writeFileSync(f, usageEntry(50, 10), { flag: 'a' });
+  const second = JSON.parse(call().stdout).hookSpecificOutput.additionalContext;
+  assert.match(second, /Token usage for 001-x step 50-implementation: 50\/10/); // the baseline advanced
+  assert.match(second, /Tokens: 150\/30/);
+  assert.equal(existsSync(join(proj, '.light-kit')), false);
   const dir = join(home, '.light-kit/state');
   const files = readdirSync(dir);
   assert.equal(files.length, 1);
-  assert.deepEqual(JSON.parse(readFileSync(join(dir, files[0]), 'utf8')).requests['001-x'].steps['50-implementation'], { input: 100, output: 20 });
+  assert.deepEqual(JSON.parse(readFileSync(join(dir, files[0]), 'utf8')).requests['001-x'].steps['50-implementation'], { input: 150, output: 30 });
+});
+
+test('user level: a project outside the home folder still anchors at its repository root', () => {
+  const home = mkdtempSync(join(tmpdir(), 'light-kit-home-'));
+  install(home, ['claude'], { level: 'user' });
+  const proj = mkdtempSync(join(tmpdir(), 'light-kit-outside-'));
+  mkdirSync(join(proj, '.git'), { recursive: true });
+  withSpec(proj);
+  const sub = join(proj, 'deep/sub');
+  mkdirSync(sub, { recursive: true });
+  const hook = (event, payload) => spawnSync('node', [join(home, '.light-kit/hooks/run.mjs'), '--client', 'claude', '--event', event], {
+    cwd: sub, input: JSON.stringify({ cwd: sub, ...payload }), encoding: 'utf8',
+  });
+  assert.equal(hook('pre-tool', write(join(proj, '.git/config'), 'x')).status, 2);
+  const f = join(home, 'session.jsonl');
+  writeFileSync(f, usageEntry(11, 2));
+  writeFile(proj, 'specs/001-x/50-implementation.md', usageArtifact());
+  const r = hook('post-tool', { ...write(join(proj, 'specs/001-x/50-implementation.md')), transcript_path: f, session_id: 's1' });
+  assert.match(JSON.parse(r.stdout).hookSpecificOutput.additionalContext, /Token usage for 001-x step 50-implementation: 11\/2/);
+  assert.equal(existsSync(join(proj, '.light-kit')), false);
 });
 
 test('token-usage: a conclusion table counts as filled only when a cell has a number', () => {
