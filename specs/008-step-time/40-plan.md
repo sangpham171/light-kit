@@ -34,5 +34,5 @@ runs:
 - Old state files must not turn into zero time; `timed` defaults to false and displays `unknown`.
 
 ## Token usage
-Tokens: 0/0 (total 0)
+Tokens: 241712/3898 (total 245610)
 Time: unknown (installed hook does not report time yet)

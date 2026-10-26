@@ -35,5 +35,5 @@ runs:
 - Old state files lack `timeMs` and `timed`; treat missing values as unknown, never as zero-time.
 
 ## Token usage
-Tokens: 232696/762 (total 233458)
+Tokens: 468640/2872 (total 471512)
 Time: unknown (installed hook does not report time yet)

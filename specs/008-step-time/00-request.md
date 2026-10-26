@@ -16,5 +16,5 @@ Requested by: light
 add time spending after token usage for each step and over all in conclusion
 
 ## Token usage
-Tokens: 1144964/33752 (total 1178716)
+Tokens: 1256548/34064 (total 1290612)
 Time: unknown (installed hook does not report time yet)
