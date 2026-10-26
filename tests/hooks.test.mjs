@@ -473,6 +473,16 @@ test('token-usage: time is unknown without timestamps, and the agent may write t
   assert.match(run(d, 'claude', 'post-tool', call()).out, /Token usage/); // timestamps exist now: a duration is expected
 });
 
+test('token-usage: the template placeholder does not count as a filled section', () => {
+  const d = project(); withSpec(d);
+  const f = join(d, 'session.jsonl');
+  writeFileSync(f, usageEntry(10, 1, '2026-01-01T00:00:00Z'));
+  writeFile(d, 'specs/001-x/50-implementation.md',
+    readFileSync(new URL('../kit/templates/50-implementation.md', import.meta.url), 'utf8'));
+  const out = JSON.parse(run(d, 'claude', 'post-tool', { ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's6' }).out).hookSpecificOutput.additionalContext;
+  assert.match(out, /set `Tokens: 10 input · 0 cache read · 0 cache write · 1 output · 11 total`/);
+});
+
 test('token-usage: silent without a readable transcript, for other clients and for other files', () => {
   const d = project(); withSpec(d);
   writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact());

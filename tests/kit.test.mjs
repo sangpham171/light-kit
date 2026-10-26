@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { loadKit, lint, build, CLIENT_NAMES, START, END } from '../tools/build.mjs';
 import { install } from '../tools/install.mjs';
+import { formatUsage } from '../kit/hooks/lib/usage.mjs';
 
 const tmp = () => mkdtempSync(join(tmpdir(), 'light-kit-'));
 
@@ -244,13 +245,18 @@ test('artifact headers: every artifact template starts with the runs header and 
   const dir = tmp();
   install(dir, ['claude']);
   const read = (p) => readFileSync(join(dir, p), 'utf8');
+  // The step template's placeholder takes its labels and order from the line the hook prints, so a
+  // change in `formatUsage` fails here instead of leaving the templates on the old shape.
+  const labels = formatUsage({ input: 1, cacheRead: 2, cacheWrite: 3, output: 4 })
+    .split(' · ').map((cell) => cell.replace(/^[\d,]+\s+/, ''));
+  const placeholder = labels.map((label) => `<${label}> ${label}`).join(' · ');
   for (const t of ['00-request', '10-understanding', '20-discovery', '30-design', '40-plan', '50-implementation', '60-conclusion']) {
     const text = read(`.light-kit/templates/${t}.md`);
     assert.match(text, /^---\nruns:\n  - step: <step>\n    agent: <agent>\n    model: <model id>\n    thinking: <reasoning setting or unknown>\n    level: <easy\|medium\|hard\|unknown>\n---/, t);
     assert.match(text, /## Token usage/, t);
     if (t === '60-conclusion') assert.match(text, /^\| Step \| Input \| Cache read \| Cache write \| Output \| Total \| Time \|$/m, t);
     else {
-      assert.match(text, /^Tokens: <input> input · <cache read> cache read · <cache write> cache write · <output> output · <total> total$/m, t);
+      assert.equal(text.match(/^Tokens: (.+)$/m)?.[1], placeholder, t);
       assert.match(text, /^Time: unknown$/m, t);
     }
   }
