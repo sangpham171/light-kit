@@ -11,13 +11,15 @@ const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : 0);
 const stamp = (v) => (typeof v === 'string' ? Date.parse(v) : NaN);
 
 // Claude Code writes one `usage` object per assistant turn and an ISO `timestamp` on every entry.
-// `input` is the whole prompt (fresh + cache write + cache read), the number the client processed.
-// Active time is the sum of the gaps between consecutive timestamped entries, so tool runs count
-// and idle gaps do not.
+// It also writes one entry per content block, repeating the same `message.usage`: count each message
+// id once, or a response is counted two to three times over. `input` is the whole prompt (fresh +
+// cache write + cache read), the number the client processed. Active time is the sum of the gaps
+// between consecutive timestamped entries, so tool runs count and idle gaps do not.
 export function usageFromTranscript(file) {
   const usage = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, calls: 0, timeMs: 0, timeKnown: false };
   if (!file) return usage;
   let prev;
+  const seen = new Set();
   try {
     for (const line of readFileSync(file, 'utf8').split('\n')) {
       if (!line.trim()) continue;
@@ -32,6 +34,11 @@ export function usageFromTranscript(file) {
       if (entry?.type !== 'assistant') continue;
       const u = entry.message?.usage ?? entry.usage;
       if (!u || typeof u !== 'object') continue;
+      const key = entry.message?.id ?? entry.uuid ?? entry.id;
+      if (key !== undefined && key !== null) {
+        if (seen.has(key)) continue;
+        seen.add(key);
+      }
       const cacheRead = num(u.cache_read_input_tokens);
       const cacheWrite = num(u.cache_creation_input_tokens);
       usage.input += num(u.input_tokens) + cacheWrite + cacheRead;
