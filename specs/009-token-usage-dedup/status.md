@@ -7,8 +7,8 @@ base_commit: 57d3b6d2f097762acd724c65c7820836a3836acb
 work_branch: fix/009-token-usage-dedup
 review_turns: 1
 review_round: 1
-step: conclude
-state: in-progress
+step: done
+state: done
 ---
 
 Blockers / pending questions: none

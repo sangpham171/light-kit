@@ -39,5 +39,5 @@ Claude Code usage is counted once per response, the state file restarts when its
 - No findings.
 
 ## Token usage
-Tokens: 3110816/20250 (total 3131066)
-Time: 52s
+Tokens: 1348610/7877 (total 1356487)
+Time: 56s

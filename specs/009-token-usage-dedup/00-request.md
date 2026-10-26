@@ -17,5 +17,5 @@ Verify the coherence between the token usage in specs vs the context in claude c
 Expand the comparison to others clients like copilot, codex, cursor
 
 ## Token usage
-Tokens: 5428366/51513 (total 5479879)
-Time: 15m 54s
+Tokens: 5731870/62833 (total 5794703)
+Time: 15m 58s
