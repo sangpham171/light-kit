@@ -249,7 +249,10 @@ test('artifact headers: every artifact template starts with the runs header and 
     assert.match(text, /^---\nruns:\n  - step: <step>\n    agent: <agent>\n    model: <model id>\n    thinking: <reasoning setting or unknown>\n    level: <easy\|medium\|hard\|unknown>\n---/, t);
     assert.match(text, /## Token usage/, t);
     if (t === '60-conclusion') assert.match(text, /^\| Step \| Input \| Cache read \| Cache write \| Output \| Total \| Time \|$/m, t);
-    else assert.match(text, /^Time: unknown$/m, t);
+    else {
+      assert.match(text, /^Tokens: <input> input · <cache read> cache read · <cache write> cache write · <output> output · <total> total$/m, t);
+      assert.match(text, /^Time: unknown$/m, t);
+    }
   }
   assert.match(read('.light-kit/templates/60-conclusion.md'), /^\| Step \| Input \| Cache read \| Cache write \| Output \| Total \| Time \|$/m);
   assert.match(read('.light-kit/templates/60-conclusion.md'), /^\| \*\*Total\*\* \|/m);

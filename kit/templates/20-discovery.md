@@ -16,5 +16,5 @@ runs:
 ## Unknowns / risks
 
 ## Token usage
-Tokens: unknown
+Tokens: <input> input · <cache read> cache read · <cache write> cache write · <output> output · <total> total
 Time: unknown
