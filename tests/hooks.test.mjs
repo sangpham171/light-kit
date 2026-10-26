@@ -430,3 +430,15 @@ test('token-usage: silent without a readable transcript, for other clients and f
   assert.equal(run(d, 'claude', 'post-tool', { ...write('src/notes.md'), transcript_path: f }).out, '');
   assert.equal(existsSync(join(d, '.light-kit/usage.json')), false);
 });
+
+test('token-usage: a conclusion table counts as filled only when a cell has a number', () => {
+  const d = project(); withSpec(d);
+  const f = join(d, 'session.jsonl');
+  writeFileSync(f, usageEntry(30, 5));
+  const conclusion = (row) => `---\nruns:\n  - step: conclude | agent: light-tech-writer | model: m | thinking: high | level: easy\n---\n\n# Conclusion\n\n## Token usage\n| Step | Input | Output | Total |\n|---|---|---|---|\n${row}\n`;
+  const call = () => ({ ...write('specs/001-x/60-conclusion.md'), transcript_path: f, session_id: 's2' });
+  writeFile(d, 'specs/001-x/60-conclusion.md', conclusion('| 50-implementation | unknown | unknown | unknown |'));
+  assert.match(run(d, 'claude', 'post-tool', call()).out, /Token usage for 001-x step 60-conclusion/);
+  writeFile(d, 'specs/001-x/60-conclusion.md', conclusion('| 50-implementation | 30 | 5 | 35 |'));
+  assert.equal(run(d, 'claude', 'post-tool', call()).out, '');
+});
