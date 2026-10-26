@@ -105,14 +105,18 @@ export default {
     const requestTimeMs = stepList.reduce((a, u) => a + (u.timed ? Number(u.timeMs) || 0 : 0), 0);
     const where = section(text) ? `In ${hit.rel}, set` : `Add a \`## Token usage\` section to ${hit.rel} and set`;
     const requestTime = requestTimed ? formatDuration(requestTimeMs) : 'unknown';
+    // The conclusion holds the table itself, so the step-section suggestion would be wrong there.
+    const conclusion = step === '60-conclusion';
     return {
       message: [
         `Token usage — ${request}, step ${step}`,
         `This write: ${formatUsage(delta)} · time ${delta.timeKnown ? formatDuration(delta.timeMs) : 'unknown'}`,
         `Step total: ${formatUsage(totals)} · time ${timeOf(totals)}`,
         `Request total: ${formatUsage(requestTotal)} · time ${requestTime}`,
-        `${where} \`Tokens: ${formatUsage(totals)}\` and \`Time: ${timeOf(totals)}\`.`,
-        'Copy this table into 60-conclusion.md, one row per step plus the total row:',
+        conclusion
+          ? `In ${hit.rel}, fill the table with the rows below.`
+          : `${where} \`Tokens: ${formatUsage(totals)}\` and \`Time: ${timeOf(totals)}\`.`,
+        conclusion ? 'Use one row per step plus the total row:' : 'Copy this table into 60-conclusion.md, one row per step plus the total row:',
         '| Step | Input | Output | Total | Time |',
         '|---|---|---|---|---|',
         rows(steps),
