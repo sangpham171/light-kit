@@ -5,9 +5,9 @@ runs:
 
 # Plan
 
-- [ ] 1. Usage reader and `token-usage` hook — level: medium — files: `kit/hooks/lib/usage.mjs`, `kit/hooks/checks/token-usage.mjs`, `kit/hooks/checks/index.mjs`, `kit/hooks/lib/config.mjs`, `kit/hooks/hooks.config.json`, `tests/usage.test.mjs`, `tests/hooks.test.mjs` — verify: `node --test tests/usage.test.mjs tests/hooks.test.mjs` — commit: `feat(hooks): report per-step token usage`
-- [ ] 2. Template sections and the global rule — level: easy — files: `kit/templates/00-request.md`, `10-understanding.md`, `20-discovery.md`, `30-design.md`, `40-plan.md`, `50-implementation.md`, `60-conclusion.md`, `kit/instructions/core.md`, `tests/kit.test.mjs` — verify: `node --test tests/kit.test.mjs` — commit: `docs(templates): record token usage per step and per request`
-- [ ] 3. Hook and usage documentation — level: easy — files: `kit/hooks/README.md`, `docs/usage.md`, `docs/safety-hooks.md`, `kit/skills/light-hooks-config/SKILL.md` — verify: `npm test` — commit: `docs: describe token-usage reporting`
+- [x] 1. Usage reader and `token-usage` hook — level: medium — files: `kit/hooks/lib/usage.mjs`, `kit/hooks/checks/token-usage.mjs`, `kit/hooks/checks/index.mjs`, `kit/hooks/lib/config.mjs`, `kit/hooks/hooks.config.json`, `tests/usage.test.mjs`, `tests/hooks.test.mjs` — verify: `node --test tests/usage.test.mjs tests/hooks.test.mjs` — commit: `feat(hooks): report per-step token usage`
+- [x] 2. Template sections and the global rule — level: easy — files: `kit/templates/00-request.md`, `10-understanding.md`, `20-discovery.md`, `30-design.md`, `40-plan.md`, `50-implementation.md`, `60-conclusion.md`, `kit/instructions/core.md`, `tests/kit.test.mjs` — verify: `node --test tests/kit.test.mjs` — commit: `docs(templates): record token usage per step and per request`
+- [x] 3. Hook and usage documentation — level: easy — files: `kit/hooks/README.md`, `docs/usage.md`, `docs/safety-hooks.md`, `kit/skills/light-hooks-config/SKILL.md` — verify: `npm test` — commit: `docs: describe token-usage reporting`
 
 Each task = one verified, coherent commit.
 
