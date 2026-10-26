@@ -54,5 +54,5 @@ Compared the stored request total for 008 with the session transcript, then reco
 - The duplication factor varies with content blocks, so no fixed correction applies to old numbers.
 
 ## Token usage
-Tokens: 0/0 (total 0)
-Time: 1s
+Tokens: 285545/1205 (total 286750)
+Time: 7s

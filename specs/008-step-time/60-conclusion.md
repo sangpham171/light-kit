@@ -38,6 +38,8 @@ Range: `34b231eb11b3406727e75b18662b4e147a784e07..HEAD` on `feat/008-step-time`
 
 Time stays `unknown` for this request because the installed hook predates this change; the repository's tests exercise the new reporting. Reinstalling the kit makes the next request record time.
 
+Correction (request 009): these token totals count each response once per content block and are about 2.5× too high; deduplicated, the request total at its last write was `3199172`/`41053`.
+
 ## Deferred technical debt and open findings
 - The installed copy of the kit (user level) still reports tokens only until it is reinstalled.
 - Best-effort limits remain: separate subagent transcripts are invisible, and a step written and edited in the same turn can report zero.

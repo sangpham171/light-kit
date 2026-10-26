@@ -32,5 +32,5 @@ runs:
 - Resetting state loses local totals for finished requests; they remain in their written artifacts.
 
 ## Token usage
-Tokens: 0/0 (total 0)
-Time: 3s
+Tokens: 288772/1292 (total 290064)
+Time: 8s

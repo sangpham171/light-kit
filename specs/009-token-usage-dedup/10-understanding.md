@@ -57,5 +57,5 @@ Why: a correctness fix in the usage reader plus documentation; no data or securi
 - conclude: medium — correct this request's own numbers from the transcript.
 
 ## Token usage
-Tokens: 0/0 (total 0)
-Time: 1s
+Tokens: 282319/1217 (total 283536)
+Time: 9s
