@@ -5,7 +5,7 @@
 - At least one supported client: Claude Code, GitHub Copilot, Cursor or Codex.
 
 ## Platforms
-The installer and uninstaller are plain Node scripts: they use Node's own home-folder and path APIs and run no POSIX-only commands, so they work unchanged on macOS, Linux and Windows. Only the paths differ.
+The installer and uninstaller are plain Node scripts: they use Node's own home-folder and path APIs and run no POSIX-only commands, so they are not tied to an OS. Only the paths differ.
 
 | Platform | Project install | Home folder |
 |---|---|---|
@@ -15,7 +15,7 @@ The installer and uninstaller are plain Node scripts: they use Node's own home-f
 
 At user level, the `~/.claude`, `~/.light-kit` and other paths in this document are `%USERPROFILE%\.claude`, `%USERPROFILE%\.light-kit`, and so on on Windows. The generated instructions keep the `~/...` spelling for brevity.
 
-The safety hooks are registered as shell commands and use POSIX expansions: `"$HOME"/`, `"$CLAUDE_PROJECT_DIR"/` and `"$(git rev-parse --show-toplevel)"/`. They therefore need a POSIX shell — bash or sh, as provided by macOS, Linux, WSL and Git Bash on Windows. Native Windows without one may not run them: install with `--no-hooks`, or run the client from WSL or Git Bash. The hook checks are Node scripts; they use `git` and `sqlite3` when available and stay silent when those are missing.
+The safety hooks are registered as shell commands. Claude Code and Codex use POSIX expansions in their project hooks (`"$CLAUDE_PROJECT_DIR"/`, `"$(git rev-parse --show-toplevel)"/`), and every client's user-level hooks use `"$HOME"/`; Cursor and Copilot project hooks use a plain relative path. Claude Code and Codex, and any user-level install, therefore need a POSIX shell — bash or sh, as provided by macOS, Linux and WSL. Native Windows hook execution is not verified: use WSL, or install with `--no-hooks` if the hooks do not fire. The hook checks are Node scripts; they use `git` and `sqlite3` when available and stay silent when those are missing.
 
 ## Quick start
 ```sh
@@ -105,4 +105,4 @@ Client formats change often; they are defined in one place, `CLIENTS` in `tools/
 | Cursor | Use the `/light-*` commands in chat; agent roles and skills are rules in `.cursor/rules/`. |
 | Codex | Start `codex` in the project and run `/hooks` once to review and trust the installed hooks. Copy `.codex/prompts/*` to `~/.codex/prompts/` (`%USERPROFILE%\.codex\prompts` on Windows) for the `/light-*` commands; a user-level install puts them there already. |
 
-After a user-level install, restart the client so it picks up the new files. At user level, Copilot prompt files and Cursor rules are not installed (both clients keep them in their own settings), so use a project-level install to get those.
+After a user-level install, restart the client so it picks up the new files. The limits of a user-level install are listed under [Three install levels](#three-install-levels).
