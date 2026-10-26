@@ -33,9 +33,13 @@ const filledTime = (value, timeKnown) => /^\d/.test(value) || (!timeKnown && /^u
 const timeFilled = (body, timeKnown) => {
   const line = body.match(/^Time:\s*(.+)$/im);
   if (line) return filledTime(line[1].trim(), timeKnown);
-  // The last cell of a row is the time, whatever the number of columns (5 in older tables, 7 now).
-  const rows = body.matchAll(/^\|(.+)\|$/gm);
-  return [...rows].some(([, cells]) => filledTime(cells.split('|').at(-1).trim(), timeKnown));
+  // Read the Time column from the header: a table without one is unfilled, even when its last cell is
+  // a number. Rows are matched to the header's width, so 5-column and 7-column tables both work.
+  const table = [...body.matchAll(/^\|(.+)\|\s*$/gm)].map(([, r]) => r.split('|').map((c) => c.trim()));
+  const header = table.find((cells) => cells.some((c) => /^time$/i.test(c)));
+  if (!header) return false;
+  const index = header.findIndex((c) => /^time$/i.test(c));
+  return table.some((cells) => cells.length === header.length && filledTime(cells[index], timeKnown));
 };
 const filled = (text, timeKnown) => {
   const body = section(text);
