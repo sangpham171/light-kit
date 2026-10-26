@@ -413,7 +413,7 @@ test('user level, project without .light-kit: path checks resolve from the proje
   assert.equal(userHook(home, proj, 'pre-tool', write('src/a.txt', 'x')).status, 0);
 });
 
-const usageEntry = (input, output, timestamp) => `${JSON.stringify({ type: 'assistant', ...(timestamp ? { timestamp } : {}), message: { usage: { input_tokens: input, output_tokens: output } } })}\n`;
+const usageEntry = (input, output, timestamp, id) => `${JSON.stringify({ type: 'assistant', ...(timestamp ? { timestamp } : {}), message: { ...(id ? { id } : {}), usage: { input_tokens: input, output_tokens: output } } })}\n`;
 const usageArtifact = (tokens = 'unknown', time = 'unknown') => `---\nruns:\n  - step: implement\n    agent: light-developer\n    model: m\n    thinking: high\n    level: medium\n---\n\n# Implementation log\n\n## Token usage\nTokens: ${tokens}\nTime: ${time}\n`;
 
 test('token-usage: reports the step delta, time and accumulated request totals', () => {
@@ -500,6 +500,24 @@ test('user level: a project outside the home folder still anchors at its reposit
   const r = hook('post-tool', { ...write(join(proj, 'specs/001-x/50-implementation.md')), transcript_path: f, session_id: 's1' });
   assert.match(JSON.parse(r.stdout).hookSpecificOutput.additionalContext, /Token usage for 001-x step 50-implementation: 11\/2/);
   assert.equal(existsSync(join(proj, '.light-kit')), false);
+});
+
+test('token-usage: a pre-dedup state file restarts instead of clamping the first step to zero', () => {
+  const d = project(); withSpec(d);
+  writeFileSync(join(d, '.light-kit/usage.json'), JSON.stringify({
+    sessions: { s1: { input: 9999, output: 999 } },
+    requests: { '001-x': { steps: { '50-implementation': { input: 9999, output: 999 } } } },
+  }));
+  const f = join(d, 'session.jsonl');
+  writeFileSync(f, usageEntry(10, 1, '2026-01-01T00:00:00Z', 'm1') + usageEntry(10, 1, '2026-01-01T00:00:02Z', 'm1'));
+  writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact());
+  const call = () => ({ ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's1' });
+  const out = JSON.parse(run(d, 'claude', 'post-tool', call()).out).hookSpecificOutput.additionalContext;
+  assert.match(out, /Token usage for 001-x step 50-implementation: 10\/1/); // the repeated block counts once
+  const state = JSON.parse(readFileSync(join(d, '.light-kit/usage.json'), 'utf8'));
+  assert.equal(state.version, 2);
+  assert.deepEqual(state.sessions.s1, { input: 10, output: 1, timeMs: 2000 });
+  assert.deepEqual(state.requests['001-x'].steps['50-implementation'], { input: 10, output: 1, timeMs: 2000, timed: true });
 });
 
 test('token-usage: a conclusion table counts as filled only when tokens and time are set', () => {

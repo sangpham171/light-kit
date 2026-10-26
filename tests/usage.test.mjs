@@ -38,6 +38,21 @@ test('Claude Code: active time sums entry gaps and ignores idle gaps', () => {
   assert.ok(IDLE_MS === 15 * 60 * 1000);
 });
 
+test('Claude Code: a message repeated for several content blocks counts once', () => {
+  const d = mkdtempSync(join(tmpdir(), 'light-kit-usage-'));
+  const f = join(d, 'session.jsonl');
+  const block = { type: 'assistant', message: { id: 'm1', usage: { input_tokens: 10, output_tokens: 1 } } };
+  writeFileSync(f,
+    line(block)
+    + line(block) // the same response, another content block
+    + line({ type: 'assistant', message: { id: 'm2', usage: { input_tokens: 5, output_tokens: 2 } } })
+    + line({ type: 'assistant', message: { usage: { input_tokens: 1, output_tokens: 1 } } })); // no id: its own entry
+  const u = usageFromTranscript(f);
+  assert.equal(u.input, 16);
+  assert.equal(u.output, 4);
+  assert.equal(u.calls, 3);
+});
+
 test('missing and unreadable transcripts yield zeros, never an error', () => {
   const d = mkdtempSync(join(tmpdir(), 'light-kit-usage-'));
   assert.deepEqual(usageFromTranscript(join(d, 'missing.jsonl')), empty);

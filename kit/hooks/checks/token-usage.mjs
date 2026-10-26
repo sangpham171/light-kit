@@ -13,6 +13,9 @@ const STATE = '.light-kit/usage.json';
 // project, so reporting never creates `.light-kit/` in the project (which would look like an `init`).
 const USER_STATE = '.light-kit/state';
 const ZERO = { input: 0, output: 0, timeMs: 0 };
+// Bumped when the counting changes. A file from an older version restarts: comparing a deduplicated
+// total with a baseline that counted the same response several times would clamp a whole step to zero.
+const STATE_VERSION = 2;
 
 const abs = (ctx, file) => (isAbsolute(file) ? file : join(ctx.cwd, file));
 
@@ -41,13 +44,14 @@ const timeOf = (u) => (u.timed ? formatDuration(u.timeMs) : 'unknown');
 const readState = (file) => {
   try {
     const s = JSON.parse(readFileSync(file, 'utf8'));
+    if (s.version !== STATE_VERSION) return { sessions: {}, requests: {} };
     return { sessions: s.sessions ?? {}, requests: s.requests ?? {} };
   } catch { return { sessions: {}, requests: {} }; }
 };
 
 const saveState = (file, state) => {
   mkdirSync(dirname(file), { recursive: true });
-  writeFileSync(file, JSON.stringify(state, null, 2) + '\n');
+  writeFileSync(file, JSON.stringify({ version: STATE_VERSION, ...state }, null, 2) + '\n');
 };
 
 const rows = (steps) => Object.entries(steps)
