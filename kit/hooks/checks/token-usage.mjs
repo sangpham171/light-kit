@@ -1,5 +1,5 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { dirname, isAbsolute, join } from 'node:path';
 import { deltaUsage, formatUsage, totalUsage, usageFromTranscript } from '../lib/usage.mjs';
 
 // Request artifacts carry a "## Token usage" section. After an artifact is written, read how much the
@@ -10,12 +10,12 @@ const ARTIFACT = /(?:^|\/)specs\/([^/]+)\/(\d\d-[^/]+)\.md$/;
 const STATE = '.light-kit/usage.json';
 const ZERO = { input: 0, output: 0 };
 
-const abs = (ctx, file) => (file.startsWith('/') ? file : join(ctx.cwd, file));
+const abs = (ctx, file) => (isAbsolute(file) ? file : join(ctx.cwd, file));
 
 const section = (text) => text.split(/^## /m).find((p) => p.startsWith('Token usage')) ?? '';
 const filled = (text) => {
   const body = section(text);
-  return /\bTokens?:\s*\d/i.test(body) || /^\|.*\d.*\|$/m.test(body);
+  return /\bTokens?:\s*\d/i.test(body) || /\|\s*\d[\d,]*\s*\|/.test(body);
 };
 
 const readState = (file) => {
@@ -63,8 +63,8 @@ export default {
     const [, request, step] = hit.match;
     state.requests[request] ??= { steps: {} };
     const totals = (state.requests[request].steps[step] ??= { ...ZERO });
-    totals.input += delta.input;
-    totals.output += delta.output;
+    totals.input = (Number(totals.input) || 0) + delta.input;
+    totals.output = (Number(totals.output) || 0) + delta.output;
     saveState(stateFile, state);
 
     if (filled(text)) return null;
