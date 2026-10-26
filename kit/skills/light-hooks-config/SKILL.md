@@ -33,7 +33,7 @@ Ask yourself each question, answer it from the repo (manifests, scripts, CI, doc
 
 ## Modes
 Each hook in `hooks` is `block` (deny the action), `warn` (tell the agent, allow it) or `off`.
-- Defaults: sensitive files, secret writes, secret prompts, dangerous commands and protected paths block; `require-spec`, post-edit quality, secret-in-output, commit reminders and session context warn; `verify-on-stop` and `audit-log` are off.
+- Defaults: sensitive files, secret writes, secret prompts, dangerous commands and protected paths block; `require-spec`, post-edit quality, secret-in-output, commit reminders, session context and token usage warn; `verify-on-stop` and `audit-log` are off.
 - Suggest `verify-on-stop: block` only once `verify.command` is fast and reliable. When enabling `audit-log`, add `.light-kit/audit.log` to the project's ignore file.
 - For a brownfield project with many false positives, start with `warn` and tighten later.
 
