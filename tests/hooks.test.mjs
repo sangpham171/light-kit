@@ -26,6 +26,18 @@ const withSpec = (dir, state = 'in-progress') => {
   writeFileSync(join(dir, 'specs/001-x/10-understanding.md'), '# u');
   writeFileSync(join(dir, 'specs/001-x/status.md'), `---\nworkflow: direct\nstep: implement\nstate: ${state}\n---\n`);
 };
+// A user-level install serving a project that never ran light-init (no .light-kit in the project).
+function userProject() {
+  const home = mkdtempSync(join(tmpdir(), 'light-kit-user-'));
+  install(home, ['claude'], { level: 'user' });
+  const proj = join(home, 'proj');
+  mkdirSync(join(proj, '.git'), { recursive: true });
+  withSpec(proj);
+  return { home, proj };
+}
+const userHook = (home, proj, event, payload) => spawnSync('node', [join(home, '.light-kit/hooks/run.mjs'), '--client', 'claude', '--event', event], {
+  cwd: proj, input: JSON.stringify({ cwd: proj, ...payload }), encoding: 'utf8',
+});
 
 test('sensitive files: blocked for read, write and shell; templates allowed', () => {
   const d = project();
@@ -392,6 +404,13 @@ test('artifact-header: other clients, nested projects and user level only where 
   mkdirSync(join(h, 'kitted/specs/001-x'), { recursive: true });
   writeFileSync(join(h, 'kitted/specs/001-x/10-understanding.md'), '# no header');
   assert.match(hook(join(h, 'kitted'), 'specs/001-x/10-understanding.md'), /runs:/);
+});
+
+test('user level, project without .light-kit: path checks resolve from the project root', () => {
+  const { home, proj } = userProject();
+  assert.equal(userHook(home, proj, 'pre-tool', write('.git/config', 'x')).status, 2);
+  assert.equal(userHook(home, proj, 'pre-tool', write('.claude/settings.json', 'x')).status, 2);
+  assert.equal(userHook(home, proj, 'pre-tool', write('src/a.txt', 'x')).status, 0);
 });
 
 const usageEntry = (input, output) => `${JSON.stringify({ type: 'assistant', message: { usage: { input_tokens: input, output_tokens: output } } })}\n`;
