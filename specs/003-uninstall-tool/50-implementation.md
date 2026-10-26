@@ -1,7 +1,15 @@
 ---
 runs:
-  - step: implement | agent: light-developer | model: deepseek-flash[1m] | thinking: unknown | level: medium
-  - step: verify-and-review | agent: light-reviewer | model: deepseek-flash[1m] | thinking: unknown | level: medium
+  - step: implement
+    agent: light-developer
+    model: deepseek-flash[1m]
+    thinking: unknown
+    level: medium
+  - step: verify-and-review
+    agent: light-reviewer
+    model: deepseek-flash[1m]
+    thinking: unknown
+    level: medium
 ---
 
 # Implementation log

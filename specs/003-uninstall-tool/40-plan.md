@@ -1,6 +1,10 @@
 ---
 runs:
-  - step: plan | agent: light-tech-lead | model: deepseek-flash[1m] | thinking: unknown | level: easy
+  - step: plan
+    agent: light-tech-lead
+    model: deepseek-flash[1m]
+    thinking: unknown
+    level: easy
 ---
 
 # Plan

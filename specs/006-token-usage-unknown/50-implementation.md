@@ -1,6 +1,10 @@
 ---
 runs:
-  - step: implement | agent: light-orchestrator | model: deepseek-flash[1m] | thinking: unknown | level: medium
+  - step: implement
+    agent: light-orchestrator
+    model: deepseek-flash[1m]
+    thinking: unknown
+    level: medium
 ---
 
 # Implementation log

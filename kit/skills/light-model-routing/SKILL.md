@@ -46,4 +46,4 @@ Call the agent with the model for the rating: pass it as the model parameter of 
 If a task fails its verification twice, or the agent reports it cannot proceed or that the task is harder than rated, rerun it **one tier higher** (up to hard) and keep the failed attempt's findings in the prompt. Never go down on a retry. If hard fails twice, stop and report.
 
 ## 6. Record
-The Routing section holds the step ratings. What actually ran goes in each artifact's `runs:` header (global rule): one line per agent run with its level and model, including an escalated retry as its own line. Tasks run on the same model and level may share a line (`step: implement tasks 1-3`).
+The Routing section holds the step ratings. What actually ran goes in each artifact's `runs:` header (global rule): one entry per agent run with its level and model, including an escalated retry as its own entry. Tasks run on the same model and level may share an entry (`step: implement tasks 1-3`).

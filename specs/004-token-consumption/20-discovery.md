@@ -1,6 +1,10 @@
 ---
 runs:
-  - step: discover | agent: light-orchestrator | model: deepseek-flash[1m] | thinking: unknown | level: easy
+  - step: discover
+    agent: light-orchestrator
+    model: deepseek-flash[1m]
+    thinking: unknown
+    level: easy
 ---
 
 # Discovery

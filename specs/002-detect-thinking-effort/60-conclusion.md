@@ -1,6 +1,10 @@
 ---
 runs:
-  - step: conclude | agent: light-orchestrator | model: deepseek-flash[1m] | thinking: high | level: easy
+  - step: conclude
+    agent: light-orchestrator
+    model: deepseek-flash[1m]
+    thinking: high
+    level: easy
 ---
 
 # Conclusion

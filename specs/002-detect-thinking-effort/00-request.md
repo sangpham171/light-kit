@@ -1,6 +1,10 @@
 ---
 runs:
-  - step: request | agent: light-orchestrator | model: deepseek-flash[1m] | thinking: high | level: easy
+  - step: request
+    agent: light-orchestrator
+    model: deepseek-flash[1m]
+    thinking: high
+    level: easy
 ---
 
 # Request 002 — Detect the client's thinking effort
