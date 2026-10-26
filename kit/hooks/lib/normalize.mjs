@@ -57,7 +57,7 @@ export function normalize(client, event, p, installRoot) {
   const out = p.tool_response ?? p.tool_result ?? p.toolResult ?? p.tool_output ?? '';
   const first = [...files][0] ? realish(resolve(cwd, [...files][0])) : '';
   const workDir = existingDir(first ? dirname(first) : cwd);
-  const { root, scope, layers, kitEnabled, userLevel } = locate(kitHome, first ? dirname(first) : cwd);
+  const { root, scope, layers, kitEnabled, userLevel } = locate(kitHome, first ? dirname(first) : cwd, cwd);
   return {
     client, event, kitHome, root, scope, layers, kitEnabled, userLevel, payload: p, cwd, workDir,
     layersFor: (dir) => locate(kitHome, dir).layers,

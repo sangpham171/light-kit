@@ -52,12 +52,20 @@ export function findScope(root, start) {
 // At user level the kit is installed in the home folder (~/.light-kit) and serves every project. The marker is written by the installer.
 const isUserLevel = (home) => { try { return JSON.parse(readFileSync(join(home, '.light-kit', 'kit.config.json'), 'utf8')).level === 'user'; } catch { return false; } };
 
+// The nearest repository root at or above `start` (still below the user's home): the project boundary
+// the kit can use before the project has a `.light-kit` of its own.
+const repoRootOf = (start, home) => {
+  for (let d = resolve(start); d !== home && inside(home, d); d = dirname(d)) if (existsSync(join(d, '.git'))) return d;
+  return '';
+};
+
 // Where the action happens, relative to where the kit is installed:
-//  root  = the outermost project/workspace folder (has its own .light-kit), or the install folder when the kit is installed there
+//  root  = the outermost project/workspace folder (has its own .light-kit), or the install folder when the kit is installed there;
+//          at user level in a project without .light-kit, its repository root, else the session's working folder
 //  scope = the innermost one (the project the action is about)
 //  layers = config folders, outermost first (at user level the home folder is the bottom layer)
 //  kitEnabled = false only at user level, in a folder that has no .light-kit of its own (the project has not run `init`)
-export function locate(kitHome, start) {
+export function locate(kitHome, start, fallback = start) {
   const home = resolve(kitHome);
   if (!isUserLevel(home)) { const scope = findScope(home, start); return { userLevel: false, kitEnabled: true, root: home, scope, layers: chain(home, scope) }; }
   const found = [];
@@ -66,7 +74,10 @@ export function locate(kitHome, start) {
     if (d === home || dirname(d) === d) break;
   }
   const outer = found.reverse();
-  return { userLevel: true, kitEnabled: outer.length > 0, root: outer[0] ?? resolve(start), scope: outer.at(-1) ?? resolve(start), layers: [home, ...outer] };
+  // Not initialized: anchor at the project, never the file's own folder, so `rel()` and the path-based
+  // checks (protected paths, artifact headers, token usage) see project-relative paths.
+  const anchor = outer.length ? '' : repoRootOf(start, home) || repoRootOf(fallback, home) || resolve(fallback);
+  return { userLevel: true, kitEnabled: outer.length > 0, root: outer[0] ?? anchor, scope: outer.at(-1) ?? anchor, layers: [home, ...outer] };
 }
 
 // Directories from the root down to the scope, each possibly holding a config layer.
