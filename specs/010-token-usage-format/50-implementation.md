@@ -25,17 +25,21 @@ Every token figure the kit prints or suggests now labels input, output and total
 
 ## Verification evidence
 - `npm test`: 116 tests, 116 pass, 0 fail.
-- A section in the previous `10/1` shape and one in the new shape both count as filled; an unfilled section still gets the note.
+- A section in the previous `123/45 (total 168)` shape and one in the new shape both count as filled; an unfilled section still gets the note.
 - Grouping: `1,200,000 input · 34,000 output · 1,234,000 total` in the suggestion and both table rows.
 
 ## Technical debt
 - Artifacts written before this request keep the old shape; they are not rewritten.
 
 ## Review rounds
-### Round 1 — self-review
-- Checked: `formatCount` never emits a negative or a non-integer; unknown time still prints `unknown`; the previous format is accepted; the table header matches the conclusion template.
-- No findings.
+### Round 1 of 1 (light-reviewer)
+- F-1.1 [nit] tests/hooks.test.mjs:459 — the backward-compatibility fixture used `10/1`, not the full previous shape — changed to `123/45 (total 168)` — status: fixed (`95430d2`).
+- F-1.2 [nit] tests/hooks.test.mjs:427 — the new `Request total:` line was unasserted — added — status: fixed (`95430d2`).
+- F-1.3 [nit] tests/hooks.test.mjs:450 — the grouping test did not check the table header — added — status: fixed (`95430d2`).
+- F-1.4 [nit] tests/hooks.test.mjs:437 — new shape with `Time: unknown` untested — added, against a transcript without timestamps — status: fixed (`95430d2`).
+- F-1.5 [nit] kit/hooks/checks/token-usage.mjs:114 — the note told the agent to set a `Tokens:` line even for `60-conclusion.md`, which holds a table — the note now says to fill the table — status: fixed (`95430d2`).
+Verdict: approve.
 
 ## Token usage
-Tokens: 1,211,991 input · 8,869 output · 1,220,860 total
-Time: 1m 17s
+Tokens: 2,954,600 input · 17,583 output · 2,972,183 total
+Time: 5m 15s
