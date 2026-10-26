@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join } from 'node:path';
-import { deltaUsage, formatDuration, formatUsage, totalUsage, usageFromTranscript } from '../lib/usage.mjs';
+import { deltaUsage, formatCount, formatDuration, formatUsage, totalUsage, usageFromTranscript } from '../lib/usage.mjs';
 
 // Request artifacts carry a "## Token usage" section. After an artifact is written, read how much the
 // client processed in this session and report the step's share; the agent fills the section.
@@ -56,7 +56,7 @@ const saveState = (file, state) => {
 
 const rows = (steps) => Object.entries(steps)
   .sort(([a], [b]) => a.localeCompare(b))
-  .map(([id, u]) => `| ${id} | ${u.input} | ${u.output} | ${totalUsage(u)} | ${timeOf(u)} |`)
+  .map(([id, u]) => `| ${id} | ${formatCount(u.input)} | ${formatCount(u.output)} | ${formatCount(totalUsage(u))} | ${timeOf(u)} |`)
   .join('\n');
 
 export default {
@@ -104,12 +104,19 @@ export default {
     const requestTimed = stepList.some((u) => u.timed);
     const requestTimeMs = stepList.reduce((a, u) => a + (u.timed ? Number(u.timeMs) || 0 : 0), 0);
     const where = section(text) ? `In ${hit.rel}, set` : `Add a \`## Token usage\` section to ${hit.rel} and set`;
+    const requestTime = requestTimed ? formatDuration(requestTimeMs) : 'unknown';
     return {
       message: [
-        `Token usage for ${request} step ${step}: ${formatUsage(delta)} (total ${totalUsage(delta)}), time ${delta.timeKnown ? formatDuration(delta.timeMs) : 'unknown'} (step total ${timeOf(totals)}).`,
-        `Request totals — ${Object.entries(steps).sort(([a], [b]) => a.localeCompare(b)).map(([id, u]) => `${id} ${formatUsage(u)} ${timeOf(u)}`).join('; ')}; overall ${formatUsage(requestTotal)} (total ${totalUsage(requestTotal)}), time ${requestTimed ? formatDuration(requestTimeMs) : 'unknown'}.`,
-        `${where} \`Tokens: ${formatUsage(totals)} (total ${totalUsage(totals)})\` and \`Time: ${timeOf(totals)}\`.`,
-        `In 60-conclusion.md, use one table row per step and the total row:\n${rows(steps)}\n| **Total** | ${requestTotal.input} | ${requestTotal.output} | ${totalUsage(requestTotal)} | ${requestTimed ? formatDuration(requestTimeMs) : 'unknown'} |`,
+        `Token usage — ${request}, step ${step}`,
+        `This write: ${formatUsage(delta)} · time ${delta.timeKnown ? formatDuration(delta.timeMs) : 'unknown'}`,
+        `Step total: ${formatUsage(totals)} · time ${timeOf(totals)}`,
+        `Request total: ${formatUsage(requestTotal)} · time ${requestTime}`,
+        `${where} \`Tokens: ${formatUsage(totals)}\` and \`Time: ${timeOf(totals)}\`.`,
+        'Copy this table into 60-conclusion.md, one row per step plus the total row:',
+        '| Step | Input | Output | Total | Time |',
+        '|---|---|---|---|---|',
+        rows(steps),
+        `| **Total** | ${formatCount(requestTotal.input)} | ${formatCount(requestTotal.output)} | ${formatCount(totalUsage(requestTotal))} | ${requestTime} |`,
         'Write `unknown` when the client exposes no usage or time.',
       ].join('\n'),
     };
