@@ -248,7 +248,10 @@ test('artifact headers: every artifact template starts with the runs header and 
     const text = read(`.light-kit/templates/${t}.md`);
     assert.match(text, /^---\nruns:\n  - step: <step>\n    agent: <agent>\n    model: <model id>\n    thinking: <reasoning setting or unknown>\n    level: <easy\|medium\|hard\|unknown>\n---/, t);
     assert.match(text, /## Token usage/, t);
+    if (t === '60-conclusion') assert.match(text, /^\| Step \| Input \| Output \| Total \| Time \|$/m, t);
+    else assert.match(text, /^Time: unknown$/m, t);
   }
+  assert.match(read('.light-kit/templates/60-conclusion.md'), /^\| Step \| Input \| Output \| Total \| Time \|$/m);
   assert.match(read('.light-kit/templates/60-conclusion.md'), /^\| \*\*Total\*\* \|/m);
   assert.doesNotMatch(read('.light-kit/templates/status.md'), /runs:/); // state file, not an artifact
   assert.match(read('CLAUDE.md'), /Sign your artifacts/);

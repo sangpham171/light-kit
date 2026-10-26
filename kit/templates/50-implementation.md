@@ -23,3 +23,4 @@ Verdict: approve | changes requested -->
 
 ## Token usage
 Tokens: unknown
+Time: unknown
