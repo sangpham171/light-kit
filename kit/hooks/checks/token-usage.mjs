@@ -1,5 +1,6 @@
+import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, isAbsolute, join } from 'node:path';
+import { basename, dirname, isAbsolute, join } from 'node:path';
 import { deltaUsage, formatUsage, totalUsage, usageFromTranscript } from '../lib/usage.mjs';
 
 // Request artifacts carry a "## Token usage" section. After an artifact is written, read how much the
@@ -8,9 +9,18 @@ import { deltaUsage, formatUsage, totalUsage, usageFromTranscript } from '../lib
 
 const ARTIFACT = /(?:^|\/)specs\/([^/]+)\/(\d\d-[^/]+)\.md$/;
 const STATE = '.light-kit/usage.json';
+// User-level install in a project that has not run `init`: keep the state in the kit folder, one file per
+// project, so reporting never creates `.light-kit/` in the project (which would look like an `init`).
+const USER_STATE = '.light-kit/state';
 const ZERO = { input: 0, output: 0 };
 
 const abs = (ctx, file) => (isAbsolute(file) ? file : join(ctx.cwd, file));
+
+const statePath = (ctx) => {
+  if (ctx.kitEnabled) return join(ctx.scope, STATE);
+  const key = createHash('sha1').update(ctx.root).digest('hex').slice(0, 12);
+  return join(ctx.kitHome, USER_STATE, `usage-${basename(ctx.root)}-${key}.json`);
+};
 
 const section = (text) => text.split(/^## /m).find((p) => p.startsWith('Token usage')) ?? '';
 const filled = (text) => {
@@ -39,7 +49,7 @@ export default {
   id: 'token-usage',
   events: ['post-tool'],
   run(ctx) {
-    if (!ctx.kitEnabled || ctx.tool.kind !== 'write' || ctx.client !== 'claude') return null;
+    if (ctx.tool.kind !== 'write' || ctx.client !== 'claude') return null; // a spec artifact is enough: no `init` needed
     const transcript = ctx.payload?.transcript_path ?? ctx.payload?.transcriptPath ?? '';
     if (!transcript) return null;
     const hit = ctx.files.map((f) => ({ path: abs(ctx, f), rel: ctx.rel(f).replace(/\\/g, '/') }))
@@ -54,7 +64,7 @@ export default {
     try { text = readFileSync(hit.path, 'utf8'); } catch { return null; }
 
     // One baseline per session: everything since the previous snapshot belongs to this step.
-    const stateFile = join(ctx.scope, STATE);
+    const stateFile = statePath(ctx);
     const state = readState(stateFile);
     const session = ctx.payload.session_id ?? ctx.payload.sessionId ?? transcript;
     const delta = deltaUsage(current, state.sessions[session] ?? ZERO);

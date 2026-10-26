@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { install } from '../tools/install.mjs';
@@ -448,6 +448,20 @@ test('token-usage: silent without a readable transcript, for other clients and f
   assert.equal(run(d, 'codex', 'post-tool', { ...write('specs/001-x/50-implementation.md'), transcript_path: f }).out, '');
   assert.equal(run(d, 'claude', 'post-tool', { ...write('src/notes.md'), transcript_path: f }).out, '');
   assert.equal(existsSync(join(d, '.light-kit/usage.json')), false);
+});
+
+test('token-usage: user level reports in a project without .light-kit and keeps state out of it', () => {
+  const { home, proj } = userProject();
+  const f = join(home, 'session.jsonl');
+  writeFileSync(f, usageEntry(100, 20));
+  writeFile(proj, 'specs/001-x/50-implementation.md', usageArtifact());
+  const r = userHook(home, proj, 'post-tool', { ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's1' });
+  assert.match(JSON.parse(r.stdout).hookSpecificOutput.additionalContext, /Token usage for 001-x step 50-implementation: 100\/20/);
+  assert.equal(existsSync(join(proj, '.light-kit')), false); // reporting must not look like an `init`
+  const dir = join(home, '.light-kit/state');
+  const files = readdirSync(dir);
+  assert.equal(files.length, 1);
+  assert.deepEqual(JSON.parse(readFileSync(join(dir, files[0]), 'utf8')).requests['001-x'].steps['50-implementation'], { input: 100, output: 20 });
 });
 
 test('token-usage: a conclusion table counts as filled only when a cell has a number', () => {
