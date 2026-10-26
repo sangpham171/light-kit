@@ -8,7 +8,7 @@ import { IDLE_MS, deltaUsage, formatCount, formatDuration, formatUsage, totalUsa
 const line = (o) => `${JSON.stringify(o)}\n`;
 const empty = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, calls: 0, timeMs: 0, timeKnown: false };
 
-test('Claude Code: sums every assistant turn, including cached prompt tokens', () => {
+test('Claude Code: keeps cache reads and writes separate from input', () => {
   const d = mkdtempSync(join(tmpdir(), 'light-kit-usage-'));
   const f = join(d, 'session.jsonl');
   writeFileSync(f,
@@ -21,6 +21,17 @@ test('Claude Code: sums every assistant turn, including cached prompt tokens', (
   assert.deepEqual(u, { ...empty, input: 15, output: 5, cacheRead: 3, cacheWrite: 2, calls: 2 });
   assert.equal(totalUsage(u), 25);
   assert.equal(formatUsage(u), '15 input · 3 cache read · 2 cache write · 5 output · 25 total');
+});
+
+test('one turn splits into its four figures and the total they add up to', () => {
+  const d = mkdtempSync(join(tmpdir(), 'light-kit-usage-'));
+  const f = join(d, 'session.jsonl');
+  writeFileSync(f, line({ type: 'assistant', message: { id: 'm1', usage: {
+    input_tokens: 10, output_tokens: 4, cache_read_input_tokens: 3, cache_creation_input_tokens: 2,
+  } } }));
+  const u = usageFromTranscript(f);
+  assert.deepEqual(u, { ...empty, input: 10, output: 4, cacheRead: 3, cacheWrite: 2, calls: 1 });
+  assert.equal(totalUsage(u), 19);
 });
 
 test('formatting labels each figure and groups thousands', () => {
@@ -80,6 +91,11 @@ test('delta carries tokens, cache and time, clamping both when the record was re
   assert.deepEqual(
     deltaUsage({ input: 5, output: 1, timeMs: 0, timeKnown: true }, { input: 100, output: 20, timeMs: 9000 }),
     { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, timeMs: 0, timeKnown: true });
+  assert.deepEqual(
+    deltaUsage(
+      { input: 5, output: 1, cacheRead: 100, cacheWrite: 50, timeMs: 0, timeKnown: true },
+      { input: 0, output: 0, cacheRead: 9000, cacheWrite: 5000, timeMs: 0 }),
+    { input: 5, output: 1, cacheRead: 0, cacheWrite: 0, timeMs: 0, timeKnown: true }); // a reset clamps cache too
   assert.deepEqual(deltaUsage({ input: 5, output: 1, timeMs: 0 }),
     { input: 5, output: 1, cacheRead: 0, cacheWrite: 0, timeMs: 0, timeKnown: false });
 });

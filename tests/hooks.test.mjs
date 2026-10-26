@@ -453,6 +453,9 @@ test('token-usage: groups thousands in the suggested section and the table', () 
   const out = JSON.parse(run(d, 'claude', 'post-tool', { ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's5' }).out).hookSpecificOutput.additionalContext;
   assert.match(out, /Tokens: 1,200,000 input · 4,000,000 cache read · 10 cache write · 34,000 output · 5,234,010 total/);
   assert.match(out, /\| Step \| Input \| Cache read \| Cache write \| Output \| Total \| Time \|/); // matches the conclusion template
+  const templateHeader = readFileSync(new URL('../kit/templates/60-conclusion.md', import.meta.url), 'utf8')
+    .split('\n').find((line) => line.startsWith('| Step |'));
+  assert.ok(out.includes(templateHeader), 'the suggested header is the template header');
   assert.match(out, /\| 50-implementation \| 1,200,000 \| 4,000,000 \| 10 \| 34,000 \| 5,234,010 \| 0s \|/);
   assert.match(out, /\| \*\*Total\*\* \| 1,200,000 \| 4,000,000 \| 10 \| 34,000 \| 5,234,010 \| 0s \|/);
 });
@@ -465,7 +468,7 @@ test('token-usage: time is unknown without timestamps, and the agent may write t
   const call = () => ({ ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's4' });
   assert.equal(run(d, 'claude', 'post-tool', call()).out, ''); // `Time: unknown` is a valid fill here
   writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact('10 input · 1 output · 11 total', 'unknown'));
-  assert.equal(run(d, 'claude', 'post-tool', call()).out, ''); // and so is the new shape with `Time: unknown`
+  assert.equal(run(d, 'claude', 'post-tool', call()).out, ''); // and so is the 010 shape with `Time: unknown`
   writeFileSync(f, usageEntry(10, 1, '2026-01-01T00:00:00Z'), { flag: 'a' });
   assert.match(run(d, 'claude', 'post-tool', call()).out, /Token usage/); // timestamps exist now: a duration is expected
 });
@@ -556,5 +559,19 @@ test('token-usage: a conclusion table counts as filled only when tokens and time
   writeFile(d, 'specs/001-x/60-conclusion.md', conclusion('| 50-implementation | 30 | 200 | 20 | 5 | 255 | unknown |'));
   assert.match(run(d, 'claude', 'post-tool', call()).out, /Token usage/); // time known: `unknown` does not count
   writeFile(d, 'specs/001-x/60-conclusion.md', conclusion('| 50-implementation | 30 | 200 | 20 | 5 | 255 | 0s |'));
+  assert.equal(run(d, 'claude', 'post-tool', call()).out, '');
+});
+
+test('token-usage: a table without a Time column never counts as filled', () => {
+  const d = project(); withSpec(d);
+  const f = join(d, 'session.jsonl');
+  writeFileSync(f, usageEntry(30, 5, '2026-01-01T00:00:00Z'));
+  const artifact = (header, separator, row) => `---\nruns:\n  - step: conclude\n    agent: light-tech-writer\n    model: m\n    thinking: high\n    level: easy\n---\n\n# Conclusion\n\n## Token usage\n${header}\n${separator}\n${row}\n`;
+  const call = () => ({ ...write('specs/001-x/60-conclusion.md'), transcript_path: f, session_id: 's6' });
+  // The 004–007 tables end in Total: a numeric last cell must not pass for a time.
+  writeFile(d, 'specs/001-x/60-conclusion.md', artifact('| Step | Input | Output | Total |', '|---|---|---|---|', '| 50-implementation | 30 | 5 | 35 |'));
+  assert.match(run(d, 'claude', 'post-tool', call()).out, /Token usage/);
+  // The 008–010 shape has a Time column and still counts.
+  writeFile(d, 'specs/001-x/60-conclusion.md', artifact('| Step | Input | Output | Total | Time |', '|---|---|---|---|---|', '| 50-implementation | 30 | 5 | 35 | 0s |'));
   assert.equal(run(d, 'claude', 'post-tool', call()).out, '');
 });
