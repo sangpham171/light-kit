@@ -507,7 +507,8 @@ test('token-usage: silent without a readable transcript, for other clients and f
 });
 
 const copilotLog = (home, sessionId, lines) => {
-  const dir = join(home, 'Library/Application Support/Code/User/workspaceStorage/ws/chatSessions');
+  const base = { darwin: 'Library/Application Support', win32: 'AppData/Roaming', linux: '.config' }[process.platform] ?? '.config';
+  const dir = join(home, base, 'Code/User/workspaceStorage/ws/chatSessions');
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, `${sessionId}.jsonl`), lines);
 };
@@ -521,7 +522,7 @@ test('token-usage: Copilot in VS Code reads the chat session log', () => {
     + op({ kind: 2, k: ['requests'], v: [{ requestId: 'r1', timestamp: 1000, promptTokens: 42_000, completionTokens: 2000, result: { timings: { totalElapsed: 7200 } } }] }));
   writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact());
   const call = () => ({
-    toolName: 'edit', toolArgs: { path: 'specs/001-x/50-implementation.md' },
+    toolName: 'create_file', toolArgs: { filePath: 'specs/001-x/50-implementation.md' },
     sessionId: 'sid', timestamp: '2026-01-01T00:00:20Z',
     transcript_path: join(home, 'transcripts/sid.jsonl'), // VS Code sends it; it holds no usage
   });
@@ -541,7 +542,7 @@ test('token-usage: Copilot without a session record stays silent', () => {
   const home = mkdtempSync(join(tmpdir(), 'light-kit-home-'));
   writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact());
   assert.equal(run(d, 'copilot', 'post-tool', {
-    toolName: 'edit', toolArgs: { path: 'specs/001-x/50-implementation.md' }, sessionId: 'missing',
+    toolName: 'create_file', toolArgs: { filePath: 'specs/001-x/50-implementation.md' }, sessionId: 'missing',
   }, { HOME: home }).out, '');
   assert.equal(existsSync(join(d, '.light-kit/usage.json')), false);
 });
