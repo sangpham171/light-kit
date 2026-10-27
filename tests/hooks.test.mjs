@@ -354,7 +354,7 @@ test('Claude attribution is switched off in settings unless the user set their o
 });
 
 // ---------- artifact provenance header ----------
-const HEADER = (extra = '') => `---\nruns:\n  - step: plan\n    agent: light-tech-lead\n    model: m-1\n    thinking: effort high\n    level: hard${extra}\n---\n\n# Plan\n`;
+const HEADER = (extra = '') => `---\nstep: plan\nruns:\n  - agent: light-tech-lead\n    model: m-1\n    thinking: effort high\n    level: hard${extra}\n---\n\n# Plan\n`;
 const writeFile = (d, rel, text) => { mkdirSync(join(d, rel, '..'), { recursive: true }); writeFileSync(join(d, rel), text); };
 const warns = (r) => r.out.includes('runs:');
 
@@ -363,7 +363,7 @@ test('artifact-header: warns when a request artifact or kit document lacks the r
   writeFile(d, 'specs/001-x/40-plan.md', '# Plan\n- [ ] 1.');
   const r = run(d, 'claude', 'post-tool', write('specs/001-x/40-plan.md'));
   assert.equal(r.code, 0);
-  assert.match(JSON.parse(r.out).hookSpecificOutput.additionalContext, /specs\/001-x\/40-plan\.md must start with a `runs:` header/);
+  assert.match(JSON.parse(r.out).hookSpecificOutput.additionalContext, /specs\/001-x\/40-plan\.md must start with a `step:` line and a `runs:` header/);
   for (const f of ['.light-kit/codebase-map.md', '.light-kit/assessment.md', '.light-kit/standardization-backlog.md', '.light-kit/audits/2026-01-01-m.md']) {
     writeFile(d, f, '# no header');
     assert.ok(warns(run(d, 'claude', 'post-tool', write(f))), f);
@@ -374,8 +374,11 @@ test('artifact-header: quiet with a complete header, accepts unknown, ignores ot
   const d = project(); withSpec(d);
   writeFile(d, 'specs/001-x/40-plan.md', HEADER());
   assert.equal(run(d, 'claude', 'post-tool', write('specs/001-x/40-plan.md')).out, '');
-  writeFile(d, 'specs/001-x/50-implementation.md', '---\nruns:\n  - step: implement\n    agent: light-developer\n    model: unknown\n    thinking: unknown\n    level: unknown\n---\n# x');
+  writeFile(d, 'specs/001-x/50-implementation.md', '---\nstep: implementation\nruns:\n  - agent: light-developer\n    model: unknown\n    thinking: unknown\n    level: unknown\n---\n# x');
   assert.equal(run(d, 'claude', 'post-tool', write('specs/001-x/50-implementation.md')).out, '');
+  // a header written before the step moved to the top still counts
+  writeFile(d, 'specs/001-x/30-design.md', '---\nruns:\n  - step: design\n    agent: light-architect\n    model: m\n    thinking: t\n    level: medium\n---\n# x');
+  assert.equal(run(d, 'claude', 'post-tool', write('specs/001-x/30-design.md')).out, '');
   writeFile(d, 'specs/001-x/status.md', '---\nstate: x\n---\n'); // state file: not an artifact
   assert.equal(run(d, 'claude', 'post-tool', write('specs/001-x/status.md')).out, '');
   writeFile(d, 'src/notes.md', '# no header');
@@ -387,10 +390,12 @@ test('artifact-header: quiet with a complete header, accepts unknown, ignores ot
 
 test('artifact-header: each required field matters, several runs are fine, mode can be off', () => {
   const d = project(); withSpec(d);
-  const bad = (fields) => `---\nruns:\n  - ${fields.join('\n    ')}\n---\n# x`;
-  for (const fields of [['step: plan', 'agent: a', 'thinking: t'], ['step: plan', 'agent: a', 'model: m'], ['step: plan', 'model: m', 'thinking: t'], ['model: m']])
-    { writeFile(d, 'specs/001-x/10-understanding.md', bad(fields)); assert.ok(warns(run(d, 'claude', 'post-tool', write('specs/001-x/10-understanding.md'))), fields.join(' | ')); }
-  writeFile(d, 'specs/001-x/10-understanding.md', '---\nruns:\n  - step: understand\n    agent: light-orchestrator\n    model: m-1\n    thinking: t\n    level: medium\n  - step: clarify\n    agent: light-product-owner\n    model: m-2\n    thinking: t\n    level: medium\n---\n# x');
+  const header = (fields, step = 'step: plan\n') => `---\n${step}runs:\n  - ${fields.join('\n    ')}\n---\n# x`;
+  for (const fields of [['agent: a', 'thinking: t'], ['agent: a', 'model: m'], ['model: m', 'thinking: t'], ['agent: a']])
+    { writeFile(d, 'specs/001-x/10-understanding.md', header(fields)); assert.ok(warns(run(d, 'claude', 'post-tool', write('specs/001-x/10-understanding.md'))), fields.join(' | ')); }
+  writeFile(d, 'specs/001-x/10-understanding.md', header(['agent: a', 'model: m', 'thinking: t'], '')); // no step anywhere
+  assert.ok(warns(run(d, 'claude', 'post-tool', write('specs/001-x/10-understanding.md'))));
+  writeFile(d, 'specs/001-x/10-understanding.md', '---\nstep: understand\nruns:\n  - agent: light-orchestrator\n    model: m-1\n    thinking: t\n    level: medium\n  - agent: light-product-owner\n    model: m-2\n    thinking: t\n    level: medium\n---\n# x');
   assert.equal(run(d, 'claude', 'post-tool', write('specs/001-x/10-understanding.md')).out, '');
   writeFile(d, 'specs/001-x/20-discovery.md', '# no header');
   writeFileSync(join(d, '.light-kit/hooks.config.json'), JSON.stringify({ hooks: { 'artifact-header': 'off' } }));
@@ -425,7 +430,7 @@ test('user level, project without .light-kit: path checks resolve from the proje
 });
 
 const usageEntry = (input, output, timestamp, id, cacheRead = 0, cacheWrite = 0) => `${JSON.stringify({ type: 'assistant', ...(timestamp ? { timestamp } : {}), message: { ...(id ? { id } : {}), usage: { input_tokens: input, output_tokens: output, cache_read_input_tokens: cacheRead, cache_creation_input_tokens: cacheWrite } } })}\n`;
-const usageArtifact = (tokens = 'unknown', time = 'unknown') => `---\nruns:\n  - step: implement\n    agent: light-developer\n    model: m\n    thinking: high\n    level: medium\nusage:\n  - step: 50-implementation\n    tokens: ${tokens}\n    time: ${time}\n---\n\n# Implementation log\n`;
+const usageArtifact = (tokens = 'unknown', time = 'unknown') => `---\nstep: implementation\nruns:\n  - agent: light-developer\n    model: m\n    thinking: high\n    level: medium\nusage:\n  tokens: ${tokens}\n  time: ${time}\n---\n\n# Implementation log\n`;
 
 test('token-usage: reports the step delta, time and accumulated request totals', () => {
   const d = project(); withSpec(d);
@@ -441,6 +446,7 @@ test('token-usage: reports the step delta, time and accumulated request totals',
   assert.match(first, /tokens: 100 input · 300 cache read · 40 cache write · 20 output · 460 total/);
   assert.match(first, /time: 0s/);
   assert.match(first, /  - step: 50-implementation\n    tokens: 100 input · 300 cache read · 40 cache write · 20 output · 460 total\n    time: 0s/);
+  assert.match(first, /set the `usage:` block:\n  tokens: 100 input · 300 cache read · 40 cache write · 20 output · 460 total\n  time: 0s/);
   let state = JSON.parse(readFileSync(join(d, '.light-kit/usage.json'), 'utf8'));
   assert.deepEqual(state.sessions.s1, { input: 100, output: 20, cacheRead: 300, cacheWrite: 40, timeMs: 0 });
   assert.deepEqual(state.requests['001-x'].steps['50-implementation'],
@@ -487,7 +493,7 @@ test('token-usage: the template placeholder does not count as a filled row', () 
   writeFile(d, 'specs/001-x/50-implementation.md',
     readFileSync(new URL('../kit/templates/50-implementation.md', import.meta.url), 'utf8'));
   const out = JSON.parse(run(d, 'claude', 'post-tool', { ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's6' }).out).hookSpecificOutput.additionalContext;
-  assert.match(out, /set the `usage:` row/);
+  assert.match(out, /set the `usage:` block/);
   assert.match(out, /tokens: 10 input · 0 cache read · 0 cache write · 1 output · 11 total/);
 });
 
@@ -608,13 +614,13 @@ test('token-usage: a conclusion usage list counts as filled only when tokens and
   const d = project(); withSpec(d);
   const f = join(d, 'session.jsonl');
   writeFileSync(f, usageEntry(30, 5, '2026-01-01T00:00:00Z', 'm1', 200, 20));
-  const conclusion = (rows) => `---\nruns:\n  - step: conclude\n    agent: light-tech-writer\n    model: m\n    thinking: high\n    level: easy\nusage:\n${rows}---\n\n# Conclusion\n`;
+  const conclusion = (rows) => `---\nstep: conclude\nruns:\n  - agent: light-tech-writer\n    model: m\n    thinking: high\n    level: easy\nusage:\n${rows}---\n\n# Conclusion\n`;
   const call = () => ({ ...write('specs/001-x/60-conclusion.md'), transcript_path: f, session_id: 's2' });
   writeFile(d, 'specs/001-x/60-conclusion.md', conclusion('  - step: 50-implementation\n    tokens: unknown\n    time: unknown\n'));
   const first = run(d, 'claude', 'post-tool', call()).out;
   assert.match(first, /Token usage — 001-x, step 60-conclusion/);
   assert.match(first, /fill the `usage:` list with the rows below/); // the conclusion holds every step, not one row
-  assert.doesNotMatch(first, /set the `usage:` row/);
+  assert.doesNotMatch(first, /set the `usage:` block/);
   writeFile(d, 'specs/001-x/60-conclusion.md', conclusion('  - step: 50-implementation\n    tokens: 30 input · 200 cache read · 20 cache write · 5 output · 255 total\n    time: unknown\n'));
   assert.match(run(d, 'claude', 'post-tool', call()).out, /Token usage/); // time known: `unknown` does not count
   writeFile(d, 'specs/001-x/60-conclusion.md', conclusion('  - step: 50-implementation\n    tokens: 30 input · 200 cache read · 20 cache write · 5 output · 255 total\n    time: 0s\n'));
@@ -625,7 +631,7 @@ test('token-usage: a usage row without a time never counts as filled', () => {
   const d = project(); withSpec(d);
   const f = join(d, 'session.jsonl');
   writeFileSync(f, usageEntry(30, 5, '2026-01-01T00:00:00Z'));
-  const artifact = (rows) => `---\nruns:\n  - step: conclude\n    agent: light-tech-writer\n    model: m\n    thinking: high\n    level: easy\nusage:\n${rows}---\n\n# Conclusion\n`;
+  const artifact = (rows) => `---\nstep: conclude\nruns:\n  - agent: light-tech-writer\n    model: m\n    thinking: high\n    level: easy\nusage:\n${rows}---\n\n# Conclusion\n`;
   const call = () => ({ ...write('specs/001-x/60-conclusion.md'), transcript_path: f, session_id: 's6' });
   writeFile(d, 'specs/001-x/60-conclusion.md', artifact('  - step: 50-implementation\n    tokens: 30 input · 5 output · 35 total\n'));
   assert.match(run(d, 'claude', 'post-tool', call()).out, /Token usage/);

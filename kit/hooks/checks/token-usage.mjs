@@ -4,7 +4,7 @@ import { homedir } from 'node:os';
 import { basename, dirname, isAbsolute, join } from 'node:path';
 import { copilotSessionFile, deltaUsage, formatDuration, formatUsage, totalUsage, usageFromCopilotSession, usageFromTranscript } from '../lib/usage.mjs';
 
-// Request artifacts carry a `usage:` list in their header. After an artifact is written, read how much
+// Request artifacts carry a `usage:` entry in their header. After an artifact is written, read how much
 // the client processed in this session and report the step's share; the agent fills the row.
 // Clients with a readable session record (Claude Code, Copilot in VS Code) are counted; Cursor and
 // Codex keep `unknown`.
@@ -28,14 +28,18 @@ const statePath = (ctx) => {
   return join(ctx.kitHome, USER_STATE, `usage-${basename(ctx.root)}-${key}.json`);
 };
 
-// The artifact header carries a `usage:` list: one `step` row per step, with `tokens` and `time`.
+// The artifact header carries a `usage:` entry: a single block with the step's `tokens` and `time`,
+// or, in the conclusion which covers every step, one `- step:` row per step.
 // Artifacts written before the move carry a trailing `## Token usage` section instead.
 const headerOf = (text) => text.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
 const usageRows = (text) => {
   const lines = headerOf(text).split('\n');
   const start = lines.findIndex((line) => /^usage:\s*$/.test(line));
   if (start === -1) return [];
-  return lines.slice(start + 1).join('\n').split(/\n(?=\s*- )/).filter((b) => /^\s*- /.test(b));
+  const body = lines.slice(start + 1);
+  const first = body.find((line) => line.trim());
+  if (!first?.startsWith('- ')) return [body.join('\n')]; // one block: the artifact's own step
+  return body.join('\n').split(/\n(?=\s*- )/).filter((b) => /^\s*- /.test(b));
 };
 const field = (block, name) => block.match(new RegExp(`^\\s*${name}:\\s*(.+)$`, 'm'))?.[1]?.trim() ?? '';
 const section = (text) => text.split(/^## /m).find((p) => p.startsWith('Token usage')) ?? '';
@@ -76,6 +80,7 @@ const saveState = (file, state) => {
 };
 
 const yamlRow = (id, u, time) => `  - step: ${id}\n    tokens: ${formatUsage(u)}\n    time: ${time}`;
+const yamlBlock = (u, time) => `  tokens: ${formatUsage(u)}\n  time: ${time}`;
 const rows = (steps) => Object.entries(steps)
   .sort(([a], [b]) => a.localeCompare(b))
   .map(([id, u]) => yamlRow(id, u, timeOf(u)))
@@ -151,8 +156,8 @@ export default {
     const requestTimed = stepList.some((u) => u.timed);
     const requestTimeMs = stepList.reduce((a, u) => a + (u.timed ? Number(u.timeMs) || 0 : 0), 0);
     const where = usageRows(text).length
-      ? `In ${hit.rel}, set the \`usage:\` row`
-      : `Add a \`usage:\` row to the header of ${hit.rel}`;
+      ? `In ${hit.rel}, set the \`usage:\` block`
+      : `Add a \`usage:\` block to the header of ${hit.rel}`;
     const requestTime = requestTimed ? formatDuration(requestTimeMs) : 'unknown';
     // The conclusion holds every step, so the single-step suggestion would be wrong there.
     const conclusion = step === '60-conclusion';
@@ -164,7 +169,7 @@ export default {
         `Request total: ${formatUsage(requestTotal)} · time ${requestTime}`,
         conclusion
           ? `In ${hit.rel}, fill the \`usage:\` list with the rows below.`
-          : `${where}:\n${yamlRow(step, totals, timeOf(totals))}`,
+          : `${where}:\n${yamlBlock(totals, timeOf(totals))}`,
         conclusion ? 'Use one row per step plus the total row:' : 'Rows for 60-conclusion.md, one per step plus the total row:',
         rows(steps),
         yamlRow('total', requestTotal, requestTime),
