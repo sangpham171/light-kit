@@ -509,9 +509,9 @@ test('token-usage: silent without a readable transcript, for other clients and f
   assert.equal(existsSync(join(d, '.light-kit/usage.json')), false);
 });
 
-const copilotLog = (home, sessionId, lines) => {
+const copilotLog = (home, sessionId, lines, profile = '') => {
   const base = { darwin: 'Library/Application Support', win32: 'AppData/Roaming', linux: '.config' }[process.platform] ?? '.config';
-  const dir = join(home, base, 'Code/User/workspaceStorage/ws/chatSessions');
+  const dir = join(home, base, 'Code/User', ...(profile ? ['profiles', profile] : []), 'workspaceStorage/ws/chatSessions');
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, `${sessionId}.jsonl`), lines);
 };
@@ -538,6 +538,22 @@ test('token-usage: Copilot in VS Code reads the chat session log', () => {
   assert.deepEqual(state.sessions['copilot:sid'], { input: 42_000, output: 2000, cacheRead: 0, cacheWrite: 0, timeMs: 7200 });
   assert.deepEqual(state.requests['001-x'].steps['50-implementation'],
     { input: 42_000, output: 2000, cacheRead: 0, cacheWrite: 0, timeMs: 7200, timed: true });
+});
+
+test('token-usage: Copilot in VS Code reads a named-profile chat session log', () => {
+  const d = project(); withSpec(d);
+  const home = mkdtempSync(join(tmpdir(), 'light-kit-home-'));
+  const op = (o) => `${JSON.stringify(o)}\n`;
+  copilotLog(home, 'profile-sid',
+    op({ kind: 0, v: { requests: [] } })
+    + op({ kind: 2, k: ['requests'], v: [{ requestId: 'r1', timestamp: 1000, promptTokens: 700, completionTokens: 80, result: { timings: { totalElapsed: 2500 } } }] }),
+    'work-profile');
+  writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact());
+  const out = JSON.parse(run(d, 'copilot', 'post-tool', {
+    toolName: 'create_file', toolArgs: { filePath: 'specs/001-x/50-implementation.md' }, sessionId: 'profile-sid',
+  }, { HOME: home }).out).additionalContext;
+  assert.match(out, /This write: 700 input · 0 cache read · 0 cache write · 80 output · 780 total · time 2s/);
+  assert.match(out, /time: 2s/);
 });
 
 test('token-usage: Copilot without a session record stays silent', () => {
