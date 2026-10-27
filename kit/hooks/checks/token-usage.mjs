@@ -2,10 +2,10 @@ import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { basename, dirname, isAbsolute, join } from 'node:path';
-import { copilotSessionFile, deltaUsage, formatCount, formatDuration, formatUsage, totalUsage, usageFromCopilotSession, usageFromTranscript } from '../lib/usage.mjs';
+import { copilotSessionFile, deltaUsage, formatDuration, formatUsage, totalUsage, usageFromCopilotSession, usageFromTranscript } from '../lib/usage.mjs';
 
-// Request artifacts carry a "## Token usage" section. After an artifact is written, read how much the
-// client processed in this session and report the step's share; the agent fills the section.
+// Request artifacts carry a `usage:` list in their header. After an artifact is written, read how much
+// the client processed in this session and report the step's share; the agent fills the row.
 // Clients with a readable session record (Claude Code, Copilot in VS Code) are counted; Cursor and
 // Codex keep `unknown`.
 
@@ -28,11 +28,22 @@ const statePath = (ctx) => {
   return join(ctx.kitHome, USER_STATE, `usage-${basename(ctx.root)}-${key}.json`);
 };
 
+// The artifact header carries a `usage:` list: one `step` row per step, with `tokens` and `time`.
+// Artifacts written before the move carry a trailing `## Token usage` section instead.
+const headerOf = (text) => text.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
+const usageRows = (text) => {
+  const lines = headerOf(text).split('\n');
+  const start = lines.findIndex((line) => /^usage:\s*$/.test(line));
+  if (start === -1) return [];
+  return lines.slice(start + 1).join('\n').split(/\n(?=\s*- )/).filter((b) => /^\s*- /.test(b));
+};
+const field = (block, name) => block.match(new RegExp(`^\\s*${name}:\\s*(.+)$`, 'm'))?.[1]?.trim() ?? '';
 const section = (text) => text.split(/^## /m).find((p) => p.startsWith('Token usage')) ?? '';
 // Both fields must be present: a duration when the transcript carries timestamps, `unknown` when it does not.
-const tokensFilled = (body) => /\bTokens?:\s*\d/i.test(body) || /\|\s*\d[\d,]*\s*\|/.test(body);
 const filledTime = (value, timeKnown) => /^\d/.test(value) || (!timeKnown && /^unknown\b/i.test(value));
-const timeFilled = (body, timeKnown) => {
+const filledTokens = (value) => /\d[\d,]*/.test(value);
+const legacyTokensFilled = (body) => /\bTokens?:\s*\d/i.test(body) || /\|\s*\d[\d,]*\s*\|/.test(body);
+const legacyTimeFilled = (body, timeKnown) => {
   const line = body.match(/^Time:\s*(.+)$/im);
   if (line) return filledTime(line[1].trim(), timeKnown);
   // Read the Time column from the header: a table without one is unfilled, even when its last cell is
@@ -44,8 +55,10 @@ const timeFilled = (body, timeKnown) => {
   return table.some((cells) => cells.length === header.length && filledTime(cells[index], timeKnown));
 };
 const filled = (text, timeKnown) => {
+  const rows = usageRows(text);
+  if (rows.length) return rows.some((row) => filledTokens(field(row, 'tokens')) && filledTime(field(row, 'time'), timeKnown));
   const body = section(text);
-  return tokensFilled(body) && timeFilled(body, timeKnown);
+  return legacyTokensFilled(body) && legacyTimeFilled(body, timeKnown);
 };
 const timeOf = (u) => (u.timed ? formatDuration(u.timeMs) : 'unknown');
 
@@ -62,9 +75,10 @@ const saveState = (file, state) => {
   writeFileSync(file, JSON.stringify({ version: STATE_VERSION, ...state }, null, 2) + '\n');
 };
 
+const yamlRow = (id, u, time) => `  - step: ${id}\n    tokens: ${formatUsage(u)}\n    time: ${time}`;
 const rows = (steps) => Object.entries(steps)
   .sort(([a], [b]) => a.localeCompare(b))
-  .map(([id, u]) => `| ${id} | ${formatCount(u.input)} | ${formatCount(u.cacheRead)} | ${formatCount(u.cacheWrite)} | ${formatCount(u.output)} | ${formatCount(totalUsage(u))} | ${timeOf(u)} |`)
+  .map(([id, u]) => yamlRow(id, u, timeOf(u)))
   .join('\n');
 
 export default {
@@ -136,9 +150,11 @@ export default {
     }), { ...ZERO });
     const requestTimed = stepList.some((u) => u.timed);
     const requestTimeMs = stepList.reduce((a, u) => a + (u.timed ? Number(u.timeMs) || 0 : 0), 0);
-    const where = section(text) ? `In ${hit.rel}, set` : `Add a \`## Token usage\` section to ${hit.rel} and set`;
+    const where = usageRows(text).length
+      ? `In ${hit.rel}, set the \`usage:\` row`
+      : `Add a \`usage:\` row to the header of ${hit.rel}`;
     const requestTime = requestTimed ? formatDuration(requestTimeMs) : 'unknown';
-    // The conclusion holds the table itself, so the step-section suggestion would be wrong there.
+    // The conclusion holds every step, so the single-step suggestion would be wrong there.
     const conclusion = step === '60-conclusion';
     return {
       message: [
@@ -147,13 +163,11 @@ export default {
         `Step total: ${formatUsage(totals)} · time ${timeOf(totals)}`,
         `Request total: ${formatUsage(requestTotal)} · time ${requestTime}`,
         conclusion
-          ? `In ${hit.rel}, fill the table with the rows below.`
-          : `${where} \`Tokens: ${formatUsage(totals)}\` and \`Time: ${timeOf(totals)}\`.`,
-        conclusion ? 'Use one row per step plus the total row:' : 'Copy this table into 60-conclusion.md, one row per step plus the total row:',
-        '| Step | Input | Cache read | Cache write | Output | Total | Time |',
-        '|---|---|---|---|---|---|---|',
+          ? `In ${hit.rel}, fill the \`usage:\` list with the rows below.`
+          : `${where}:\n${yamlRow(step, totals, timeOf(totals))}`,
+        conclusion ? 'Use one row per step plus the total row:' : 'Rows for 60-conclusion.md, one per step plus the total row:',
         rows(steps),
-        `| **Total** | ${formatCount(requestTotal.input)} | ${formatCount(requestTotal.cacheRead)} | ${formatCount(requestTotal.cacheWrite)} | ${formatCount(requestTotal.output)} | ${formatCount(totalUsage(requestTotal))} | ${requestTime} |`,
+        yamlRow('total', requestTotal, requestTime),
         'Write `unknown` when the client exposes no usage or time.',
       ].join('\n'),
     };
