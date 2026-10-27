@@ -2,7 +2,7 @@ import { closeSync, existsSync, openSync, readFileSync, readdirSync, readSync, s
 import { execFileSync } from 'node:child_process';
 import { homedir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
-import { copilotSessionFile } from './usage.mjs';
+import { copilotEventsFile, copilotSessionFile } from './usage.mjs';
 
 // Clients store the reasoning ("thinking") effort in internal places, and the formats change between versions.
 // Every reader is best-effort: it returns '' when the value is absent or unreadable, never throws.
@@ -83,11 +83,6 @@ function head(file) {
   } catch { return ''; } finally {
     if (fd !== undefined) { try { closeSync(fd); } catch { /* already closed */ } }
   }
-}
-
-export function copilotEventsFile(sessionId, { home = homedir(), env = process.env } = {}) {
-  if (!sessionId || !/^[\w.-]+$/.test(sessionId)) return ''; // never let the payload escape session-state
-  return join(env.COPILOT_HOME || join(home, '.copilot'), 'session-state', sessionId, 'events.jsonl');
 }
 
 export function effortFromCopilotEvents(file) {

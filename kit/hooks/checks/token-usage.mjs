@@ -1,8 +1,7 @@
 import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { homedir } from 'node:os';
 import { basename, dirname, isAbsolute, join } from 'node:path';
-import { copilotSessionFile, deltaUsage, formatDuration, formatUsage, totalUsage, usageFromCopilotSession, usageFromTranscript } from '../lib/usage.mjs';
+import { deltaUsage, formatDuration, formatUsage, totalUsage, usageFromCopilot, usageFromTranscript } from '../lib/usage.mjs';
 
 // Request artifacts carry a `usage:` entry in their header. After an artifact is written, read how much
 // the client processed in this session and report the step's share; the agent fills the row.
@@ -107,11 +106,10 @@ export default {
     } else {
       if (!session) return null;
       // VS Code sends its own Copilot transcript path, which holds no token figures; the usage lives in
-      // the chat session operation log, found by session id.
-      const file = copilotSessionFile(session, { home: homedir() });
-      if (!file) return null;
+      // the session's own record, found by session id.
       const stamp = typeof payload.timestamp === 'string' ? Date.parse(payload.timestamp) : Number(payload.timestamp);
-      current = usageFromCopilotSession(file, { now: Number.isFinite(stamp) ? stamp : Date.now() });
+      current = usageFromCopilot(session, { now: Number.isFinite(stamp) ? stamp : Date.now() });
+      if (!current) return null;
     }
     if (!current.calls) return null;
 

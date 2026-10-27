@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { IDLE_MS, copilotSessionFile, deltaUsage, formatCount, formatDuration, formatUsage, totalUsage, usageFromCopilotSession, usageFromTranscript } from '../kit/hooks/lib/usage.mjs';
+import { dirname, join } from 'node:path';
+import { IDLE_MS, copilotEventsFile, copilotSessionFile, deltaUsage, formatCount, formatDuration, formatUsage, totalUsage, usageFromCopilot, usageFromCopilotEvents, usageFromCopilotSession, usageFromTranscript } from '../kit/hooks/lib/usage.mjs';
 
 const line = (o) => `${JSON.stringify(o)}\n`;
 const empty = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, calls: 0, timeMs: 0, timeKnown: false };
@@ -152,6 +152,78 @@ test('Copilot in VS Code: finds chat session logs in named profiles', () => {
   const file = join(dir, `${id}.jsonl`);
   writeFileSync(file, '');
   assert.equal(copilotSessionFile(id, { home, platform: 'darwin' }), file);
+});
+
+const event = (type, timestamp, usage) => line({ type, timestamp, data: usage ? { usage } : {} });
+
+test('Copilot agent host: sums the usage records and counts the time between events', () => {
+  const d = mkdtempSync(join(tmpdir(), 'light-kit-usage-'));
+  const f = join(d, 'events.jsonl');
+  writeFileSync(f,
+    event('session.start', '2026-01-01T00:00:00.000Z')
+    + event('session.usage_record', '2026-01-01T00:00:02.000Z', { inputTokens: 12_000, outputTokens: 300, cacheReadTokens: 4000, cacheWriteTokens: 500 })
+    + event('assistant.message', '2026-01-01T00:00:05.000Z')
+    + event('session.usage_record', '2026-01-01T00:00:09.000Z', { inputTokens: 30_000, outputTokens: 900 }));
+  // `inputTokens` is the whole prompt, cache included: 12,000 with 4,000 read and 500 written leaves 7,500.
+  assert.deepEqual(usageFromCopilotEvents(f, { now: Date.parse('2026-01-01T00:00:09.000Z') }),
+    { ...empty, input: 37_500, output: 1200, cacheRead: 4000, cacheWrite: 500, calls: 2, timeMs: 9000, timeKnown: true });
+});
+
+test('Copilot agent host: input excludes the cache figures the record folds into it', () => {
+  const d = mkdtempSync(join(tmpdir(), 'light-kit-usage-'));
+  const f = join(d, 'events.jsonl');
+  writeFileSync(f,
+    event('session.usage_record', '2026-01-01T00:00:00.000Z', { inputTokens: 17_919, outputTokens: 120, cacheWriteTokens: 17_916 })
+    + event('session.usage_record', '2026-01-01T00:00:01.000Z', { inputTokens: 18_372, outputTokens: 90, cacheReadTokens: 17_916, cacheWriteTokens: 453 })
+    // a record smaller than its own cache figures cannot yield a negative input
+    + event('session.usage_record', '2026-01-01T00:00:02.000Z', { inputTokens: 10, outputTokens: 1, cacheReadTokens: 900 }));
+  assert.deepEqual(usageFromCopilotEvents(f, { now: 0 }),
+    { ...empty, input: 3 + 3, output: 211, cacheRead: 18_816, cacheWrite: 18_369, calls: 3, timeMs: 2000, timeKnown: true });
+});
+
+test('Copilot agent host: an idle gap is not time, a running call adds the time since the last event', () => {
+  const d = mkdtempSync(join(tmpdir(), 'light-kit-usage-'));
+  const f = join(d, 'events.jsonl');
+  writeFileSync(f,
+    event('session.usage_record', '2026-01-01T00:00:00.000Z', { inputTokens: 100, outputTokens: 10 })
+    + event('tool.execution_start', '2026-01-01T03:00:00.000Z'));
+  assert.deepEqual(usageFromCopilotEvents(f, { now: Date.parse('2026-01-01T03:00:04.000Z') }),
+    { ...empty, input: 100, output: 10, calls: 1, timeMs: 4000, timeKnown: true });
+  assert.equal(usageFromCopilotEvents(f, { now: Date.parse('2026-01-01T05:00:00.000Z') }).timeMs, 0);
+});
+
+test('Copilot agent host: missing or unreadable event logs yield zeros, never an error', () => {
+  const d = mkdtempSync(join(tmpdir(), 'light-kit-usage-'));
+  assert.deepEqual(usageFromCopilotEvents(join(d, 'missing.jsonl')), empty);
+  assert.deepEqual(usageFromCopilotEvents(''), empty);
+});
+
+test('Copilot agent host: finds the event log by id, honouring COPILOT_HOME and never leaving it', () => {
+  const home = mkdtempSync(join(tmpdir(), 'light-kit-home-'));
+  assert.equal(copilotEventsFile('sid', { home, env: {} }), join(home, '.copilot/session-state/sid/events.jsonl'));
+  assert.equal(copilotEventsFile('sid', { home, env: { COPILOT_HOME: '/elsewhere' } }), '/elsewhere/session-state/sid/events.jsonl');
+  assert.equal(copilotEventsFile('../../etc/passwd', { home, env: {} }), '');
+  assert.equal(copilotEventsFile('', { home, env: {} }), '');
+});
+
+test('Copilot: the agent host event log wins over a chat session log, which stays the fallback', () => {
+  const home = mkdtempSync(join(tmpdir(), 'light-kit-home-'));
+  const events = join(home, '.copilot/session-state/sid/events.jsonl');
+  mkdirSync(dirname(events), { recursive: true });
+  writeFileSync(events, event('session.usage_record', '2026-01-01T00:00:00.000Z',
+    { inputTokens: 500, outputTokens: 50, cacheReadTokens: 7 })); // 493 uncached
+  const chat = join(home, 'Library/Application Support/Code/User/workspaceStorage/ws/chatSessions/sid.jsonl');
+  mkdirSync(dirname(chat), { recursive: true });
+  writeFileSync(chat, op({ kind: 0, v: { requests: [{ promptTokens: 42_000, completionTokens: 2000 }] } }));
+  const opts = { home, platform: 'darwin', env: {}, now: 0 };
+  assert.deepEqual(usageFromCopilot('sid', opts),
+    { ...empty, input: 493, output: 50, cacheRead: 7, calls: 1, timeMs: 0, timeKnown: true });
+  // An event log without usage records is no record: the chat log answers.
+  writeFileSync(events, event('session.start', '2026-01-01T00:00:00.000Z'));
+  assert.equal(usageFromCopilot('sid', opts).input, 42_000);
+  rmSync(events);
+  assert.equal(usageFromCopilot('sid', opts).input, 42_000);
+  assert.equal(usageFromCopilot('missing', opts), null);
 });
 
 test('delta carries tokens, cache and time, clamping both when the record was reset', () => {

@@ -12,6 +12,18 @@ export const IDLE_MS = 15 * 60 * 1000;
 const num = (v) => (Number.isFinite(Number(v)) ? Number(v) : 0);
 const stamp = (v) => (typeof v === 'string' ? Date.parse(v) : NaN);
 
+// Active time from entry timestamps: the gaps between consecutive entries, so tool runs count and time
+// away does not. Returns the time to add for one entry, and remembers the latest one seen.
+const gapTime = () => {
+  let prev;
+  return (ts) => {
+    if (!Number.isFinite(ts)) return 0;
+    const added = prev !== undefined && ts > prev && ts - prev <= IDLE_MS ? ts - prev : 0;
+    prev = prev === undefined ? ts : Math.max(prev, ts);
+    return added;
+  };
+};
+
 // Claude Code writes one `usage` object per assistant turn and an ISO `timestamp` on every entry.
 // It also writes one entry per content block, repeating the same `message.usage`: count each message
 // id once, or a response is counted two to three times over. `input` counts the uncached prompt
@@ -21,7 +33,7 @@ const stamp = (v) => (typeof v === 'string' ? Date.parse(v) : NaN);
 export function usageFromTranscript(file) {
   const usage = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, calls: 0, timeMs: 0, timeKnown: false };
   if (!file) return usage;
-  let prev;
+  const gap = gapTime();
   const seen = new Set();
   try {
     for (const line of readFileSync(file, 'utf8').split('\n')) {
@@ -31,8 +43,7 @@ export function usageFromTranscript(file) {
       const ts = stamp(entry?.timestamp);
       if (Number.isFinite(ts)) {
         usage.timeKnown = true;
-        if (prev !== undefined && ts > prev && ts - prev <= IDLE_MS) usage.timeMs += ts - prev;
-        prev = prev === undefined ? ts : Math.max(prev, ts);
+        usage.timeMs += gap(ts);
       }
       if (entry?.type !== 'assistant') continue;
       const u = entry.message?.usage ?? entry.usage;
@@ -130,6 +141,43 @@ export function usageFromCopilotSession(file, { now = Date.now() } = {}) {
   return usage;
 }
 
+// Copilot's agent host — VS Code agent sessions and the CLI — writes the session as an event log and
+// reports usage on its own `session.usage_record` events. `inputTokens` is the whole prompt, cache reads
+// and writes included, unlike Claude Code's `input_tokens`: subtracting them keeps `input` the uncached
+// prompt, so the total does not count a cached token twice. Every event carries an ISO timestamp, which
+// gives the active time; a call still running has no closing event yet, so the time since the last event
+// counts too, unless that gap is long enough to be idle.
+export function usageFromCopilotEvents(file, { now = Date.now() } = {}) {
+  const usage = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, calls: 0, timeMs: 0, timeKnown: false };
+  if (!file) return usage;
+  const gap = gapTime();
+  let last;
+  try {
+    for (const line of readFileSync(file, 'utf8').split('\n')) {
+      if (!line.trim()) continue;
+      let entry;
+      try { entry = JSON.parse(line); } catch { continue; }
+      const ts = stamp(entry?.timestamp);
+      if (!Number.isFinite(ts)) continue;
+      usage.timeKnown = true;
+      usage.timeMs += gap(ts);
+      last = Math.max(last ?? ts, ts);
+      if (entry?.type !== 'session.usage_record') continue;
+      const u = entry.data?.usage;
+      if (!u || typeof u !== 'object') continue;
+      const cacheRead = num(u.cacheReadTokens);
+      const cacheWrite = num(u.cacheWriteTokens);
+      usage.input += Math.max(0, num(u.inputTokens) - cacheRead - cacheWrite);
+      usage.output += num(u.outputTokens);
+      usage.cacheRead += cacheRead;
+      usage.cacheWrite += cacheWrite;
+      usage.calls += 1;
+    }
+  } catch { /* missing or unreadable event log */ }
+  if (last !== undefined && Number.isFinite(now) && now - last > 0 && now - last <= IDLE_MS) usage.timeMs += now - last;
+  return usage;
+}
+
 // The chat session log of a Copilot session, looked up by session id in each VS Code edition's
 // workspace storage. The id is unique, so the workspace hash does not have to be reproduced.
 const USER_DATA = { darwin: 'Library/Application Support', win32: 'AppData/Roaming', linux: '.config' };
@@ -155,6 +203,25 @@ export function copilotSessionFile(sessionId, { home = homedir(), platform = pro
     }
   }
   return '';
+}
+
+// The agent host keeps one event log per session under `COPILOT_HOME` (default `~/.copilot`).
+export function copilotEventsFile(sessionId, { home = homedir(), env = process.env } = {}) {
+  if (!sessionId || !/^[\w.-]+$/.test(sessionId)) return ''; // never let the payload escape session-state
+  return join(env.COPILOT_HOME || join(home, '.copilot'), 'session-state', sessionId, 'events.jsonl');
+}
+
+// Copilot keeps a session in one of two records, and a payload tells only the session id. The agent
+// host's event log is tried first: it is the record of the session in use and the only one with cache
+// figures. The chat panel's operation log covers Copilot before agent sessions and older builds.
+export function usageFromCopilot(sessionId, { home = homedir(), platform = process.platform, env = process.env, now = Date.now() } = {}) {
+  const events = copilotEventsFile(sessionId, { home, env });
+  if (events) {
+    const fromEvents = usageFromCopilotEvents(events, { now });
+    if (fromEvents.calls) return fromEvents;
+  }
+  const chat = copilotSessionFile(sessionId, { home, platform });
+  return chat ? usageFromCopilotSession(chat, { now }) : null;
 }
 
 // What this turn added since the previous snapshot; a smaller total means the record was reset.
