@@ -138,12 +138,20 @@ export function copilotSessionFile(sessionId, { home = homedir(), platform = pro
   if (!sessionId || !/^[\w.-]+$/.test(sessionId)) return ''; // never let the payload escape workspaceStorage
   const base = join(home, USER_DATA[platform] ?? USER_DATA.linux);
   for (const app of VSCODE_APPS) {
-    const dir = join(base, app, 'User', 'workspaceStorage');
-    let workspaces = [];
-    try { workspaces = readdirSync(dir); } catch { continue; }
-    for (const workspace of workspaces) {
-      const file = join(dir, workspace, 'chatSessions', `${sessionId}.jsonl`);
-      if (existsSync(file)) return file;
+    const user = join(base, app, 'User');
+    const storageDirs = [join(user, 'workspaceStorage')];
+    try {
+      storageDirs.push(...readdirSync(join(user, 'profiles'), { withFileTypes: true })
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => join(user, 'profiles', entry.name, 'workspaceStorage')));
+    } catch { /* no named profiles */ }
+    for (const dir of storageDirs) {
+      let workspaces = [];
+      try { workspaces = readdirSync(dir); } catch { continue; }
+      for (const workspace of workspaces) {
+        const file = join(dir, workspace, 'chatSessions', `${sessionId}.jsonl`);
+        if (existsSync(file)) return file;
+      }
     }
   }
   return '';

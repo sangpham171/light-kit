@@ -144,6 +144,16 @@ test('Copilot in VS Code: finds the chat session log by id across VS Code editio
   assert.equal(copilotSessionFile('', { home, platform: 'darwin' }), '');
 });
 
+test('Copilot in VS Code: finds chat session logs in named profiles', () => {
+  const home = mkdtempSync(join(tmpdir(), 'light-kit-home-'));
+  const id = 'profile-session';
+  const dir = join(home, 'Library/Application Support/Code/User/profiles/work-profile/workspaceStorage/ws/chatSessions');
+  mkdirSync(dir, { recursive: true });
+  const file = join(dir, `${id}.jsonl`);
+  writeFileSync(file, '');
+  assert.equal(copilotSessionFile(id, { home, platform: 'darwin' }), file);
+});
+
 test('delta carries tokens, cache and time, clamping both when the record was reset', () => {
   assert.deepEqual(
     deltaUsage(
