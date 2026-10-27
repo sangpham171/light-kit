@@ -8,7 +8,9 @@ import { realish } from './paths.mjs';
 const KINDS = {
   shell: ['bash', 'powershell', 'shell', 'sh', 'local_shell', 'run_terminal_cmd', 'terminal'],
   read: ['read', 'view', 'readfile', 'read_file', 'grep', 'glob', 'search'],
-  write: ['write', 'edit', 'multiedit', 'notebookedit', 'create', 'delete', 'apply_patch', 'str_replace_editor', 'replace', 'edit_file', 'write_file'],
+  write: ['write', 'edit', 'multiedit', 'notebookedit', 'create', 'delete', 'apply_patch', 'str_replace_editor', 'replace', 'edit_file', 'write_file',
+    // VS Code Copilot tool names
+    'create_file', 'replace_string_in_file', 'multi_replace_string_in_file', 'edit_notebook_file'],
 };
 const PATH_KEYS = ['file_path', 'filePath', 'path', 'target_file', 'notebook_path', 'filename'];
 const SKIP_TEXT = new Set([...PATH_KEYS, 'old_string', 'oldString', 'description', 'timeout']);
@@ -51,6 +53,10 @@ export function normalize(client, event, p, installRoot) {
   const kind = kindOf(name);
   const texts = strings(input);
   const files = new Set(PATH_KEYS.map((k) => input?.[k]).filter((x) => typeof x === 'string' && x));
+  // A multi-file edit carries one path per replacement instead of a top-level one.
+  if (Array.isArray(input?.replacements)) {
+    for (const r of input.replacements) if (typeof r?.filePath === 'string' && r.filePath) files.add(r.filePath);
+  }
   if (kind === 'write') texts.flatMap(patchPaths).forEach((f) => files.add(f));
   if (p.file_path) files.add(p.file_path);
   const cmd = input?.command ?? p.command;

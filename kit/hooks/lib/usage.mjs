@@ -61,14 +61,6 @@ export function usageFromTranscript(file) {
 function copilotRequests(file) {
   const requests = [];
   if (!file) return requests;
-  const set = (obj, parts, value) => {
-    let cur = obj;
-    for (const part of parts.slice(0, -1)) {
-      if (!cur[part] || typeof cur[part] !== 'object') cur[part] = {};
-      cur = cur[part];
-    }
-    cur[parts.at(-1)] = value;
-  };
   const push = (arr, value) => { if (Array.isArray(value)) arr.push(...value); else arr.push(value); };
   try {
     for (const line of readFileSync(file, 'utf8').split('\n')) {
@@ -84,26 +76,31 @@ function copilotRequests(file) {
       if (!Array.isArray(path) || path[0] !== 'requests') continue;
       if (path.length === 1) {
         if (entry.kind === 2) push(requests, entry.v);
+        else if (entry.kind === 3) requests.length = 0;
         else if (Array.isArray(entry.v)) { requests.length = 0; requests.push(...entry.v); }
         continue;
       }
       if (typeof path[1] !== 'number') continue;
       const index = path[1];
       if (path.length === 2) {
-        if (entry.kind === 2) requests.push(entry.v ?? {}); else requests[index] = entry.v ?? {};
+        if (entry.kind === 2) requests.push(entry.v ?? {});
+        else if (entry.kind === 3) requests.splice(index, 1);
+        else requests[index] = entry.v ?? {};
         continue;
       }
       if (!requests[index] || typeof requests[index] !== 'object') requests[index] = {};
+      const parent = path.slice(2, -1).reduce((cur, part) => {
+        if (!cur[part] || typeof cur[part] !== 'object') cur[part] = {};
+        return cur[part];
+      }, requests[index]);
+      const key = path.at(-1);
       if (entry.kind === 2) {
-        const parent = path.slice(2, -1).reduce((cur, part) => {
-          if (!cur[part] || typeof cur[part] !== 'object') cur[part] = {};
-          return cur[part];
-        }, requests[index]);
-        const key = path.at(-1);
         if (!Array.isArray(parent[key])) parent[key] = [];
         push(parent[key], entry.v);
-      } else if (entry.kind !== 3) {
-        set(requests[index], path.slice(2), entry.v);
+      } else if (entry.kind === 3) {
+        delete parent[key];
+      } else {
+        parent[key] = entry.v;
       }
     }
   } catch { /* missing or unreadable operation log */ }
@@ -138,7 +135,7 @@ export function usageFromCopilotSession(file, { now = Date.now() } = {}) {
 const USER_DATA = { darwin: 'Library/Application Support', win32: 'AppData/Roaming', linux: '.config' };
 const VSCODE_APPS = ['Code', 'Code - Insiders', 'VSCodium', 'VSCodium - Insiders'];
 export function copilotSessionFile(sessionId, { home = homedir(), platform = process.platform } = {}) {
-  if (!sessionId) return '';
+  if (!sessionId || !/^[\w.-]+$/.test(sessionId)) return ''; // never let the payload escape workspaceStorage
   const base = join(home, USER_DATA[platform] ?? USER_DATA.linux);
   for (const app of VSCODE_APPS) {
     const dir = join(base, app, 'User', 'workspaceStorage');

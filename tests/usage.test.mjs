@@ -114,6 +114,18 @@ test('Copilot in VS Code: a patch updates the request it names', () => {
     { ...empty, input: 250, output: 40, calls: 1, timeMs: 0, timeKnown: false });
 });
 
+test('Copilot in VS Code: a delete removes the request, keeping later patches aligned', () => {
+  const d = mkdtempSync(join(tmpdir(), 'light-kit-usage-'));
+  const f = join(d, 'session.jsonl');
+  writeFileSync(f,
+    op({ kind: 0, v: { requests: [] } })
+    + op({ kind: 2, k: ['requests'], v: [{ promptTokens: 900, completionTokens: 90 }, { promptTokens: 100, completionTokens: 10 }] })
+    + op({ kind: 3, k: ['requests', 0] })
+    + op({ kind: 1, k: ['requests', 0, 'promptTokens'], v: 300 }));
+  assert.deepEqual(usageFromCopilotSession(f, { now: 0 }),
+    { ...empty, input: 300, output: 10, calls: 1, timeMs: 0, timeKnown: false });
+});
+
 test('Copilot in VS Code: missing session logs yield zeros, never an error', () => {
   const d = mkdtempSync(join(tmpdir(), 'light-kit-usage-'));
   assert.deepEqual(usageFromCopilotSession(join(d, 'missing.jsonl')), empty);

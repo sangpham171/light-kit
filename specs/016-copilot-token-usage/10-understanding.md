@@ -14,8 +14,14 @@ The `token-usage` hook must report tokens and time for GitHub Copilot in VS Code
 `unknown`.
 
 ## Root cause (verified)
-`kit/hooks/checks/token-usage.mjs` starts with `if (ctx.tool.kind !== 'write' || ctx.client !== 'claude') return null;`
-and only reads `transcript_path`. Copilot hooks send no transcript path and are therefore ignored.
+Two gates keep Copilot out:
+
+- `kit/hooks/checks/token-usage.mjs` returns early for every client except `claude`, and its Claude
+  reader uses `transcript_path`; the Copilot transcript that VS Code sends has no token fields, so
+  even a Copilot branch reading it would report nothing.
+- `kit/hooks/lib/normalize.mjs` does not recognise VS Code's write tool names (`create_file`,
+  `replace_string_in_file`, `multi_replace_string_in_file`, `edit_notebook_file`), so the hook never
+  sees those calls as writes at all.
 
 ## Source of truth (verified)
 A VS Code chat session is an operation log at
