@@ -1,7 +1,7 @@
 ---
+step: <step>
 runs:
-  - step: <step>
-    agent: <agent>
+  - agent: <agent>
     model: <model id>
     thinking: <reasoning setting or unknown>
     level: <easy|medium|hard|unknown>

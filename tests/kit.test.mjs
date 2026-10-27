@@ -250,14 +250,19 @@ test('artifact headers: every artifact template starts with the runs header and 
   const labels = formatUsage({ input: 1, cacheRead: 2, cacheWrite: 3, output: 4 })
     .split(' · ').map((cell) => cell.replace(/^[\d,]+\s+/, ''));
   const placeholder = labels.map((label) => `<${label}> ${label}`).join(' · ');
-  const headerStart = /^---\nruns:\n  - step: <step>\n    agent: <agent>\n    model: <model id>\n    thinking: <reasoning setting or unknown>\n    level: <easy\|medium\|hard\|unknown>\nusage:\n  - step: <step>\n/;
+  const runEntry = '  - agent: <agent>\n    model: <model id>\n    thinking: <reasoning setting or unknown>\n    level: <easy\\|medium\\|hard\\|unknown>\n';
+  const headerStart = new RegExp(`^---\\nstep: <step>\\nruns:\\n${runEntry}usage:\\n`);
+  const conclusionStart = new RegExp(`^---\\nstep: <step>\\nruns:\\n${runEntry}usage:\\n  - step: <step>\\n`);
   for (const t of ['00-request', '10-understanding', '20-discovery', '30-design', '40-plan', '50-implementation', '60-conclusion']) {
     const text = read(`.light-kit/templates/${t}.md`);
-    assert.match(text, headerStart, t);
+    const conclusion = t === '60-conclusion';
+    assert.match(text, conclusion ? conclusionStart : headerStart, t);
     assert.doesNotMatch(text, /## Token usage/, t);
-    assert.equal(text.match(/^    tokens: (.+)$/m)?.[1], placeholder, t);
-    assert.match(text, /^    time: <time spent or unknown>$/m, t);
-    if (t === '60-conclusion') assert.match(text, /^  - step: total\n    tokens: .+\n    time: <time spent or unknown>$/m, t);
+    const indent = conclusion ? '    ' : '  ';
+    assert.equal(text.match(new RegExp(`^${indent}tokens: (.+)$`, 'm'))?.[1], placeholder, t);
+    assert.match(text, new RegExp(`^${indent}time: <time spent or unknown>$`, 'm'), t);
+    if (conclusion) assert.match(text, /^  - step: total\n    tokens: .+\n    time: <time spent or unknown>$/m, t);
+    else assert.doesNotMatch(text, /^  - step: <step>$/m, t); // the step sits once, at the top of the header
   }
   assert.match(read('.light-kit/templates/60-conclusion.md'), /^  - step: <step>$/m);
   assert.doesNotMatch(read('.light-kit/templates/status.md'), /runs:|usage:/); // state file, not an artifact
