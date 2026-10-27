@@ -198,13 +198,17 @@ test('user level: files land where each client reads user-wide config', () => {
   userInstall(h, ['claude', 'copilot', 'cursor', 'codex']);
   const has = (p) => existsSync(join(h, p));
   for (const p of ['.claude/agents/light-orchestrator.md', '.claude/commands/light-request.md', '.claude/skills/light-commit/SKILL.md', '.claude/CLAUDE.md', '.claude/settings.json',
-    '.copilot/agents/light-reviewer.agent.md', '.copilot/skills/light-triage/SKILL.md', '.copilot/copilot-instructions.md', '.copilot/hooks/light-kit.json',
+    '.copilot/agents/light-reviewer.agent.md', '.copilot/prompts/light-request.prompt.md', '.copilot/skills/light-triage/SKILL.md', '.copilot/copilot-instructions.md', '.copilot/hooks/light-kit.json',
     '.cursor/commands/light-request.md', '.cursor/hooks.json',
     '.codex/agents/light-developer.toml', '.codex/prompts/light-request.md', '.codex/AGENTS.md', '.codex/hooks.json', '.agents/skills/light-triage/SKILL.md',
     '.light-kit/workflows/full.md', '.light-kit/templates/project-profile.md', '.light-kit/hooks/run.mjs', '.light-kit/hooks.config.json', '.light-kit/kit.config.json'])
     assert.ok(has(p), p);
-  for (const p of ['CLAUDE.md', 'AGENTS.md', 'kit.config.json', '.github', '.cursor/rules', '.copilot/prompts', '.light-kit/project-profile.md', '.light-kit/projects.md', 'specs'])
+  for (const p of ['CLAUDE.md', 'AGENTS.md', 'kit.config.json', '.github', '.cursor/rules', '.light-kit/project-profile.md', '.light-kit/projects.md', 'specs'])
     assert.equal(has(p), false, `${p} must not be created in the home folder`);
+  // the prompt keeps the Copilot input placeholder and its generated marker, so a re-run replaces it
+  const prompt = readFileSync(join(h, '.copilot/prompts/light-request.prompt.md'), 'utf8');
+  assert.match(prompt, /\$\{input:request/);
+  assert.match(prompt, /light-kit:generated/);
   assert.equal(JSON.parse(readFileSync(join(h, '.light-kit/kit.config.json'), 'utf8')).level, 'user');
 });
 
