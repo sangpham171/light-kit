@@ -13,7 +13,7 @@ Automatic guardrails that run inside your AI client. One script (`run.mjs`) serv
 | `protect-branches` | before a shell command | block | No `git commit`, `merge`, `cherry-pick` or `revert` on a protected branch (`main`, `master`, `trunk`, `develop`, `production`, `release/*`, the remote default, plus yours). Work on a branch instead. |
 | `clean-commit-message` | before a shell command | block | No AI attribution in commit messages or pull request text (`Co-Authored-By` an assistant, "Generated with …" credits, AI sign-offs), also when the message comes from a file. Human co-authors are fine. |
 | `audit-reminder` | session start | warn | Once per model: when the model in use differs from the one the kit was last audited with, suggest running `light-audit`. Silent for clients that do not report a model. |
-| `artifact-header` | after a write | warn | Remind the agent that request artifacts, the codebase map, the assessment, the backlog and audit reports start with a `runs:` header (agent, model, thinking, level per run). |
+| `artifact-header` | after a write | warn | Remind the agent that request artifacts, the codebase map, the assessment, the backlog and audit reports start with a `step:` line then a `runs:` header (agent, model, thinking, level per run). |
 | `token-usage` | after a write | warn | Report the step's token consumption and time spent for a request artifact and keep the per-request totals in `.light-kit/usage.json` (or in `~/.light-kit/state/` when a user-level install meets a project without `.light-kit`). |
 | `require-spec` | before a write | warn | Remind the agent to start a request before changing code. |
 | `post-edit-quality` | after a write | warn | Run your format and lint commands on the edited file. |
