@@ -5,6 +5,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync } from 
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { install, detectProjects, detectClients } from '../tools/install.mjs';
+import { vscodeUserDir, vscodePromptDirs } from '../tools/build.mjs';
 
 const mk = (...parts) => { const d = mkdtempSync(join(tmpdir(), 'light-kit-ws-')); for (const p of parts) mkdirSync(join(d, p), { recursive: true }); return d; };
 const cli = (dir, ...args) => spawnSync('node', ['tools/install.mjs', dir, ...args], { encoding: 'utf8' });
@@ -195,21 +196,39 @@ const userHook = (h, cwd, event, payload, client = 'claude') => {
 
 test('user level: files land where each client reads user-wide config', () => {
   const h = home();
+  // A VS Code install with a second profile: prompts must reach both prompt folders.
+  const vscodeUser = vscodeUserDir('Code');
+  mkdirSync(join(h, vscodeUser, 'profiles/work'), { recursive: true });
   userInstall(h, ['claude', 'copilot', 'cursor', 'codex']);
   const has = (p) => existsSync(join(h, p));
+  const promptDirs = vscodePromptDirs(h);
   for (const p of ['.claude/agents/light-orchestrator.md', '.claude/commands/light-request.md', '.claude/skills/light-commit/SKILL.md', '.claude/CLAUDE.md', '.claude/settings.json',
-    '.copilot/agents/light-reviewer.agent.md', '.copilot/prompts/light-request.prompt.md', '.copilot/skills/light-triage/SKILL.md', '.copilot/copilot-instructions.md', '.copilot/hooks/light-kit.json',
+    '.copilot/agents/light-reviewer.agent.md', '.copilot/skills/light-triage/SKILL.md', '.copilot/copilot-instructions.md', '.copilot/hooks/light-kit.json',
     '.cursor/commands/light-request.md', '.cursor/hooks.json',
     '.codex/agents/light-developer.toml', '.codex/prompts/light-request.md', '.codex/AGENTS.md', '.codex/hooks.json', '.agents/skills/light-triage/SKILL.md',
     '.light-kit/workflows/full.md', '.light-kit/templates/project-profile.md', '.light-kit/hooks/run.mjs', '.light-kit/hooks.config.json', '.light-kit/kit.config.json'])
     assert.ok(has(p), p);
-  for (const p of ['CLAUDE.md', 'AGENTS.md', 'kit.config.json', '.github', '.cursor/rules', '.light-kit/project-profile.md', '.light-kit/projects.md', 'specs'])
+  for (const p of ['CLAUDE.md', 'AGENTS.md', 'kit.config.json', '.github', '.cursor/rules', '.copilot/prompts', '.light-kit/project-profile.md', '.light-kit/projects.md', 'specs'])
     assert.equal(has(p), false, `${p} must not be created in the home folder`);
-  // the prompt keeps the Copilot input placeholder and its generated marker, so a re-run replaces it
-  const prompt = readFileSync(join(h, '.copilot/prompts/light-request.prompt.md'), 'utf8');
-  assert.match(prompt, /\$\{input:request/);
-  assert.match(prompt, /light-kit:generated/);
+  // VS Code reads user prompt files from its profile storage: default profile and each named profile
+  assert.deepEqual(promptDirs, [`${vscodeUser}/prompts`, `${vscodeUser}/profiles/work/prompts`]);
+  for (const dir of promptDirs) {
+    const prompt = readFileSync(join(h, dir, 'light-request.prompt.md'), 'utf8');
+    assert.match(prompt, /\$\{input:request/);
+    assert.match(prompt, /light-kit:generated/);
+  }
   assert.equal(JSON.parse(readFileSync(join(h, '.light-kit/kit.config.json'), 'utf8')).level, 'user');
+});
+
+test('user level: prompts go to the default VS Code folder when the editor folder is missing, and the old Copilot folder is swept', () => {
+  const h = home('.copilot/prompts');
+  writeFileSync(join(h, '.copilot/prompts/light-request.prompt.md'), '<!-- light-kit:generated -->\nold\n');
+  writeFileSync(join(h, '.copilot/prompts/mine.prompt.md'), 'not ours\n');
+  const r = userInstall(h, ['copilot']);
+  const [dir] = vscodePromptDirs(h);
+  assert.ok(existsSync(join(h, dir, 'light-request.prompt.md')), dir);
+  assert.ok(r.removed.includes('.copilot/prompts/light-request.prompt.md'));
+  assert.equal(existsSync(join(h, '.copilot/prompts/mine.prompt.md')), true);
 });
 
 test('user level: shared kit paths point at ~/.light-kit, project knowledge stays relative', () => {
