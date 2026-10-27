@@ -2,7 +2,7 @@
 step: conclude
 runs:
   - agent: light-tech-writer
-    model: unknown
+    model: deepseek/deepseek-flash
     thinking: high
     level: easy
 usage:

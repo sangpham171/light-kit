@@ -2,7 +2,7 @@
 step: implement
 runs:
   - agent: light-developer
-    model: unknown
+    model: deepseek/deepseek-flash
     thinking: high
     level: easy
 usage:

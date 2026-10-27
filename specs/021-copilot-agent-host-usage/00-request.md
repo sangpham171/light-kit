@@ -2,7 +2,7 @@
 step: request
 runs:
   - agent: light-orchestrator
-    model: unknown
+    model: deepseek/deepseek-v4-flash
     thinking: high
     level: easy
 usage:
