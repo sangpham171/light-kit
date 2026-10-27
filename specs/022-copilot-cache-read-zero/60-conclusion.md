@@ -16,11 +16,11 @@ usage:
     tokens: 192,432 input · 0 cache read · 0 cache write · 825 output · 193,257 total
     time: 29s
   - step: conclude
-    tokens: unknown input · unknown cache read · unknown cache write · unknown output · unknown total
-    time: unknown
+    tokens: 398,974 input · 0 cache read · 0 cache write · 1,954 output · 400,928 total
+    time: 31s
   - step: total
-    tokens: 1,701,110 input · 0 cache read · 0 cache write · 15,591 output · 1,716,701 total
-    time: 2m 48s
+    tokens: 2,100,084 input · 0 cache read · 0 cache write · 17,545 output · 2,117,629 total
+    time: 3m 19s
 ---
 
 # Conclusion
