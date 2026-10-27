@@ -33,8 +33,10 @@ None introduced.
 
 ## Verification (commands run and results)
 - `npm test` — 128 tests, 128 pass, 0 fail.
-- Live read of this session's log with `usageFromCopilotSession`: `149,175 input · 0 cache read ·
-  0 cache write · 34,666 output · 183,841 total`, time `10m 33s`.
+- Live read of this session's log with `usageFromCopilotSession`: `382,994 input · 0 cache read ·
+  0 cache write · 61,655 output · 444,649 total`, time `32m 35s`.
+- End-to-end run of the installed hook with a VS Code-shaped payload and a copy of the live log:
+  tokens and time reported (`33m 10s`).
 - User-level install refreshed (`node tools/install.mjs /Users/light/.copilot`): hooks and docs written.
 - The hook was installed after this chat session started, so VS Code did not reload it here; the
   figures above come from calling the reader directly on the live session log.
@@ -43,9 +45,13 @@ None introduced.
 - F-1.1 [should-fix] `token-usage.mjs` — the first version reused VS Code's `transcript_path` as the
   chat session log; that transcript holds no token fields, so it returned zeros. Fixed: always find
   the chat session log by `session_id`, and a test now sends a `transcript_path` to prove it is ignored.
-- F-1.2 [nit] docs/README — state that Copilot `promptTokens` is the latest model call, not a sum over
+- F-1.2 [should-fix] `usage.mjs` — the reader treated `kind: 2` as a replacement of `requests`; it is
+  an array push. A second request (after the tool-call limit) therefore erased the first request's
+  `result.timings.totalElapsed` and left the running request without a timestamp. Fixed: `kind: 2`
+  appends, `kind: 1` sets and `kind: 3` deletes; a test appends a second request and keeps both.
+- F-1.3 [nit] docs/README — state that Copilot `promptTokens` is the latest model call, not a sum over
   tool rounds. Fixed.
-Verdict: approve after the fix.
+Verdict: approve after the fixes.
 
 ## Token usage
 Tokens: unknown
