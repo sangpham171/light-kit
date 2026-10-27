@@ -92,8 +92,10 @@ function removeFolders(target, { level, projects, report, dryRun }) {
 }
 
 export function uninstall(target, clients, { level = 'project', projects = [], hard = false, dryRun = false } = {}) {
-  const files = build(loadKit(), clients, { hooks: true, level, projects });
+  const files = build(loadKit(), clients, { hooks: true, level, projects, home: target });
   const configPath = level === 'user' ? '.light-kit/kit.config.json' : 'kit.config.json';
+  // Prompts an earlier version wrote to the Copilot harness folder are not in the built list any more.
+  const staleRoots = level === 'user' && clients.includes('copilot') ? ['.copilot/prompts'] : [];
   const report = { removed: [], cleaned: [], kept: [], skipped: [] };
   const removedAbs = [];
   const remove = (rel) => {
@@ -140,7 +142,7 @@ export function uninstall(target, clients, { level = 'project', projects = [], h
     else report.skipped.push(f.path);
   }
 
-  for (const rel of findObsolete(target, files)) if (!inTree(rel)) remove(rel);
+  for (const rel of findObsolete(target, files, staleRoots)) if (!inTree(rel)) remove(rel);
   if (!dryRun) prune(target, removedAbs);
   for (const rel of trees) {
     const abs = join(target, rel);
