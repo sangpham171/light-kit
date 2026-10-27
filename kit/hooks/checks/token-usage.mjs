@@ -1,11 +1,13 @@
 import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { basename, dirname, isAbsolute, join } from 'node:path';
-import { deltaUsage, formatCount, formatDuration, formatUsage, totalUsage, usageFromTranscript } from '../lib/usage.mjs';
+import { copilotSessionFile, deltaUsage, formatCount, formatDuration, formatUsage, totalUsage, usageFromCopilotSession, usageFromTranscript } from '../lib/usage.mjs';
 
 // Request artifacts carry a "## Token usage" section. After an artifact is written, read how much the
 // client processed in this session and report the step's share; the agent fills the section.
-// Only clients with a readable session record (Claude Code) are counted; others keep `unknown`.
+// Clients with a readable session record (Claude Code, Copilot in VS Code) are counted; Cursor and
+// Codex keep `unknown`.
 
 const ARTIFACT = /(?:^|\/)specs\/([^/]+)\/(\d\d-[^/]+)\.md$/;
 const STATE = '.light-kit/usage.json';
@@ -69,26 +71,41 @@ export default {
   id: 'token-usage',
   events: ['post-tool'],
   run(ctx) {
-    if (ctx.tool.kind !== 'write' || ctx.client !== 'claude') return null; // a spec artifact is enough: no `init` needed
-    const transcript = ctx.payload?.transcript_path ?? ctx.payload?.transcriptPath ?? '';
-    if (!transcript) return null;
+    if (ctx.tool.kind !== 'write') return null; // a spec artifact is enough: no `init` needed
+    if (ctx.client !== 'claude' && ctx.client !== 'copilot') return null;
     const hit = ctx.files.map((f) => ({ path: abs(ctx, f), rel: ctx.rel(f).replace(/\\/g, '/') }))
       .map((f) => ({ ...f, match: f.rel.match(ARTIFACT) }))
       .find((f) => f.match);
     if (!hit) return null;
 
-    const current = usageFromTranscript(transcript);
+    const payload = ctx.payload ?? {};
+    const session = payload.session_id ?? payload.sessionId ?? '';
+    const transcript = payload.transcript_path ?? payload.transcriptPath ?? '';
+    let current;
+    if (ctx.client === 'claude') {
+      if (!transcript) return null;
+      current = usageFromTranscript(transcript);
+    } else {
+      if (!session) return null;
+      // VS Code sends its own Copilot transcript path, which holds no token figures; the usage lives in
+      // the chat session operation log, found by session id.
+      const file = copilotSessionFile(session, { home: homedir() });
+      if (!file) return null;
+      const stamp = typeof payload.timestamp === 'string' ? Date.parse(payload.timestamp) : Number(payload.timestamp);
+      current = usageFromCopilotSession(file, { now: Number.isFinite(stamp) ? stamp : Date.now() });
+    }
     if (!current.calls) return null;
 
     let text = '';
     try { text = readFileSync(hit.path, 'utf8'); } catch { return null; }
 
-    // One baseline per session: everything since the previous snapshot belongs to this step.
+    // One baseline per session: everything since the previous snapshot belongs to this step. Copilot
+    // sessions share an id space with nothing else, so their key is namespaced.
     const stateFile = statePath(ctx);
     const state = readState(stateFile);
-    const session = ctx.payload.session_id ?? ctx.payload.sessionId ?? transcript;
-    const delta = deltaUsage(current, state.sessions[session] ?? ZERO);
-    state.sessions[session] = {
+    const sessionKey = ctx.client === 'copilot' ? `copilot:${session}` : (session || transcript);
+    const delta = deltaUsage(current, state.sessions[sessionKey] ?? ZERO);
+    state.sessions[sessionKey] = {
       input: current.input, output: current.output,
       cacheRead: current.cacheRead, cacheWrite: current.cacheWrite,
       timeMs: current.timeMs,

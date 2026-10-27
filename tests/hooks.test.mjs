@@ -506,6 +506,46 @@ test('token-usage: silent without a readable transcript, for other clients and f
   assert.equal(existsSync(join(d, '.light-kit/usage.json')), false);
 });
 
+const copilotLog = (home, sessionId, lines) => {
+  const dir = join(home, 'Library/Application Support/Code/User/workspaceStorage/ws/chatSessions');
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, `${sessionId}.jsonl`), lines);
+};
+
+test('token-usage: Copilot in VS Code reads the chat session log', () => {
+  const d = project(); withSpec(d);
+  const home = mkdtempSync(join(tmpdir(), 'light-kit-home-'));
+  const op = (o) => `${JSON.stringify(o)}\n`;
+  copilotLog(home, 'sid',
+    op({ kind: 0, v: { requests: [] } })
+    + op({ kind: 2, k: ['requests'], v: [{ requestId: 'r1', timestamp: 1000, promptTokens: 42_000, completionTokens: 2000, result: { timings: { totalElapsed: 7200 } } }] }));
+  writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact());
+  const call = () => ({
+    toolName: 'edit', toolArgs: { path: 'specs/001-x/50-implementation.md' },
+    sessionId: 'sid', timestamp: '2026-01-01T00:00:20Z',
+    transcript_path: join(home, 'transcripts/sid.jsonl'), // VS Code sends it; it holds no usage
+  });
+  const out = JSON.parse(run(d, 'copilot', 'post-tool', call(), { HOME: home }).out).additionalContext;
+  assert.match(out, /Token usage — 001-x, step 50-implementation/);
+  assert.match(out, /This write: 42,000 input · 0 cache read · 0 cache write · 2,000 output · 44,000 total · time 7s/);
+  assert.match(out, /Tokens: 42,000 input · 0 cache read · 0 cache write · 2,000 output · 44,000 total/);
+  assert.match(out, /Time: 7s/);
+  const state = JSON.parse(readFileSync(join(d, '.light-kit/usage.json'), 'utf8'));
+  assert.deepEqual(state.sessions['copilot:sid'], { input: 42_000, output: 2000, cacheRead: 0, cacheWrite: 0, timeMs: 7200 });
+  assert.deepEqual(state.requests['001-x'].steps['50-implementation'],
+    { input: 42_000, output: 2000, cacheRead: 0, cacheWrite: 0, timeMs: 7200, timed: true });
+});
+
+test('token-usage: Copilot without a session record stays silent', () => {
+  const d = project(); withSpec(d);
+  const home = mkdtempSync(join(tmpdir(), 'light-kit-home-'));
+  writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact());
+  assert.equal(run(d, 'copilot', 'post-tool', {
+    toolName: 'edit', toolArgs: { path: 'specs/001-x/50-implementation.md' }, sessionId: 'missing',
+  }, { HOME: home }).out, '');
+  assert.equal(existsSync(join(d, '.light-kit/usage.json')), false);
+});
+
 test('token-usage: user level reports in a project without .light-kit and keeps state out of it', () => {
   const { home, proj } = userProject();
   const f = join(home, 'session.jsonl');

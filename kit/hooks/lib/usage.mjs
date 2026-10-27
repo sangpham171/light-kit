@@ -1,4 +1,6 @@
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
+import { homedir } from 'node:os';
+import { join } from 'node:path';
 
 // Token usage and time spent from a client's session record. Like `effort.mjs`, every reader is
 // best-effort: an absent or unreadable file yields zeros, never an error.
@@ -50,6 +52,88 @@ export function usageFromTranscript(file) {
     }
   } catch { /* missing or unreadable transcript */ }
   return usage;
+}
+
+// VS Code writes a Copilot chat session as an operation log: a `kind: 0` snapshot, then `kind: 1|2`
+// records with a key path (`k`) and a value (`v`). Only a few request fields matter for usage, so read
+// them by path instead of replaying the whole object graph.
+function copilotRequests(file) {
+  const requests = [];
+  if (!file) return requests;
+  const set = (obj, parts, value) => {
+    let cur = obj;
+    for (const part of parts.slice(0, -1)) {
+      if (!cur[part] || typeof cur[part] !== 'object') cur[part] = {};
+      cur = cur[part];
+    }
+    cur[parts.at(-1)] = value;
+  };
+  try {
+    for (const line of readFileSync(file, 'utf8').split('\n')) {
+      if (!line.trim()) continue;
+      let entry;
+      try { entry = JSON.parse(line); } catch { continue; }
+      if (entry?.kind === 0) {
+        requests.length = 0;
+        if (Array.isArray(entry.v?.requests)) requests.push(...entry.v.requests);
+        continue;
+      }
+      const path = entry?.k;
+      if (!Array.isArray(path) || path[0] !== 'requests') continue;
+      if (path.length === 1) {
+        if (Array.isArray(entry.v)) { requests.length = 0; requests.push(...entry.v); }
+        continue;
+      }
+      if (typeof path[1] !== 'number') continue;
+      const index = path[1];
+      if (path.length === 2) { requests[index] = entry.v ?? {}; continue; }
+      if (!requests[index] || typeof requests[index] !== 'object') requests[index] = {};
+      set(requests[index], path.slice(2), entry.v);
+    }
+  } catch { /* missing or unreadable operation log */ }
+  return requests;
+}
+
+// Copilot in VS Code stores `promptTokens` (the latest model call of a request) and `completionTokens`
+// on each request, and `result.timings.totalElapsed` once the request finishes. `now` lets a request
+// still running contribute the time spent so far, capped by the same idle limit as Claude Code.
+export function usageFromCopilotSession(file, { now = Date.now() } = {}) {
+  const usage = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, calls: 0, timeMs: 0, timeKnown: false };
+  const requests = copilotRequests(file);
+  requests.forEach((request, index) => {
+    if (!request || typeof request !== 'object') return;
+    const prompt = num(request.promptTokens ?? request.usage?.promptTokens);
+    const output = num(request.completionTokens ?? request.usage?.completionTokens);
+    if (prompt || output) usage.calls += 1;
+    usage.input += prompt;
+    usage.output += output;
+    const elapsed = num(request.result?.timings?.totalElapsed);
+    if (elapsed) { usage.timeMs += elapsed; usage.timeKnown = true; return; }
+    const start = num(request.timestamp);
+    if (index !== requests.length - 1 || !start || !Number.isFinite(now) || now <= start) return;
+    usage.timeMs += Math.min(now - start, IDLE_MS);
+    usage.timeKnown = true;
+  });
+  return usage;
+}
+
+// The chat session log of a Copilot session, looked up by session id in each VS Code edition's
+// workspace storage. The id is unique, so the workspace hash does not have to be reproduced.
+const USER_DATA = { darwin: 'Library/Application Support', win32: 'AppData/Roaming', linux: '.config' };
+const VSCODE_APPS = ['Code', 'Code - Insiders', 'VSCodium', 'VSCodium - Insiders'];
+export function copilotSessionFile(sessionId, { home = homedir(), platform = process.platform } = {}) {
+  if (!sessionId) return '';
+  const base = join(home, USER_DATA[platform] ?? USER_DATA.linux);
+  for (const app of VSCODE_APPS) {
+    const dir = join(base, app, 'User', 'workspaceStorage');
+    let workspaces = [];
+    try { workspaces = readdirSync(dir); } catch { continue; }
+    for (const workspace of workspaces) {
+      const file = join(dir, workspace, 'chatSessions', `${sessionId}.jsonl`);
+      if (existsSync(file)) return file;
+    }
+  }
+  return '';
 }
 
 // What this turn added since the previous snapshot; a smaller total means the record was reset.
