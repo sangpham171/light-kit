@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { install } from '../tools/install.mjs';
 import { uninstall } from '../tools/uninstall.mjs';
-import { CLIENT_NAMES } from '../tools/build.mjs';
+import { CLIENT_NAMES, vscodePromptDirs } from '../tools/build.mjs';
 
 const tmp = () => mkdtempSync(join(tmpdir(), 'light-kit-un-'));
 const userFiles = (d) => {
@@ -122,12 +122,13 @@ test('user level: soft keeps hooks config and models, removes generated folders'
   mkdirSync(join(d, '.claude'));
   mkdirSync(join(d, '.copilot'));
   install(d, ['claude', 'copilot'], { level: 'user' });
+  const [promptDir] = vscodePromptDirs(d);
   assert.ok(existsSync(join(d, '.claude/agents/light-orchestrator.md')));
-  assert.ok(existsSync(join(d, '.copilot/prompts/light-request.prompt.md')));
+  assert.ok(existsSync(join(d, promptDir, 'light-request.prompt.md')), promptDir);
   uninstall(d, ['claude', 'copilot'], { level: 'user' });
   assert.equal(existsSync(join(d, '.claude/agents')), false);
   assert.equal(existsSync(join(d, '.claude/CLAUDE.md')), false);
-  assert.equal(existsSync(join(d, '.copilot/prompts')), false);
+  assert.equal(existsSync(join(d, promptDir, 'light-request.prompt.md')), false);
   assert.equal(existsSync(join(d, '.light-kit/workflows')), false);
   assert.equal(existsSync(join(d, '.light-kit/kit.config.json')), false);
   assert.ok(existsSync(join(d, '.light-kit/hooks.config.json')));
