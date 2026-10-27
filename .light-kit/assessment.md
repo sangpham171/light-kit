@@ -6,7 +6,7 @@ runs:
     thinking: unknown
     level: medium
 usage:
-  tokens: unknown
+  tokens: unknown input · unknown cache read · unknown cache write · unknown output · unknown total
   time: unknown
 ---
 

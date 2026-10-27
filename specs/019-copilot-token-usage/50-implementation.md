@@ -6,7 +6,7 @@ runs:
     thinking: unknown
     level: medium
 usage:
-  tokens: unknown
+  tokens: unknown input · unknown cache read · unknown cache write · unknown output · unknown total
   time: unknown
 ---
 
@@ -29,8 +29,12 @@ None introduced.
 - `node --test tests/usage.test.mjs tests/hooks.test.mjs` — 60 tests pass.
 - `npm test` — 132 tests pass.
 - `git diff --check` — clean.
+- User-level install refreshed; restart VS Code for the updated hook to load.
 
 ## Review rounds
 ### Round 1 of 1
 - No findings.
 Verdict: approve
+
+## Commit
+- `7fbd980` — `fix(copilot): find usage logs in named profiles`
