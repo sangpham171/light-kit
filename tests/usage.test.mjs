@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { IDLE_MS, deltaUsage, formatCount, formatDuration, formatUsage, totalUsage, usageFromTranscript } from '../kit/hooks/lib/usage.mjs';
+import { IDLE_MS, copilotSessionFile, deltaUsage, formatCount, formatDuration, formatUsage, totalUsage, usageFromCopilotSession, usageFromTranscript } from '../kit/hooks/lib/usage.mjs';
 
 const line = (o) => `${JSON.stringify(o)}\n`;
 const empty = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, calls: 0, timeMs: 0, timeKnown: false };
@@ -80,6 +80,56 @@ test('missing and unreadable transcripts yield zeros, never an error', () => {
   const d = mkdtempSync(join(tmpdir(), 'light-kit-usage-'));
   assert.deepEqual(usageFromTranscript(join(d, 'missing.jsonl')), empty);
   assert.deepEqual(usageFromTranscript(''), empty);
+});
+
+const op = (o) => line(o);
+
+test('Copilot in VS Code: reads tokens and elapsed time from the chat session operation log', () => {
+  const d = mkdtempSync(join(tmpdir(), 'light-kit-usage-'));
+  const f = join(d, 'session.jsonl');
+  writeFileSync(f,
+    op({ kind: 0, v: { requests: [] } })
+    + op({ kind: 2, k: ['requests'], v: [{ requestId: 'r1', timestamp: 1000, promptTokens: 12000, completionTokens: 800 }] })
+    + op({ kind: 1, k: ['requests', 0, 'promptTokens'], v: 12000 })
+    + op({ kind: 1, k: ['requests', 0, 'completionTokens'], v: 800 })
+    + op({ kind: 1, k: ['requests', 0, 'result'], v: { timings: { firstProgress: 100, totalElapsed: 4200 } } })
+    + op({ kind: 2, k: ['requests'], v: [
+      { requestId: 'r1', timestamp: 1000, promptTokens: 12000, completionTokens: 800, result: { timings: { totalElapsed: 4200 } } },
+      { requestId: 'r2', timestamp: 9000, promptTokens: 30000, completionTokens: 1200 },
+    ] }));
+  assert.deepEqual(usageFromCopilotSession(f, { now: 12_000 }),
+    { ...empty, input: 42_000, output: 2000, calls: 2, timeMs: 7200, timeKnown: true });
+  assert.deepEqual(usageFromCopilotSession(f, { now: 9000 }),
+    { ...empty, input: 42_000, output: 2000, calls: 2, timeMs: 4200, timeKnown: true }); // running request, no time yet
+});
+
+test('Copilot in VS Code: a patch updates the request it names', () => {
+  const d = mkdtempSync(join(tmpdir(), 'light-kit-usage-'));
+  const f = join(d, 'session.jsonl');
+  writeFileSync(f,
+    op({ kind: 0, v: { requests: [{ timestamp: 500, promptTokens: 100, completionTokens: 10 }] } })
+    + op({ kind: 1, k: ['requests', 0, 'promptTokens'], v: 250 })
+    + op({ kind: 1, k: ['requests', 0, 'completionTokens'], v: 40 }));
+  assert.deepEqual(usageFromCopilotSession(f, { now: 0 }),
+    { ...empty, input: 250, output: 40, calls: 1, timeMs: 0, timeKnown: false });
+});
+
+test('Copilot in VS Code: missing session logs yield zeros, never an error', () => {
+  const d = mkdtempSync(join(tmpdir(), 'light-kit-usage-'));
+  assert.deepEqual(usageFromCopilotSession(join(d, 'missing.jsonl')), empty);
+  assert.deepEqual(usageFromCopilotSession(''), empty);
+});
+
+test('Copilot in VS Code: finds the chat session log by id across VS Code editions', () => {
+  const home = mkdtempSync(join(tmpdir(), 'light-kit-home-'));
+  const id = '421df64e-9f9c-4370-ae1a-405b845ab668';
+  const dir = join(home, 'Library/Application Support/Code/User/workspaceStorage/b94b0b5dbf52284596e423d9a5ebe5f9/chatSessions');
+  mkdirSync(dir, { recursive: true });
+  const f = join(dir, `${id}.jsonl`);
+  writeFileSync(f, '');
+  assert.equal(copilotSessionFile(id, { home, platform: 'darwin' }), f);
+  assert.equal(copilotSessionFile('missing', { home, platform: 'darwin' }), '');
+  assert.equal(copilotSessionFile('', { home, platform: 'darwin' }), '');
 });
 
 test('delta carries tokens, cache and time, clamping both when the record was reset', () => {
