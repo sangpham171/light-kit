@@ -18,10 +18,13 @@ import { build, loadKit, lint, mergeHooks, CLIENT_NAMES, CLIENT_FOLDERS, USER_CL
 const SKIP = (name) => name.startsWith('.');
 
 // Files an earlier version generated (they carry the light-kit marker) that this version no longer produces, e.g. after a rename.
-// Only marker files inside folders the kit writes to are touched; anything else is left alone.
-export function findObsolete(target, files) {
+// Only marker files inside folders the kit writes to (plus any extra root given) are touched; anything else is left alone.
+export function findObsolete(target, files, extraRoots = []) {
   const produced = new Set(files.map((f) => f.path));
-  const roots = new Set(files.filter((f) => f.content?.includes('light-kit:generated')).map((f) => (basename(f.path) === 'SKILL.md' ? dirname(dirname(f.path)) : dirname(f.path))));
+  const roots = new Set([
+    ...files.filter((f) => f.content?.includes('light-kit:generated')).map((f) => (basename(f.path) === 'SKILL.md' ? dirname(dirname(f.path)) : dirname(f.path))),
+    ...extraRoots,
+  ]);
   const found = [];
   const walk = (rel, depth) => {
     let entries = [];
@@ -81,7 +84,9 @@ export function install(target, clients, { dryRun = false, force = 'none', hooks
   const config = JSON.stringify({ clients: [...new Set([...previousClients, ...clients])], level, ...(level === 'workspace' && { projects: projects.map((p) => p.path) }), kit: 'light-kit' }, null, 2) + '\n';
   // At user level the config sits inside ~/.light-kit so the home folder itself stays clean (the hooks also read it).
   const configPath = level === 'user' ? '.light-kit/kit.config.json' : 'kit.config.json';
-  const files = [...build(kit, clients, { hooks, level, projects }), { path: configPath, content: config, overwrite: true }];
+  const files = [...build(kit, clients, { hooks, level, projects, home: target }), { path: configPath, content: config, overwrite: true }];
+  // An earlier version put Copilot prompts in the harness folder, which VS Code does not read; sweep them out.
+  const staleRoots = level === 'user' && clients.includes('copilot') ? ['.copilot/prompts'] : [];
 
   for (const f of files) {
     const abs = join(target, f.path);
@@ -98,7 +103,7 @@ export function install(target, clients, { dryRun = false, force = 'none', hooks
     if (!dryRun) { mkdirSync(dirname(abs), { recursive: true }); writeFileSync(abs, next); }
     report.written.push(f.path);
   }
-  for (const rel of findObsolete(target, files)) {
+  for (const rel of findObsolete(target, files, staleRoots)) {
     if (!dryRun) {
       rmSync(join(target, rel), { force: true });
       const dir = dirname(join(target, rel)); // an emptied skill folder goes too

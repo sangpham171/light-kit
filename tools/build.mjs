@@ -1,6 +1,7 @@
 // Generator: canonical kit/ -> per-client files. Pure (no disk writes); install.mjs writes the result.
 // Client file conventions live in the CLIENTS table below — the single place to update when a client changes.
 import { readdirSync, readFileSync, existsSync, statSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { join, dirname, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -201,7 +202,7 @@ export function hookRegistration(client, level = 'project') {
   }
   // Claude Code adds a co-author trailer and PR credit by itself; switch both off unless the user already set their own value.
   const defaults = client === 'claude' ? { attribution: { commit: '', pr: '' } } : undefined;
-  return { path: level === 'user' ? USER_PATHS[client](c.path) : c.path, hooks: { ...(c.shape !== 'grouped' && { version: 1 }), hooks }, defaults };
+  return { path: level === 'user' ? USER_PATHS[client](c.path)[0] : c.path, hooks: { ...(c.shape !== 'grouped' && { version: 1 }), hooks }, defaults };
 }
 
 // Merge our entries into a client's hooks JSON, keeping the user's own hooks. Replaces any earlier light-kit entries.
@@ -219,18 +220,41 @@ export function mergeHooks(existingText, desired) {
 }
 
 // ---------- user level (the kit installed once in the home folder, for every project) ----------
-// Where each client reads user-wide files. null = no user-level equivalent, so the file is not installed.
+// VS Code reads user prompt files from its profile storage, not from the harness folder ~/.copilot/prompts.
+const VSCODE_USER = { darwin: 'Library/Application Support', linux: '.config', win32: 'AppData/Roaming' };
+const VSCODE_EDITIONS = ['Code', 'Code - Insiders', 'VSCodium', 'VSCodium - Insiders'];
+
+// The user data root of one VS Code edition, relative to the home folder.
+export const vscodeUserDir = (edition = 'Code', platform = process.platform) => `${VSCODE_USER[platform] ?? VSCODE_USER.linux}/${edition}/User`;
+
+// Prompt folders VS Code reads at user level: every edition and profile found under `home`, else the stable
+// default so a fresh machine still gets them where VS Code will look.
+export function vscodePromptDirs(home, platform = process.platform) {
+  const out = [];
+  for (const edition of VSCODE_EDITIONS) {
+    const user = vscodeUserDir(edition, platform);
+    if (!existsSync(join(home, user))) continue;
+    out.push(`${user}/prompts`);
+    let profiles = [];
+    try { profiles = readdirSync(join(home, user, 'profiles'), { withFileTypes: true }).filter((d) => d.isDirectory() && d.name !== 'builtin').map((d) => d.name); } catch { /* no profiles: default profile only */ }
+    for (const p of profiles) out.push(`${user}/profiles/${p}/prompts`);
+  }
+  return out.length ? out : [`${vscodeUserDir('Code', platform)}/prompts`];
+}
+
+// Where each client reads user-wide files, relative to the home folder. An empty list = no user-level equivalent.
 const USER_PATHS = {
-  claude: (p) => (p === 'CLAUDE.md' ? '.claude/CLAUDE.md' : p),
-  copilot: (p) => {
-    if (p === '.github/copilot-instructions.md') return '.copilot/copilot-instructions.md';
-    return p.replace(/^\.github\/(agents|prompts|skills|hooks)\//, '.copilot/$1/');
+  claude: (p) => (p === 'CLAUDE.md' ? ['.claude/CLAUDE.md'] : [p]),
+  copilot: (p, home) => {
+    if (p === '.github/copilot-instructions.md') return ['.copilot/copilot-instructions.md'];
+    if (p.startsWith('.github/prompts/')) return vscodePromptDirs(home).map((d) => `${d}/${basename(p)}`);
+    return [p.replace(/^\.github\/(agents|skills|hooks)\//, '.copilot/$1/')];
   },
-  cursor: (p) => (p.startsWith('.cursor/rules/') ? null : p),
-  codex: (p) => (p === 'AGENTS.md' ? '.codex/AGENTS.md' : p),
+  cursor: (p) => (p.startsWith('.cursor/rules/') ? [] : [p]),
+  codex: (p) => (p === 'AGENTS.md' ? ['.codex/AGENTS.md'] : [p]),
 };
 export const USER_NOTES = {
-  copilot: 'Copilot: prompts go to ~/.copilot/prompts, with agents, skills, instructions and hooks. VS Code reads user prompt files from its own profile folder, so use a project-level install for the /light-* commands in Chat.',
+  copilot: 'Copilot: agents, skills, instructions and hooks go to ~/.copilot. Prompts go to the VS Code prompt folder for each edition and profile found, which is where Copilot Chat reads user prompt files; the Copilot harness itself has no prompt files.',
   cursor: 'Cursor: user rules live in its settings, not in files, so only commands and hooks are installed globally. Use a project-level install to get agent roles and skills as rules.',
 };
 export const USER_CLIENT_FOLDERS = {
@@ -275,7 +299,7 @@ function auditManifest(kit, files, clients, level) {
   };
 }
 
-export function build(kitIn, clients, { hooks = true, level = 'project', projects = [] } = {}) {
+export function build(kitIn, clients, { hooks = true, level = 'project', projects = [], home = homedir() } = {}) {
   const user = level === 'user';
   const kit = user ? adaptKit(kitIn) : kitIn;
   const unknown = clients.filter((c) => !CLIENTS[c]);
@@ -304,11 +328,12 @@ export function build(kitIn, clients, { hooks = true, level = 'project', project
   const shared = user ? USER_SHARED : SHARED_DIR;
   const agentsClient = clients.find((c) => c !== 'claude') ?? 'codex';
   const agentsBlock = { block: `${instructionBlock(kit, agentsClient, shared).replace(END, '')}\n## Agents\n${agentList(kit)}\n${END}` };
-  if (user) { if (clients.includes('codex')) files.push({ path: USER_PATHS.codex('AGENTS.md'), ...agentsBlock }); } // only Codex reads a global AGENTS.md
+  if (user) { if (clients.includes('codex')) files.push({ path: USER_PATHS.codex('AGENTS.md')[0], ...agentsBlock }); } // only Codex reads a global AGENTS.md
   else if (clients.some((c) => c !== 'claude')) files.push({ path: 'AGENTS.md', ...agentsBlock });
   for (const c of clients) {
     const own = CLIENTS[c](kit).map((f) => (f.block ? { ...f, block: instructionBlock(kit, c, shared) } : f));
-    files.push(...(user ? own.map((f) => ({ ...f, path: USER_PATHS[c](f.path) })).filter((f) => f.path) : own));
+    // One generated file can land in several user folders (VS Code keeps one prompt folder per profile).
+    files.push(...(user ? own.flatMap((f) => USER_PATHS[c](f.path, home).map((path) => ({ ...f, path }))) : own));
   }
   if (hooks) {
     for (const h of kit.hooks) {
