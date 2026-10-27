@@ -6,8 +6,8 @@ base_commit: d9c80b0
 work_branch: feat/018-header-step-first
 review_turns: 1
 review_round: 0
-step: implement
-state: in-progress
+step: conclude
+state: done
 ---
 
 Blockers / pending questions: none
