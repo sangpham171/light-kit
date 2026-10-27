@@ -40,7 +40,7 @@ None introduced.
 - The Copilot session baseline key is namespaced with `copilot:`; Claude Code state keys are unchanged.
 
 ## Verification (commands run and results)
-- `npm test` — 128 tests, 128 pass, 0 fail.
+- `npm test` — 129 tests, 129 pass, 0 fail.
 - Live read of this session's log with `usageFromCopilotSession`: `382,994 input · 0 cache read ·
   0 cache write · 61,655 output · 444,649 total`, time `32m 35s`.
 - End-to-end run of the installed hook with a VS Code-shaped payload and a copy of the live log:
