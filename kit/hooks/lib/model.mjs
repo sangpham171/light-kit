@@ -6,6 +6,10 @@ import { readHead, scalar } from './record.mjs';
 // Clients record the model in use for a session, which is the only value the agent cannot reliably know by
 // itself. Every reader is best-effort: it returns '' when the value is absent or unreadable, never throws.
 
+// A router picks the model per request, so the selection names no model: `unknown` stays truthful.
+const ROUTERS = new Set(['auto', 'default']);
+const named = (v) => { const model = scalar(v); return ROUTERS.has(model.toLowerCase()) ? '' : model; };
+
 export function modelFromCopilotEvents(file) {
   if (!file) return '';
   for (const line of readHead(file).split('\n')) {
@@ -13,7 +17,7 @@ export function modelFromCopilotEvents(file) {
     let entry;
     try { entry = JSON.parse(line); } catch { continue; }
     if (entry?.type !== 'session.start') continue;
-    const model = scalar(entry.data?.selectedModel) || scalar(entry.data?.model?.id) || scalar(entry.data?.model?.name);
+    const model = named(entry.data?.selectedModel) || named(entry.data?.model?.id) || named(entry.data?.model?.name);
     if (model) return model;
   }
   return '';
@@ -25,7 +29,7 @@ export function modelFromCopilotChat(file) {
   if (!file) return '';
   let model = '';
   const remember = (selected) => {
-    model = scalar(selected?.identifier) || scalar(selected?.metadata?.id) || model;
+    model = named(selected?.identifier) || named(selected?.metadata?.id) || model;
   };
   try {
     for (const line of readFileSync(file, 'utf8').split('\n')) {
@@ -36,7 +40,7 @@ export function modelFromCopilotChat(file) {
       const path = entry?.k;
       if (!Array.isArray(path) || path[0] !== 'inputState' || path[1] !== 'selectedModel') continue;
       if (path.length === 2) remember(entry.v);
-      else if (path.length === 3 && path[2] === 'identifier') model = scalar(entry.v) || model;
+      else if (path.length === 3 && path[2] === 'identifier') model = named(entry.v) || model;
     }
   } catch { /* missing or unreadable chat log */ }
   return model;

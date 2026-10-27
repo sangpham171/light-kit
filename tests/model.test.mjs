@@ -65,3 +65,12 @@ test('a model reported by the hook payload wins, and unknown clients stay empty'
   assert.equal(detectModel({ client: 'codex' }, { home: tmp('light-kit-model-home-') }), '');
   assert.equal(detectModel({}), '');
 });
+
+test('Copilot: a router selection names no model', () => {
+  const home = tmp('light-kit-model-home-');
+  const dir = join(home, '.copilot/session-state/abc');
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, 'events.jsonl'), line({ type: 'session.start', data: { selectedModel: 'auto', reasoningEffort: 'high' } }));
+  assert.equal(modelFromCopilotEvents(join(dir, 'events.jsonl')), '');
+  assert.equal(detectModel({ client: 'copilot', payload: { sessionId: 'abc' } }, { home, env: {} }), '');
+});
