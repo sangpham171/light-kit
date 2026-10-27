@@ -14,15 +14,16 @@ The `token-usage` hook now reports tokens and time for GitHub Copilot in VS Code
 `unknown`. Claude Code behaviour is unchanged; Cursor and Codex still report `unknown`.
 
 ## What changed
-Range: `2097ca7..533ff64` on `fix/016-copilot-token-usage`
+Range: `2097ca7..e7aabf8` on `fix/016-copilot-token-usage`
 
 | Commit | Change |
 |---|---|
 | `b73f2d4` | Copilot branch in the hook: find the chat session log by `session_id`, read `promptTokens`, `completionTokens` and `result.timings.totalElapsed`, use elapsed time for a request still running; tests and docs |
 | `533ff64` | Review fix: `kind: 2` in the operation log appends a request instead of replacing the array, so the earlier request's elapsed time survives |
+| `e7aabf8` | Review fixes: VS Code Copilot write tool names in `normalize.mjs` (the hook was inert for real edits), `kind: 3` delete, session-id path guard, platform-aware test |
 
 ## Verification evidence
-- `npm test` — 128/128.
+- `npm test` — 129/129.
 - `usageFromCopilotSession` on this session's real log:
   `382,994 input · 0 cache read · 0 cache write · 61,655 output · 444,649 total`, time `32m 35s`.
 - End-to-end run of the installed hook with a VS Code-shaped payload and a copy of the live log:
