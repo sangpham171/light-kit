@@ -54,9 +54,10 @@ export function usageFromTranscript(file) {
   return usage;
 }
 
-// VS Code writes a Copilot chat session as an operation log: a `kind: 0` snapshot, then `kind: 1|2`
-// records with a key path (`k`) and a value (`v`). Only a few request fields matter for usage, so read
-// them by path instead of replaying the whole object graph.
+// VS Code writes a Copilot chat session as an operation log: a `kind: 0` snapshot, then records with a
+// key path (`k`) and a value (`v`): `kind: 1` sets a field, `kind: 2` pushes onto an array, `kind: 3`
+// deletes. Only a few request fields matter for usage, so read them by path instead of replaying the
+// whole object graph. A new chat request arrives as a push onto `requests`.
 function copilotRequests(file) {
   const requests = [];
   if (!file) return requests;
@@ -68,6 +69,7 @@ function copilotRequests(file) {
     }
     cur[parts.at(-1)] = value;
   };
+  const push = (arr, value) => { if (Array.isArray(value)) arr.push(...value); else arr.push(value); };
   try {
     for (const line of readFileSync(file, 'utf8').split('\n')) {
       if (!line.trim()) continue;
@@ -81,14 +83,28 @@ function copilotRequests(file) {
       const path = entry?.k;
       if (!Array.isArray(path) || path[0] !== 'requests') continue;
       if (path.length === 1) {
-        if (Array.isArray(entry.v)) { requests.length = 0; requests.push(...entry.v); }
+        if (entry.kind === 2) push(requests, entry.v);
+        else if (Array.isArray(entry.v)) { requests.length = 0; requests.push(...entry.v); }
         continue;
       }
       if (typeof path[1] !== 'number') continue;
       const index = path[1];
-      if (path.length === 2) { requests[index] = entry.v ?? {}; continue; }
+      if (path.length === 2) {
+        if (entry.kind === 2) requests.push(entry.v ?? {}); else requests[index] = entry.v ?? {};
+        continue;
+      }
       if (!requests[index] || typeof requests[index] !== 'object') requests[index] = {};
-      set(requests[index], path.slice(2), entry.v);
+      if (entry.kind === 2) {
+        const parent = path.slice(2, -1).reduce((cur, part) => {
+          if (!cur[part] || typeof cur[part] !== 'object') cur[part] = {};
+          return cur[part];
+        }, requests[index]);
+        const key = path.at(-1);
+        if (!Array.isArray(parent[key])) parent[key] = [];
+        push(parent[key], entry.v);
+      } else if (entry.kind !== 3) {
+        set(requests[index], path.slice(2), entry.v);
+      }
     }
   } catch { /* missing or unreadable operation log */ }
   return requests;

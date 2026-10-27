@@ -22,8 +22,9 @@ A VS Code chat session is an operation log at
 `~/Library/Application Support/<edition>/User/workspaceStorage/<ws>/chatSessions/<sessionId>.jsonl`:
 
 - `kind: 0` holds the initial snapshot (`v.requests`).
-- `kind: 1|2` records carry a key path `k` and a value `v`; requests are added with `k: ["requests"]`
-  and updated with paths such as `["requests", 0, "promptTokens"]`.
+- `kind: 1|2|3` records carry a key path `k` and a value `v`: `kind: 1` sets a field, `kind: 2`
+  pushes onto an array (a new request is pushed onto `requests`), `kind: 3` deletes. Fields are
+  updated with paths such as `["requests", 0, "promptTokens"]`.
 - A request exposes `timestamp`, `promptTokens`, `completionTokens` and
   `result.timings.totalElapsed` (available once the request finishes).
 - `promptTokens` describes the latest model call of that request; `completionTokens` is the request's

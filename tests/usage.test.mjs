@@ -87,16 +87,16 @@ const op = (o) => line(o);
 test('Copilot in VS Code: reads tokens and elapsed time from the chat session operation log', () => {
   const d = mkdtempSync(join(tmpdir(), 'light-kit-usage-'));
   const f = join(d, 'session.jsonl');
+  // `kind: 2` pushes a new request onto the array; the earlier request keeps its fields and result.
   writeFileSync(f,
     op({ kind: 0, v: { requests: [] } })
-    + op({ kind: 2, k: ['requests'], v: [{ requestId: 'r1', timestamp: 1000, promptTokens: 12000, completionTokens: 800 }] })
+    + op({ kind: 2, k: ['requests'], v: [{ requestId: 'r1', timestamp: 1000 }] })
     + op({ kind: 1, k: ['requests', 0, 'promptTokens'], v: 12000 })
     + op({ kind: 1, k: ['requests', 0, 'completionTokens'], v: 800 })
     + op({ kind: 1, k: ['requests', 0, 'result'], v: { timings: { firstProgress: 100, totalElapsed: 4200 } } })
-    + op({ kind: 2, k: ['requests'], v: [
-      { requestId: 'r1', timestamp: 1000, promptTokens: 12000, completionTokens: 800, result: { timings: { totalElapsed: 4200 } } },
-      { requestId: 'r2', timestamp: 9000, promptTokens: 30000, completionTokens: 1200 },
-    ] }));
+    + op({ kind: 2, k: ['requests'], v: [{ requestId: 'r2', timestamp: 9000 }] })
+    + op({ kind: 1, k: ['requests', 1, 'promptTokens'], v: 30000 })
+    + op({ kind: 1, k: ['requests', 1, 'completionTokens'], v: 1200 }));
   assert.deepEqual(usageFromCopilotSession(f, { now: 12_000 }),
     { ...empty, input: 42_000, output: 2000, calls: 2, timeMs: 7200, timeKnown: true });
   assert.deepEqual(usageFromCopilotSession(f, { now: 9000 }),
