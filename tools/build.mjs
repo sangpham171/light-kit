@@ -254,7 +254,7 @@ const USER_PATHS = {
   codex: (p) => (p === 'AGENTS.md' ? ['.codex/AGENTS.md'] : [p]),
 };
 export const USER_NOTES = {
-  copilot: 'Copilot: agents, skills, instructions and hooks go to ~/.copilot. Prompts go to the VS Code prompt folder for each edition and profile found, which is where Copilot Chat reads user prompt files; the Copilot harness itself has no prompt files.',
+  copilot: 'Copilot: agents, skills, instructions and hooks go to ~/.copilot; prompts go to the VS Code prompt folder of each edition and profile, where Copilot Chat reads them.',
   cursor: 'Cursor: user rules live in its settings, not in files, so only commands and hooks are installed globally. Use a project-level install to get agent roles and skills as rules.',
 };
 export const USER_CLIENT_FOLDERS = {
