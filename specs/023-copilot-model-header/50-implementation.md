@@ -23,9 +23,9 @@ usage:
 - `kit/hooks/checks/session-context.mjs`: reports the model with the thinking effort in one line, and keeps
   the earlier wording when only the effort is known.
 - `kit/instructions/core.md`, `docs/usage.md`, `kit/hooks/README.md`: say the model is reported too.
-- `tests/model.test.mjs` (new): six tests — event log, `COPILOT_HOME` and a model object, chat log with a
+- `tests/model.test.mjs` (new): seven tests — event log, `COPILOT_HOME` and a model object, chat log with a
   mid-session switch, precedence and an unsafe id, Claude transcript, payload precedence with silent
-  unknown clients.
+  unknown clients, and a router selection naming no model.
 - `tests/hooks.test.mjs`: asserts the session-start line for a model with and without an effort.
 - `specs/021-copilot-agent-host-usage/00-request.md`, `10-understanding.md`: `model:` filled with
   `deepseek/deepseek-v4-flash`, the `selectedModel` of the session that wrote them.
@@ -52,5 +52,6 @@ None introduced; the effort reader lost its duplicated helpers.
 
 ## Review rounds
 ### Round 1 of 1
-- No findings.
+- `kit/hooks/lib/model.mjs`: a Copilot selection of `auto` (a router) was reported as a model id. Fixed:
+  router selections are ignored, so the value stays `unknown`; test and doc added.
 Verdict: approve
