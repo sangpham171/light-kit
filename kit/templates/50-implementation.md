@@ -5,6 +5,10 @@ runs:
     model: <model id>
     thinking: <reasoning setting or unknown>
     level: <easy|medium|hard|unknown>
+usage:
+  - step: <step>
+    tokens: <input> input · <cache read> cache read · <cache write> cache write · <output> output · <total> total
+    time: <time spent or unknown>
 ---
 
 # Implementation log
@@ -20,7 +24,3 @@ runs:
 <!-- Round n of N (see the `light-review-cycle` skill). One line per finding:
 - F-1.1 [blocker|should-fix|nit] <path:line> — <problem> — suggested fix — status: open | fixed (<hash>) | declined (<reason>) | deferred (<reason>)
 Verdict: approve | changes requested -->
-
-## Token usage
-Tokens: <input> input · <cache read> cache read · <cache write> cache write · <output> output · <total> total
-Time: unknown
