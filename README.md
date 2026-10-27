@@ -53,7 +53,7 @@ Run `/light-init` once per project: it writes the project profile, codebase map 
 | **Cursor** | `.cursor/rules/*.mdc`, `.cursor/commands/`, hooks merged into `.cursor/hooks.json` | Open the project in Cursor; the `/light-*` commands are available in chat. |
 | **Codex** | `AGENTS.md`, `.codex/agents/*.toml`, `.agents/skills/`, hooks merged into `.codex/hooks.json` | Start `codex` in the project, run `/hooks` once to trust the hooks, and copy `.codex/prompts/*` to `~/.codex/prompts/` for the `/light-*` commands (a user-level install already places them there). |
 
-At project and workspace level, `AGENTS.md` is also written for Copilot and Cursor. At user level, Copilot prompt files and Cursor rules are not installed (VS Code keeps prompts in its profile folder, Cursor keeps user rules in its settings); use a project-level install to get those.
+At project and workspace level, `AGENTS.md` is also written for Copilot and Cursor. At user level, Cursor rules are not installed (Cursor keeps user rules in its settings); Copilot prompts go to `~/.copilot/prompts`, but VS Code reads user prompt files from its own profile folder, so a project-level install still gives the `/light-*` commands in Chat.
 
 Install levels, detection rules, all flags, the generated layout and uninstall: [docs/installation.md](docs/installation.md).
 

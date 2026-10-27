@@ -223,15 +223,14 @@ export function mergeHooks(existingText, desired) {
 const USER_PATHS = {
   claude: (p) => (p === 'CLAUDE.md' ? '.claude/CLAUDE.md' : p),
   copilot: (p) => {
-    if (p.startsWith('.github/prompts/')) return null;
     if (p === '.github/copilot-instructions.md') return '.copilot/copilot-instructions.md';
-    return p.replace(/^\.github\/(agents|skills|hooks)\//, '.copilot/$1/');
+    return p.replace(/^\.github\/(agents|prompts|skills|hooks)\//, '.copilot/$1/');
   },
   cursor: (p) => (p.startsWith('.cursor/rules/') ? null : p),
   codex: (p) => (p === 'AGENTS.md' ? '.codex/AGENTS.md' : p),
 };
 export const USER_NOTES = {
-  copilot: 'Copilot: prompt files are not installed at user level (VS Code keeps them in its own profile folder); agents, skills, instructions and hooks are.',
+  copilot: 'Copilot: prompts go to ~/.copilot/prompts, with agents, skills, instructions and hooks. VS Code reads user prompt files from its own profile folder, so use a project-level install for the /light-* commands in Chat.',
   cursor: 'Cursor: user rules live in its settings, not in files, so only commands and hooks are installed globally. Use a project-level install to get agent roles and skills as rules.',
 };
 export const USER_CLIENT_FOLDERS = {

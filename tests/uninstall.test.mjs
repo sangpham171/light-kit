@@ -120,11 +120,14 @@ test('uninstall is idempotent', () => {
 test('user level: soft keeps hooks config and models, removes generated folders', () => {
   const d = tmp();
   mkdirSync(join(d, '.claude'));
-  install(d, ['claude'], { level: 'user' });
+  mkdirSync(join(d, '.copilot'));
+  install(d, ['claude', 'copilot'], { level: 'user' });
   assert.ok(existsSync(join(d, '.claude/agents/light-orchestrator.md')));
-  uninstall(d, ['claude'], { level: 'user' });
+  assert.ok(existsSync(join(d, '.copilot/prompts/light-request.prompt.md')));
+  uninstall(d, ['claude', 'copilot'], { level: 'user' });
   assert.equal(existsSync(join(d, '.claude/agents')), false);
   assert.equal(existsSync(join(d, '.claude/CLAUDE.md')), false);
+  assert.equal(existsSync(join(d, '.copilot/prompts')), false);
   assert.equal(existsSync(join(d, '.light-kit/workflows')), false);
   assert.equal(existsSync(join(d, '.light-kit/kit.config.json')), false);
   assert.ok(existsSync(join(d, '.light-kit/hooks.config.json')));
