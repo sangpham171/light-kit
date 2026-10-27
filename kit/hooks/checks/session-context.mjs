@@ -2,15 +2,21 @@ import { existsSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { activeRequests, listProjectDirs } from '../lib/specs.mjs';
 import { detectEffort } from '../lib/effort.mjs';
+import { detectModel } from '../lib/model.mjs';
 
 export default {
   id: 'session-context',
   events: ['session-start'],
   run(ctx, cfg) {
     const lines = [];
-    // The effort comes from the client, not from the project setup, so report it before the early return.
+    // The model and the effort come from the client, not from the project setup, so report them before the early return.
+    const model = detectModel(ctx);
     const effort = detectEffort(ctx);
-    if (effort) lines.push(`The client reports thinking effort "${effort}"; use it as \`thinking:\` in the \`runs:\` headers you write.`);
+    const reported = [model && `model "${model}"`, effort && `thinking effort "${effort}"`].filter(Boolean);
+    if (reported.length) {
+      const labels = [model && '`model:`', effort && '`thinking:`'].filter(Boolean).join(' and ');
+      lines.push(`The client reports ${reported.join(' and ')}; use ${reported.length > 1 ? 'them' : 'it'} as ${labels} in the \`runs:\` headers you write.`);
+    }
     if (ctx.userLevel && !ctx.kitEnabled) {
       if (cfg.suggestInit) lines.unshift('light-kit is installed for your user but not set up in this project. Safety hooks apply here. To enable specs, the profile and the commit and branch workflow, run the `light-init` command.');
       return lines.length ? { message: lines.join('\n') } : null;

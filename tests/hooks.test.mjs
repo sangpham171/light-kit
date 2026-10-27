@@ -157,6 +157,18 @@ test('session start reports the thinking effort the client exposes', () => {
   assert.doesNotMatch(run(d, 'claude', 'session-start', {}).out, /thinking effort/);
 });
 
+test('session start reports the model the client exposes', () => {
+  const d = project();
+  const transcript = join(d, 'session.jsonl');
+  writeFileSync(transcript, `${JSON.stringify({ type: 'assistant', message: { model: 'claude-sonnet-4-5' }, effort: 'high' })}\n`);
+  const c = JSON.parse(run(d, 'claude', 'session-start', { transcript_path: transcript }).out).hookSpecificOutput;
+  assert.match(c.additionalContext, /model "claude-sonnet-4-5"/);
+  assert.match(c.additionalContext, /model "claude-sonnet-4-5" and thinking effort "high"/);
+  assert.match(c.additionalContext, /`model:` and `thinking:`/);
+  const only = JSON.parse(run(d, 'claude', 'session-start', { model: 'gpt-5' }).out).hookSpecificOutput;
+  assert.match(only.additionalContext, /use it as `model:`/);
+});
+
 test('session start reports the effort for a user-level install without project setup', () => {
   const { home, proj } = userProject();
   const previous = join(proj, 'previous.jsonl');
