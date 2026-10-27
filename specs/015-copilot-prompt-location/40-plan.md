@@ -9,11 +9,11 @@ runs:
 
 # Plan
 
-- [ ] 1. Compute the VS Code prompt folders from the install home (editions + profiles, platform default as fallback) and map Copilot prompts there instead of `.copilot/prompts` — level: medium — files: `tools/build.mjs` — verify: `npm test` — commit: `fix(install): write copilot prompts to the vscode profile folder`
-- [ ] 2. Pass the home folder through `build()` in install and uninstall, and sweep marked prompt files out of the old `.copilot/prompts` folder — level: medium — files: `tools/install.mjs`, `tools/uninstall.mjs` — verify: `npm test` — commit: `fix(install): clean up prompts left in .copilot/prompts`
-- [ ] 3. Update the user-level tests to the new location, including a profile folder and the stale-file sweep — level: easy — files: `tests/workspace.test.mjs`, `tests/uninstall.test.mjs` — verify: `npm test` — commit: `test(install): assert the vscode prompt folder`
-- [ ] 4. Update docs and the installer note — level: easy — files: `docs/installation.md`, `README.md` — verify: read-back — commit: `docs: state where user-level copilot prompts are installed`
-- [ ] 5. Reinstall at user level on this machine so `/light-*` works in Chat — level: easy — verify: files present under `<User Data>/prompts` — commit: none (machine state)
+- [x] 1. Compute the VS Code prompt folders from the install home (editions + profiles, platform default as fallback) and map Copilot prompts there instead of `.copilot/prompts` — level: medium — files: `tools/build.mjs` — verify: `npm test` — commit: `fix(install): write copilot prompts to the vscode profile folder`
+- [x] 2. Pass the home folder through `build()` in install and uninstall, and sweep marked prompt files out of the old `.copilot/prompts` folder — level: medium — files: `tools/install.mjs`, `tools/uninstall.mjs` — verify: `npm test` — commit: `fix(install): write copilot prompts to the vscode profile folder`
+- [x] 3. Update the user-level tests to the new location, including a profile folder and the stale-file sweep — level: easy — files: `tests/workspace.test.mjs`, `tests/uninstall.test.mjs` — verify: `npm test` — commit: `test(install): assert the vscode prompt folder`
+- [x] 4. Update docs and the installer note — level: easy — files: `docs/installation.md`, `README.md` — verify: read-back — commit: `docs: state where user-level copilot prompts are installed`
+- [x] 5. Reinstall at user level on this machine so `/light-*` works in Chat — level: easy — verify: files present under `<User Data>/prompts` — commit: none (machine state)
 
 Each task = one verified, coherent commit.
 
