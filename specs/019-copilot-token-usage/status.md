@@ -7,7 +7,7 @@ work_branch: feat/018-header-step-first
 review_turns: 1
 review_round: 0
 step: conclude
-state: in-progress
+state: done
 ---
 
 Blockers / pending questions: none
