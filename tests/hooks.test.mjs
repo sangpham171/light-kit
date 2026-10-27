@@ -556,6 +556,37 @@ test('token-usage: Copilot in VS Code reads a named-profile chat session log', (
   assert.match(out, /time: 2s/);
 });
 
+const copilotEvents = (home, sessionId, lines) => {
+  const dir = join(home, '.copilot/session-state', sessionId);
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, 'events.jsonl'), lines);
+};
+
+test('token-usage: Copilot agent host sessions read the event log', () => {
+  const d = project(); withSpec(d);
+  const home = mkdtempSync(join(tmpdir(), 'light-kit-home-'));
+  const ev = (type, timestamp, usage) => `${JSON.stringify({ type, timestamp, data: usage ? { usage } : {} })}\n`;
+  copilotEvents(home, 'host-sid',
+    ev('session.start', '2026-01-01T00:00:00.000Z')
+    + ev('session.usage_record', '2026-01-01T00:00:02.000Z',
+      { inputTokens: 53_000, outputTokens: 800, cacheReadTokens: 40_000, cacheWriteTokens: 1000 })
+    + ev('tool.execution_start', '2026-01-01T00:00:09.000Z'));
+  writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact());
+  const out = JSON.parse(run(d, 'copilot', 'post-tool', {
+    toolName: 'create', toolArgs: { filePath: 'specs/001-x/50-implementation.md' },
+    sessionId: 'host-sid', timestamp: '2026-01-01T00:00:12.000Z',
+    transcript_path: join(home, 'transcripts/host-sid.jsonl'), // VS Code sends it; it holds no usage
+  }, { HOME: home, COPILOT_HOME: join(home, '.copilot') }).out).additionalContext;
+  assert.match(out, /Token usage — 001-x, step 50-implementation/);
+  assert.match(out, /This write: 12,000 input · 40,000 cache read · 1,000 cache write · 800 output · 53,800 total · time 12s/);
+  assert.match(out, /time: 12s/);
+  const state = JSON.parse(readFileSync(join(d, '.light-kit/usage.json'), 'utf8'));
+  assert.deepEqual(state.sessions['copilot:host-sid'],
+    { input: 12_000, output: 800, cacheRead: 40_000, cacheWrite: 1000, timeMs: 12_000 });
+  assert.deepEqual(state.requests['001-x'].steps['50-implementation'],
+    { input: 12_000, output: 800, cacheRead: 40_000, cacheWrite: 1000, timeMs: 12_000, timed: true });
+});
+
 test('token-usage: Copilot without a session record stays silent', () => {
   const d = project(); withSpec(d);
   const home = mkdtempSync(join(tmpdir(), 'light-kit-home-'));
