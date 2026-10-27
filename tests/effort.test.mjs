@@ -65,6 +65,41 @@ test('Copilot: reads the VS Code model configuration and prefers the session mod
   assert.equal(detectEffort({ client: 'copilot', model: 'gpt-5' }, opts), 'max');
 });
 
+test('Copilot: reads the effort from the session event log', () => {
+  const home = tmp('light-kit-effort-home-');
+  const dir = join(home, '.copilot/session-state/abc-123');
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, 'events.jsonl'), line({ type: 'session.start', data: { selectedModel: 'x', reasoningEffort: 'max' } }) + line({ type: 'hook.start', data: {} }));
+  assert.equal(detectEffort({ client: 'copilot', payload: { sessionId: 'abc-123' } }, { home, env: {} }), 'max');
+  const moved = tmp('light-kit-effort-home-');
+  mkdirSync(join(moved, 'session-state/abc-123'), { recursive: true });
+  writeFileSync(join(moved, 'session-state/abc-123/events.jsonl'), line({ type: 'session.start', data: { reasoningEffort: 'low' } }));
+  assert.equal(detectEffort({ client: 'copilot', payload: { sessionId: 'abc-123' } }, { home, env: { COPILOT_HOME: moved } }), 'low');
+});
+
+test('Copilot: reads the effort from the selected model in a chat session log', () => {
+  const home = tmp('light-kit-effort-home-');
+  const dir = join(home, 'Library/Application Support/Code/User/workspaceStorage/ws/chatSessions');
+  mkdirSync(dir, { recursive: true });
+  const snapshot = { kind: 0, v: { inputState: { selectedModel: { modelConfiguration: { reasoningEffort: 'low' } } } } };
+  const update = { kind: 1, k: ['inputState', 'selectedModel', 'modelConfiguration'], v: { reasoningEffort: 'max' } };
+  writeFileSync(join(dir, 'abc.jsonl'), line(snapshot) + line(update));
+  assert.equal(detectEffort({ client: 'copilot', payload: { session_id: 'abc' } }, { home, platform: 'darwin' }), 'max');
+});
+
+test('Copilot: a session record wins over the state database, and an unsafe id reads nothing', () => {
+  const home = tmp('light-kit-effort-home-');
+  mkdirSync(join(home, 'Library/Application Support/Code/User/globalStorage'), { recursive: true });
+  writeFileSync(join(home, 'Library/Application Support/Code/User/globalStorage/state.vscdb'), '');
+  const dir = join(home, '.copilot/session-state/abc');
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(join(dir, 'events.jsonl'), line({ type: 'session.start', data: { reasoningEffort: 'low' } }));
+  const query = () => JSON.stringify({ 'gpt-5': { reasoningEffort: 'max' } });
+  const opts = { home, platform: 'darwin', query, model: 'gpt-5', env: {} };
+  assert.equal(detectEffort({ client: 'copilot', model: 'gpt-5', payload: { sessionId: 'abc' } }, opts), 'low');
+  assert.equal(detectEffort({ client: 'copilot', model: 'gpt-5', payload: { sessionId: '../abc' } }, opts), 'max');
+});
+
 test('Copilot: unknown when the database, the key or sqlite3 is missing', () => {
   const home = tmp('light-kit-effort-home-');
   assert.equal(detectEffort({ client: 'copilot' }, { home, platform: 'darwin', query: () => '' }), '');
