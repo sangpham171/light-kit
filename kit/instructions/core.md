@@ -36,6 +36,7 @@ This project uses **light-kit**. Work is organised per request, and every reques
 Agents available: light-orchestrator, light-product-owner, light-business-analyst, light-ux-designer, light-architect, light-tech-lead, light-developer, light-tester, light-reviewer, light-security-reviewer, light-tech-writer. Invoke any manually, or let the orchestrator run a workflow. Each agent reads the request's earlier artifacts, writes only the artifact its step lists, and takes stack-specific rules only from the project profile, never from assumptions.
 
 ## Commands
+Each command is a skill with the same name, so every client reads it from its standard skill folder: invoke it by name, or say what you want and let its description select it.
 `light-init`, `light-bootstrap` (new projects), `light-standardize` (apply the init assessment items), `light-request`, `light-triage`, `light-plan`, `light-implement`, `light-review`, `light-status`, `light-audit` (after a model upgrade: find guidance the model no longer needs).
 
 ## Project knowledge

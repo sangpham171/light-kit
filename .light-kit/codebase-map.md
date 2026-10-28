@@ -23,7 +23,7 @@ The kit packages spec-driven workflows and guardrails for supported AI coding cl
 Users install the generated files into a project or at user level, then work through request artifacts in `specs/`.
 
 ## Structure
-- `kit/agents/`, `kit/skills/`, `kit/prompts/`, `kit/workflows/`, `kit/instructions/`: shared agent and workflow source.
+- `kit/agents/`, `kit/skills/` (including the `light-*` commands), `kit/workflows/`, `kit/instructions/`: shared agent and workflow source.
 - `kit/hooks/`: client-neutral safety checks, libraries and hook documentation.
 - `kit/templates/`, `kit/profiles/`: request templates and initialization profiles.
 - `tools/`: client-file generation, installation and removal.

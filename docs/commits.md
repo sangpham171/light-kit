@@ -1,6 +1,6 @@
 # Commits and branches
 
-The agent commits as it goes, so history stays reviewable (`light-commit` skill, set up by `/light-init`):
+The agent commits as it goes, so history stays reviewable (`light-commit` skill, set up by `light-init`):
 
 - the plan is committed once validated, **before** implementation starts; understanding and design are committed once settled
 - one commit per verified plan task, one per review fix, one for the conclusion
