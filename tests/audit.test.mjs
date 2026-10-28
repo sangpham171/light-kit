@@ -18,7 +18,6 @@ test('audit of the kit sources: inventory, purposes, cost and no broken referenc
   assert.equal(rep.mode, 'source');
   assert.equal(count(rep, 'agent'), kit.agents.length);
   assert.equal(count(rep, 'skill'), kit.skills.length);
-  assert.equal(count(rep, 'prompt'), kit.prompts.length);
   assert.equal(count(rep, 'workflow'), kit.workflows.length);
   assert.equal(count(rep, 'rule'), 13);
   assert.deepEqual(rep.findings.unclassified, []);
@@ -157,17 +156,16 @@ test('audit reminder at user level keeps its state in ~/.light-kit and reaches e
   assert.equal(existsSync(join(home, 'proj/.light-kit')), false);
 });
 
-test('audit command and skill are generated, prefixed and wired', () => {
+test('audit skill is generated, prefixed and wired', () => {
   const dir = tmp();
   install(dir, ['claude', 'codex']);
   const skill = readFileSync(join(dir, '.claude/skills/light-audit/SKILL.md'), 'utf8');
   assert.match(skill, /Necessity test/);
   assert.match(skill, /compensation/);
   assert.match(skill, /never edit generated files/i);
-  assert.match(readFileSync(join(dir, '.claude/commands/light-audit.md'), 'utf8'), /light-audit.* skill/);
+  assert.match(skill, /`--apply`/);
   assert.match(readFileSync(join(dir, 'CLAUDE.md'), 'utf8'), /`light-audit`/);
   assert.ok(existsSync(join(dir, '.agents/skills/light-audit/SKILL.md')));
-  assert.ok(existsSync(join(dir, '.codex/prompts/light-audit.md')));
   // generated client files do not leak the internal purpose field
   assert.doesNotMatch(readFileSync(join(dir, '.claude/agents/light-developer.md'), 'utf8'), /^purpose:/m);
 });

@@ -19,22 +19,26 @@ test('lint catches unknown agent in a workflow', () => {
   assert.match(lint(kit).join('\n'), /unknown agent nobody/);
 });
 
-test('every client produces agents, prompts and skills', () => {
+test('every client produces agents and skills', () => {
   const kit = loadKit();
   for (const c of CLIENT_NAMES) {
     const paths = build(kit, [c]).map((f) => f.path);
     for (const a of kit.agents) assert.ok(paths.some((p) => p.includes(a.meta.name)), `${c}: agent ${a.meta.name}`);
-    for (const p of kit.prompts) assert.ok(paths.some((x) => x.includes(`/${p.meta.name}.`)), `${c}: prompt ${p.meta.name}`);
     for (const s of kit.skills) assert.ok(paths.some((x) => x.includes(s.meta.name)), `${c}: skill ${s.meta.name}`);
   }
 });
 
-test('prompt argument placeholders are client specific', () => {
+test('commands are skills, so no client gets a prompt or command file', () => {
   const kit = loadKit();
-  const get = (c, p) => build(kit, [c]).find((f) => f.path === p).content;
-  assert.match(get('claude', '.claude/commands/light-request.md'), /\$ARGUMENTS/);
-  assert.match(get('copilot', '.github/prompts/light-request.prompt.md'), /\$\{input:request/);
-  assert.doesNotMatch(get('cursor', '.cursor/commands/light-request.md'), /\$ARGUMENTS/);
+  const commands = ['init', 'bootstrap', 'standardize', 'request', 'triage', 'plan', 'implement', 'review', 'status', 'audit'];
+  const where = { claude: (n) => `.claude/skills/${n}/SKILL.md`, copilot: (n) => `.github/skills/${n}/SKILL.md`, codex: (n) => `.agents/skills/${n}/SKILL.md`, cursor: (n) => `.cursor/rules/${n}.mdc` };
+  for (const c of CLIENT_NAMES) {
+    const paths = build(kit, [c]).map((f) => f.path);
+    assert.deepEqual(paths.filter((p) => /\/commands\/|\/prompts\//.test(p)), [], c);
+    for (const n of commands) assert.ok(paths.includes(where[c](`light-${n}`)), `${c}: light-${n}`);
+  }
+  // skill bodies carry no client-specific argument placeholder
+  for (const s of kit.skills) assert.doesNotMatch(s.body, /\$ARGUMENTS|\$\{input:/, s.meta.name);
 });
 
 test('install into empty dir, then second run changes nothing', () => {
@@ -86,21 +90,21 @@ test('re-install keeps a filled-in project profile', () => {
   assert.doesNotMatch(readFileSync(join(dir, 'CLAUDE.md'), 'utf8'), /Languages and frameworks/);
 });
 
-test('bootstrap workflow and prompt are generated', () => {
+test('bootstrap workflow and skill are generated', () => {
   const dir = tmp();
   install(dir, ['claude']);
   assert.ok(existsSync(join(dir, '.light-kit/workflows/bootstrap.md')));
-  assert.ok(existsSync(join(dir, '.claude/commands/light-bootstrap.md')));
+  assert.ok(existsSync(join(dir, '.claude/skills/light-bootstrap/SKILL.md')));
   assert.ok(existsSync(join(dir, '.claude/skills/light-codebase-map/SKILL.md')));
 });
 
-test('adopt assessment: skill, standardize workflow and command are generated and wired', () => {
+test('adopt assessment: skill, standardize workflow and skill are generated and wired', () => {
   const dir = tmp();
   install(dir, ['claude']);
   assert.ok(existsSync(join(dir, '.claude/skills/light-project-assessment/SKILL.md')));
   assert.ok(existsSync(join(dir, '.light-kit/workflows/standardize.md')));
-  assert.ok(existsSync(join(dir, '.claude/commands/light-standardize.md')));
-  const init = readFileSync(join(dir, '.claude/commands/light-init.md'), 'utf8');
+  assert.ok(existsSync(join(dir, '.claude/skills/light-standardize/SKILL.md')));
+  const init = readFileSync(join(dir, '.claude/skills/light-init/SKILL.md'), 'utf8');
   assert.match(init, /project-assessment/);
   assert.match(init, /Do not change any project code now/);
   assert.doesNotMatch(init, /ask which items to accept/);
@@ -131,9 +135,9 @@ test('tech debt and review cycle: skills, workflow steps, templates and config a
   assert.match(read('.light-kit/templates/60-conclusion.md'), /Deferred technical debt and open findings/);
   assert.match(read('.light-kit/templates/status.md'), /review_turns/);
   assert.match(read('.light-kit/project-profile.md'), /Review turns: 1/);
-  assert.match(read('.claude/commands/light-request.md'), /--review-turns/);
-  assert.match(read('.claude/commands/light-init.md'), /Review turns/);
-  assert.match(read('.claude/commands/light-init.md'), /without asking/);
+  assert.match(read('.claude/skills/light-request/SKILL.md'), /--review-turns/);
+  assert.match(read('.claude/skills/light-init/SKILL.md'), /Review turns/);
+  assert.match(read('.claude/skills/light-init/SKILL.md'), /without asking/);
   assert.match(read('.claude/agents/light-developer.md'), /tech-debt/);
   assert.match(read('.claude/agents/light-developer.md'), /review-cycle/);
   assert.match(read('.claude/agents/light-reviewer.md'), /Technical debt/);
@@ -199,11 +203,11 @@ test('everything the client shows carries the light- prefix', () => {
   const dir = tmp();
   install(dir, ['claude', 'copilot', 'cursor', 'codex']);
   const names = (p) => readdirSync(join(dir, p));
-  for (const [p, strip] of [['.claude/agents', ''], ['.claude/commands', ''], ['.claude/skills', ''], ['.github/agents', ''], ['.github/prompts', ''], ['.github/skills', ''],
-    ['.cursor/commands', ''], ['.cursor/rules', ''], ['.codex/agents', ''], ['.codex/prompts', ''], ['.agents/skills', '']])
+  for (const p of ['.claude/agents', '.claude/skills', '.github/agents', '.github/skills',
+    '.cursor/rules', '.codex/agents', '.agents/skills'])
     for (const n of names(p)) assert.match(n, /^light-/, `${p}/${n}`);
   const loaded = loadKit();
-  for (const d of [...loaded.agents, ...loaded.skills, ...loaded.prompts]) assert.match(d.meta.name, /^light-/, d.meta.name);
+  for (const d of [...loaded.agents, ...loaded.skills]) assert.match(d.meta.name, /^light-/, d.meta.name);
   // no bare names left in the instructions
   const claudeMd = readFileSync(join(dir, 'CLAUDE.md'), 'utf8');
   assert.match(claudeMd, /light-orchestrator/);

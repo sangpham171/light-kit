@@ -13,7 +13,7 @@ import { mkdirSync, readFileSync, writeFileSync, existsSync, readdirSync, rmSync
 import { homedir } from 'node:os';
 import { join, dirname, resolve, basename } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { build, loadKit, lint, mergeHooks, CLIENT_NAMES, CLIENT_FOLDERS, USER_CLIENT_FOLDERS, USER_NOTES, isManaged, START, END } from './build.mjs';
+import { build, loadKit, lint, mergeHooks, CLIENT_NAMES, CLIENT_FOLDERS, USER_CLIENT_FOLDERS, USER_NOTES, legacyPromptRoots, isManaged, START, END } from './build.mjs';
 
 const SKIP = (name) => name.startsWith('.');
 
@@ -85,8 +85,8 @@ export function install(target, clients, { dryRun = false, force = 'none', hooks
   // At user level the config sits inside ~/.light-kit so the home folder itself stays clean (the hooks also read it).
   const configPath = level === 'user' ? '.light-kit/kit.config.json' : 'kit.config.json';
   const files = [...build(kit, clients, { hooks, level, projects, home: target }), { path: configPath, content: config, overwrite: true }];
-  // An earlier version put Copilot prompts in the harness folder, which VS Code does not read; sweep them out.
-  const staleRoots = level === 'user' && clients.includes('copilot') ? ['.copilot/prompts'] : [];
+  // Command files an earlier version generated are not in the built list any more; sweep them out.
+  const staleRoots = legacyPromptRoots(clients, level, target);
 
   for (const f of files) {
     const abs = join(target, f.path);
@@ -164,12 +164,11 @@ if (resolve(process.argv[1] ?? '') === fileURLToPath(import.meta.url)) {
   if (r.removed.length > 8) console.log(`  … and ${r.removed.length - 8} more`);
   for (const s of r.skipped) console.log(`  skipped (exists, not managed by light-kit): ${s}`);
   if (level === 'user') for (const c of clients) if (USER_NOTES[c]) console.log(`note: ${USER_NOTES[c]}`);
-  if (clients.includes('codex') && level !== 'user') console.log('note: Codex custom prompts are user-level — copy .codex/prompts/* to ~/.codex/prompts/ to use them.');
   if (!args.includes('--no-hooks')) {
     console.log(`hooks: need Node 18+ on the machine that runs the AI client. Edit ${level === 'user' ? '~/' : ''}.light-kit/hooks.config.json to tune them.`);
     if (clients.includes('codex')) console.log('note: Codex asks you to review and trust new hooks — run /hooks in Codex once.');
   }
-  if (level === 'user') console.log('user level: restart your AI clients. In each project, run the `light-init` command to enable the kit there (specs, profile, commit and branch workflow). Safety hooks (secrets, dangerous commands, sensitive files) already apply everywhere.');
-  else if (level === 'workspace') console.log('workspace: start your AI client from this folder (not from a project inside it), then run the `light-init` command to register and profile each project.');
-  else console.log('next: open your AI client and run the `light-init` command.');
+  if (level === 'user') console.log('user level: restart your AI clients. In each project, run the `light-init` skill to enable the kit there (specs, profile, commit and branch workflow). Safety hooks (secrets, dangerous commands, sensitive files) already apply everywhere.');
+  else if (level === 'workspace') console.log('workspace: start your AI client from this folder (not from a project inside it), then run the `light-init` skill to register and profile each project.');
+  else console.log('next: open your AI client and run the `light-init` skill.');
 }

@@ -27,6 +27,10 @@ test('soft uninstall removes generated files and keeps user data', () => {
   // files an older kit version generated: template copies carry no marker, workflows do
   writeFileSync(join(d, '.light-kit/templates/old-template.md'), 'old\n');
   writeFileSync(join(d, '.light-kit/workflows/old-workflow.md'), '<!-- light-kit:generated -->\nold\n');
+  // command files an earlier version generated sit beside the user's own commands
+  mkdirSync(join(d, '.claude/commands'), { recursive: true });
+  writeFileSync(join(d, '.claude/commands/light-request.md'), '<!-- light-kit:generated -->\nold\n');
+  writeFileSync(join(d, '.claude/commands/mine.md'), 'my own command\n');
 
   const r = uninstall(d, CLIENT_NAMES);
 
@@ -35,12 +39,9 @@ test('soft uninstall removes generated files and keeps user data', () => {
     '.claude/commands/light-request.md',
     '.claude/skills',
     '.github/agents',
-    '.github/prompts',
     '.github/skills',
     '.cursor/rules',
-    '.cursor/commands',
     '.codex/agents',
-    '.codex/prompts',
     '.agents/skills',
     '.light-kit/workflows',
     '.light-kit/profiles',
@@ -121,14 +122,19 @@ test('user level: soft keeps hooks config and models, removes generated folders'
   const d = tmp();
   mkdirSync(join(d, '.claude'));
   mkdirSync(join(d, '.copilot'));
-  install(d, ['claude', 'copilot'], { level: 'user' });
+  // a prompt file an earlier version wrote where VS Code reads them, next to the user's own
   const [promptDir] = vscodePromptDirs(d);
+  mkdirSync(join(d, promptDir), { recursive: true });
+  writeFileSync(join(d, promptDir, 'light-request.prompt.md'), '<!-- light-kit:generated -->\nold\n');
+  writeFileSync(join(d, promptDir, 'mine.prompt.md'), 'not ours\n');
+  install(d, ['claude', 'copilot'], { level: 'user' });
   assert.ok(existsSync(join(d, '.claude/agents/light-orchestrator.md')));
-  assert.ok(existsSync(join(d, promptDir, 'light-request.prompt.md')), promptDir);
+  assert.ok(existsSync(join(d, '.claude/skills/light-request/SKILL.md')));
+  assert.equal(existsSync(join(d, promptDir, 'light-request.prompt.md')), false, 'the old command file is swept');
+  assert.ok(existsSync(join(d, promptDir, 'mine.prompt.md')), 'the user\'s own prompt stays');
   uninstall(d, ['claude', 'copilot'], { level: 'user' });
   assert.equal(existsSync(join(d, '.claude/agents')), false);
   assert.equal(existsSync(join(d, '.claude/CLAUDE.md')), false);
-  assert.equal(existsSync(join(d, promptDir, 'light-request.prompt.md')), false);
   assert.equal(existsSync(join(d, '.light-kit/workflows')), false);
   assert.equal(existsSync(join(d, '.light-kit/kit.config.json')), false);
   assert.ok(existsSync(join(d, '.light-kit/hooks.config.json')));

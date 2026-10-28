@@ -76,5 +76,5 @@ test('the routing skill, plan template, tech-lead and orchestrator describe per-
   assert.match(orch, /same agent can run on a different model for each task/);
   assert.match(orch, /rate every step of the chosen workflow for this request/);
   assert.match(orch, /`light-model-routing` skill/);
-  assert.match(read(d, '.claude/commands/light-init.md'), /models\.json/);
+  assert.match(read(d, '.claude/skills/light-init/SKILL.md'), /models\.json/);
 });

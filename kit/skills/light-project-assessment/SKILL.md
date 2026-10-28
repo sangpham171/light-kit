@@ -46,4 +46,4 @@ Typical acceptable items: formatting and naming fixes inside a single file, matc
 ```
 
 ## 5. Report
-Summarise the backlog for the user in a few plain lines (`light-approval-summary` style: what would become more consistent, how many items, nothing risky). Do not ask for approval: running the `light-standardize` command is the user's consent. Tell them they can apply every item with `light-standardize`, only some with `light-standardize S-01 S-04`, and skip one by marking it `rejected` in the backlog. Ask a question only for a split convention (step 1). Do not change any project code during this phase.
+Summarise the backlog for the user in a few plain lines (`light-approval-summary` style: what would become more consistent, how many items, nothing risky). Do not ask for approval: running the `light-standardize` skill is the user's consent. Tell them they can apply every item with `light-standardize`, only some with `light-standardize S-01 S-04`, and skip one by marking it `rejected` in the backlog. Ask a question only for a split convention (step 1). Do not change any project code during this phase.

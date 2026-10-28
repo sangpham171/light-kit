@@ -6,7 +6,8 @@ purpose: compensation
 
 # Triage
 
-Read `00-request.md` and the relevant code, then score each criterion 0–2.
+Used by the orchestrator when it opens a request, and by the user who asks to triage one before it starts.
+Read `00-request.md` (or, when the user describes the work instead, that description) and the relevant code, then score each criterion 0–2.
 
 | Criterion | 0 | 1 | 2 |
 |---|---|---|---|
@@ -32,3 +33,5 @@ Workflow: <direct|standard|full>
 Why: <one or two sentences>
 ```
 If the choice is `full`, say so to the user and list the open questions before doing anything else. If it is `direct`, proceed without asking.
+
+When the user asked for a triage only, report the scores, the recommended workflow and why, and change no code.
