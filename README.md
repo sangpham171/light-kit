@@ -71,12 +71,12 @@ Soft is the default: it removes every file the installer generated and leaves yo
 2. Open the project in your AI client and run `light-init`. It detects the stack and turns the kit on for this project (`.light-kit/project-profile.md`).
 3. Ask for work:
    ```
-   light-request Add an export button to the report page
+   light-request: add an export button to the report page
    ```
    The request is triaged. Easy work starts immediately; complex work is clarified first. Artifacts land in `specs/001-add-export-button/`.
 4. `light-status` shows where every request stands.
 
-For a new project, run `light-bootstrap <what the project is for>` after `light-init` to define the vision, architecture and skeleton.
+For a new project, ask `light-bootstrap` (after `light-init`) to define the vision, architecture and skeleton.
 
 ## Commands
 Each command is a skill: invoke it by name, or describe what you want and its description selects it.
