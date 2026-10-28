@@ -4,14 +4,13 @@
 | Path | Contents |
 |---|---|
 | `kit/agents/` | Agent definitions. |
-| `kit/skills/` | Skills used by the agents and commands. |
-| `kit/prompts/` | The `/light-*` commands. |
+| `kit/skills/` | Skills: the helper skills the agents use, plus the `light-*` commands, each one a skill with the same name. |
 | `kit/workflows/` | `direct`, `standard`, `full`, `bootstrap`, `standardize`. |
 | `kit/instructions/` | The core rules installed into each client's instruction file. |
 | `kit/profiles/` | Init profiles (adopt, greenfield). |
 | `kit/templates/` | Artifact templates and seed configs. |
 | `kit/hooks/` | Safety hooks and their reference (`kit/hooks/README.md`). |
-| `kit/audit/` | The audit tool used by `/light-audit`. |
+| `kit/audit/` | The audit tool used by the `light-audit` skill. |
 | `tools/build.mjs` | Generates each client's files. Client formats live here, in `CLIENTS`. |
 | `tools/install.mjs` | Installs a generated kit into a target folder (see [Installation](installation.md)). |
 | `tools/uninstall.mjs` | Removes an installed kit, soft or hard (see [Uninstall](installation.md#uninstall)). |

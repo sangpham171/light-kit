@@ -23,7 +23,7 @@ node tools/install.mjs /path/to/your/project-or-workspace [--level user|workspac
 ```
 For every project on the machine: `node tools/install.mjs --level user`.
 
-After installing, open the project in your AI client and run `/light-init` (see [After installing](#after-installing)).
+After installing, open the project in your AI client and run `light-init` (see [After installing](#after-installing)).
 
 Flags:
 
@@ -53,7 +53,7 @@ Soft is the default. Both modes are idempotent and leave alone any file the kit 
 
 | Mode | Removes | Keeps |
 |---|---|---|
-| `--soft` (default) | client agents, commands, skills, rules, prompts and TOML; the instruction blocks in `CLAUDE.md`, `AGENTS.md` and Copilot instructions; light-kit hook entries (`settings.json`, `hooks.json`) with your own hooks intact; the generated files in `.light-kit/{workflows,profiles,hooks}`; `.light-kit/{audit,templates}`; `kit.config.json` | `specs/`; `.light-kit/{project-profile.md,hooks.config.json,models.json,projects.md}`; the codebase map, assessment and backlog |
+| `--soft` (default) | client agents, skills, rules and TOML, plus the command files an earlier version generated; the instruction blocks in `CLAUDE.md`, `AGENTS.md` and Copilot instructions; light-kit hook entries (`settings.json`, `hooks.json`) with your own hooks intact; the generated files in `.light-kit/{workflows,profiles,hooks}`; `.light-kit/{audit,templates}`; `kit.config.json` | `specs/`; `.light-kit/{project-profile.md,hooks.config.json,models.json,projects.md}`; the codebase map, assessment and backlog |
 | `--hard` | all of soft, plus the kit's own folders: `.light-kit/` and `specs/` | files outside the kit's folders that the kit does not own |
 
 Hard mode asks for confirmation; `--yes` skips the question, and without a terminal it refuses until `--yes` is passed. At user level hard removes `~/.light-kit/` only (there is no `specs/` at that level); at workspace level it also removes every registered project's `.light-kit/` and `specs/`.
@@ -67,9 +67,9 @@ Target, `--level`, `--clients` and `--projects` work as for the installer, and t
 | **workspace** | a folder holding several projects | several projects (separate repositories, or one repository with several projects), each with its own stack |
 | **project** | one project | everything lives in that project |
 
-**User level.** Agents, skills, commands, prompts, workflows and hooks are installed once, in the folders your clients read for all projects (existing files are kept; instruction files and settings only get a marked block or merged entries). Nothing project-specific is installed: the safety hooks (secrets, sensitive files, dangerous commands, protected paths) protect every project right away, while the specs, commit and branch workflow turn on **per project** when you run `/light-init` there (it creates that project's `.light-kit/` with its profile, map and hooks config). Hook settings stack: `~/.light-kit/hooks.config.json` (yours, for all projects), then a workspace's, then the project's. A project that has its own project-level install uses that instead of the user-level hooks for the same client. Limits: Cursor rules cannot be installed globally (Cursor keeps user rules in its settings), so use a project-level install for those. Copilot prompts go where VS Code reads user prompt files: the prompt folder of every VS Code edition found in your home folder (`~/Library/Application Support/Code/User/prompts` on macOS, `~/.config/Code/User/prompts` on Linux, `%APPDATA%\Code\User\prompts` on Windows) and of every profile in it (`<User Data>/profiles/<name>/prompts`), so `/light-*` works in Chat in every project. The Copilot harness folder `~/.copilot` holds agents, skills, instructions and hooks only, and has no prompt folder that VS Code reads.
+**User level.** Agents, skills, workflows and hooks are installed once, in the folders your clients read for all projects (existing files are kept; instruction files and settings only get a marked block or merged entries). Nothing project-specific is installed: the safety hooks (secrets, sensitive files, dangerous commands, protected paths) protect every project right away, while the specs, commit and branch workflow turn on **per project** when you run `light-init` there (it creates that project's `.light-kit/` with its profile, map and hooks config). Hook settings stack: `~/.light-kit/hooks.config.json` (yours, for all projects), then a workspace's, then the project's. A project that has its own project-level install uses that instead of the user-level hooks for the same client. Limits: Cursor rules cannot be installed globally (Cursor keeps user rules in its settings), so use a project-level install for those. Commands are skills, so there is nothing to install in a client's own command or prompt folder: Copilot reads them from `~/.copilot/skills`, where the `light-*` skills work in every project.
 
-**Workspace level.** The kit's agents, skills, commands, workflows and hooks are installed **once at the workspace folder**. Each project keeps its **own** profile, codebase map, hooks config, assessment and `specs/` in `<project>/.light-kit/`, and these override the workspace defaults, so a project is never judged by another's conventions. `.light-kit/projects.md` is the registry (purpose, stack as found, repository, who talks to whom). `/light-request` first works out which project(s) a request touches (`light-project-scope` skill), keeps each request in the right project's `specs/`, and handles several repositories (a branch and commits per repository, one `repos` entry in `status.md`). Start your AI client from the workspace folder, not from a project inside it.
+**Workspace level.** The kit's agents, skills, workflows and hooks are installed **once at the workspace folder**. Each project keeps its **own** profile, codebase map, hooks config, assessment and `specs/` in `<project>/.light-kit/`, and these override the workspace defaults, so a project is never judged by another's conventions. `.light-kit/projects.md` is the registry (purpose, stack as found, repository, who talks to whom). `light-request` first works out which project(s) a request touches (`light-project-scope` skill), keeps each request in the right project's `specs/`, and handles several repositories (a branch and commits per repository, one `repos` entry in `status.md`). Start your AI client from the workspace folder, not from a project inside it.
 
 ## Choosing the level
 The installer chooses for you:
@@ -83,27 +83,27 @@ Pointing at a client's own folder works too: `node tools/install.mjs ~/.claude` 
 
 Without `--clients` the clients are detected from their folders (at user level: `~/.claude`, `~/.copilot`, `~/.cursor`, `~/.codex`/`~/.agents`; otherwise `.claude`/`CLAUDE.md`, `.cursor`, Copilot files under `.github`, `.codex`/`.agents`, also inside workspace projects). At project and workspace level, finding none installs all four; at user level it stops and asks you to pass `--clients`, rather than create folders for tools you may not use.
 
-Monorepo projects (one repository) are discovered by `/light-init`.
+Monorepo projects (one repository) are discovered by `light-init`.
 
 ## Generated layout
 | Client | Output |
 |---|---|
-| Claude Code | `.claude/{agents,commands,skills}`, `CLAUDE.md` |
-| Copilot | `.github/{agents,prompts,skills}`, `copilot-instructions.md` |
-| Copilot, user level | `~/.copilot/{agents,skills,hooks}`, `~/.copilot/copilot-instructions.md`; prompts in the VS Code prompt folder of each edition and profile: `<User Data>/prompts` |
-| Cursor | `.cursor/{rules,commands}` |
-| Codex | `.codex/agents/*.toml`, `.agents/skills`, `AGENTS.md` (prompts in `.codex/prompts/` to copy to `~/.codex/prompts/`) |
-| all | `AGENTS.md`, `.light-kit/{workflows,templates,profiles,project-profile.md,hooks.config.json,hooks/}` (at user level: `~/.light-kit/...`, and `~/.codex/AGENTS.md`, `~/.claude/CLAUDE.md`, `~/.copilot/copilot-instructions.md`, `~/.copilot/{agents,skills,hooks}`, and the VS Code prompt folders above) |
+| Claude Code | `.claude/{agents,skills}`, `CLAUDE.md` |
+| Copilot | `.github/{agents,skills}`, `copilot-instructions.md` |
+| Copilot, user level | `~/.copilot/{agents,skills,hooks}`, `~/.copilot/copilot-instructions.md` |
+| Cursor | `.cursor/rules/*.mdc` (one rule per agent and per skill) |
+| Codex | `.codex/agents/*.toml`, `.agents/skills`, `AGENTS.md` |
+| all | `AGENTS.md`, `.light-kit/{workflows,templates,profiles,project-profile.md,hooks.config.json,hooks/}` (at user level: `~/.light-kit/...`, and `~/.codex/AGENTS.md`, `~/.claude/CLAUDE.md`, `~/.copilot/copilot-instructions.md`, `~/.copilot/{agents,skills,hooks}`) |
 | hooks | `.claude/settings.json`, `.codex/hooks.json`, `.cursor/hooks.json`, `.github/hooks/light-kit.json` (merged, your own hooks are kept) |
 
-Client formats change often; they are defined in one place, `CLIENTS` in `tools/build.mjs`. Copilot and Cursor have no parallel subagents here, so parallel steps run sequentially there.
+Commands are skills, so no client gets a command or prompt file: an earlier version wrote those and the installer sweeps them out on upgrade (only files carrying the light-kit marker). Client formats change often; they are defined in one place, `CLIENTS` in `tools/build.mjs`. Copilot and Cursor have no parallel subagents here, so parallel steps run sequentially there.
 
 ## After installing
 | Client | What to do |
 |---|---|
-| Claude Code | Run `/light-init` in the project. |
-| Copilot | Open the repository in VS Code; prompt files give the `/light-*` commands in Copilot Chat. A user-level install puts them in your VS Code profile, so they work in every project. |
-| Cursor | Use the `/light-*` commands in chat; agent roles and skills are rules in `.cursor/rules/`. |
-| Codex | Start `codex` in the project and run `/hooks` once to review and trust the installed hooks. Copy `.codex/prompts/*` to `~/.codex/prompts/` (`%USERPROFILE%\.codex\prompts` on Windows) for the `/light-*` commands; a user-level install puts them there already. |
+| Claude Code | Run `light-init` in the project; the `light-*` skills are in `.claude/skills/`. |
+| Copilot | Open the repository in VS Code; the `light-*` skills are in `.github/skills/` (user level: `~/.copilot/skills/`, so they work in every project). |
+| Cursor | Use the `light-*` skills in chat; agent roles and skills are rules in `.cursor/rules/`. |
+| Codex | Start `codex` in the project and run `/hooks` once to review and trust the installed hooks; the skills are in `.agents/skills/`. |
 
 After a user-level install, restart the client so it picks up the new files. The limits of a user-level install are listed under [Three install levels](#three-install-levels).

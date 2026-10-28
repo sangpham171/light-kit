@@ -6,7 +6,7 @@ purpose: structure
 
 # Workflow: standardize
 
-Use after `light-init` (adopt mode) produced `.light-kit/standardization-backlog.md` and the user runs `light-standardize`. Started with that command, not chosen by triage. The assessment is the discovery; skip discovery.
+Use after `light-init` (adopt mode) produced `.light-kit/standardization-backlog.md` and the user runs `light-standardize`. Started with that skill, not chosen by triage. The assessment is the discovery; skip discovery.
 
 steps:
 1. plan — agent: light-tech-lead — writes: 40-plan.md (one task per item, in backlog order, each with its Verify step and a commit subject)

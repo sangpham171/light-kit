@@ -2,7 +2,7 @@
 
 Spec-driven development for AI coding clients: Claude Code, GitHub Copilot, Cursor and Codex.
 
-You write agents, skills, prompts and workflows once in `kit/`; `tools/install.mjs` generates the files each client expects. Work is organised per request: each one is triaged, runs the workflow it needs, and leaves a trail of spec artifacts in `specs/NNN-slug/`.
+You write agents, skills and workflows once in `kit/`; `tools/install.mjs` generates the files each client expects. Work is organised per request: each one is triaged, runs the workflow it needs, and leaves a trail of spec artifacts in `specs/NNN-slug/`.
 
 ## Requirements
 - **Node 18 or newer** on the machine that runs your AI client.
@@ -44,16 +44,18 @@ node tools/install.mjs /path/to/your/project --clients claude,cursor
 At project and workspace level, without `--clients` the clients are detected from the folders already there (`.claude`, `CLAUDE.md`, `.cursor`, Copilot files under `.github`, `.codex`/`.agents`); if it finds none, it installs all four.
 
 ### 3. Open your client
-Run `/light-init` once per project: it writes the project profile, codebase map and assessment.
+Run `light-init` once per project: it writes the project profile, codebase map and assessment.
 
 | Client | Files written | After install |
 |---|---|---|
-| **Claude Code** | `CLAUDE.md`, `.claude/{agents,commands,skills}`, hooks merged into `.claude/settings.json` | Open the project and run `/light-init`. |
-| **GitHub Copilot** | `.github/copilot-instructions.md`, `.github/{agents,prompts,skills}`, `.github/hooks/light-kit.json` | Open the repository in VS Code; the `/light-*` commands are available in Copilot Chat. |
-| **Cursor** | `.cursor/rules/*.mdc`, `.cursor/commands/`, hooks merged into `.cursor/hooks.json` | Open the project in Cursor; the `/light-*` commands are available in chat. |
-| **Codex** | `AGENTS.md`, `.codex/agents/*.toml`, `.agents/skills/`, hooks merged into `.codex/hooks.json` | Start `codex` in the project, run `/hooks` once to trust the hooks, and copy `.codex/prompts/*` to `~/.codex/prompts/` for the `/light-*` commands (a user-level install already places them there). |
+| **Claude Code** | `CLAUDE.md`, `.claude/{agents,skills}`, hooks merged into `.claude/settings.json` | Open the project and run `light-init`. |
+| **GitHub Copilot** | `.github/copilot-instructions.md`, `.github/{agents,skills}`, `.github/hooks/light-kit.json` | Open the repository in VS Code; the `light-*` skills are available in Copilot Chat. |
+| **Cursor** | `.cursor/rules/*.mdc`, one rule per agent and skill, hooks merged into `.cursor/hooks.json` | Open the project in Cursor; the `light-*` skills are available in chat. |
+| **Codex** | `AGENTS.md`, `.codex/agents/*.toml`, `.agents/skills/`, hooks merged into `.codex/hooks.json` | Start `codex` in the project and run `/hooks` once to trust the hooks; the `light-*` skills are picked up from `.agents/skills/`. |
 
-At project and workspace level, `AGENTS.md` is also written for Copilot and Cursor. At user level, Cursor rules are not installed (Cursor keeps user rules in its settings); Copilot prompts go to the prompt folder of each VS Code edition and profile, which is where Copilot Chat reads user prompt files, so the `/light-*` commands work in every project.
+Every command is a skill with the same name, so there are no client-specific prompt or command files to keep in step: the commands `light-init`, `light-request`, `light-plan`, `light-implement`, `light-review`, `light-status`, `light-triage`, `light-bootstrap`, `light-standardize` and `light-audit` are skills like the others, and a client invokes them by name or from its description.
+
+At project and workspace level, `AGENTS.md` is also written for Copilot and Cursor. At user level, Cursor rules are not installed (Cursor keeps user rules in its settings).
 
 Install levels, detection rules, all flags, the generated layout and uninstall: [docs/installation.md](docs/installation.md).
 
@@ -66,29 +68,31 @@ Soft is the default: it removes every file the installer generated and leaves yo
 
 ## Get started
 1. Install the kit.
-2. Open the project in your AI client and run `/light-init`. It detects the stack and turns the kit on for this project (`.light-kit/project-profile.md`).
+2. Open the project in your AI client and run `light-init`. It detects the stack and turns the kit on for this project (`.light-kit/project-profile.md`).
 3. Ask for work:
    ```
-   /light-request "Add an export button to the report page"
+   light-request Add an export button to the report page
    ```
    The request is triaged. Easy work starts immediately; complex work is clarified first. Artifacts land in `specs/001-add-export-button/`.
-4. `/light-status` shows where every request stands.
+4. `light-status` shows where every request stands.
 
-For a new project, run `/light-bootstrap "<what the project is for>"` after `/light-init` to define the vision, architecture and skeleton.
+For a new project, run `light-bootstrap <what the project is for>` after `light-init` to define the vision, architecture and skeleton.
 
 ## Commands
-| Command | What it does |
+Each command is a skill: invoke it by name, or describe what you want and its description selects it.
+
+| Skill | What it does |
 |---|---|
-| `/light-init` | Set up the kit in this project: profile, codebase map, assessment. |
-| `/light-request "<what you want>"` | Start a request; triage picks the workflow and runs it end to end. |
-| `/light-triage "<request>"` | Score a request and recommend a workflow without running it. |
-| `/light-plan <specs/NNN-slug>` | Produce or refresh discovery, design and plan for a request. |
-| `/light-implement <specs/NNN-slug>` | Implement an existing request's plan, task by task. |
-| `/light-review <specs/NNN-slug>` | Review a request's implementation. |
-| `/light-status [specs/NNN-slug]` | Show request state, current step and blockers. |
-| `/light-bootstrap "<project idea>"` | Define the vision, architecture and skeleton of a new project. |
-| `/light-standardize [S-01 …]` | Apply the standardization items found by init. |
-| `/light-audit [--apply]` | Find kit guidance that a newer model no longer needs. |
+| `light-init` | Set up the kit in this project: profile, codebase map, assessment. |
+| `light-request` | Start a request; triage picks the workflow and runs it end to end. |
+| `light-triage` | Score a request and recommend a workflow without running it. |
+| `light-plan` | Produce or refresh discovery, design and plan for a request. |
+| `light-implement` | Implement an existing request's plan, task by task. |
+| `light-review` | Review a request's implementation. |
+| `light-status` | Show request state, current step and blockers. |
+| `light-bootstrap` | Define the vision, architecture and skeleton of a new project. |
+| `light-standardize` | Apply the standardization items found by init. |
+| `light-audit` | Find kit guidance that a newer model no longer needs. |
 
 ## Documentation
 | File | Contents |

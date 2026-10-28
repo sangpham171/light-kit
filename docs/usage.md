@@ -1,14 +1,14 @@
 # Usage
 
 ## Setting up a project
-`/light-init` prepares the project once:
-- **Existing project (adopt):** detects the stack and conventions, writes `.light-kit/project-profile.md` and a one-time `.light-kit/codebase-map.md`, then assesses the project against **its own** standards (what is good, what deviates). It proposes only minor, behavior-preserving, non-breaking fixes in `.light-kit/standardization-backlog.md` (never refactors) and changes nothing until you run `/light-standardize` (all items, or some by id; one verified commit per item, on a work branch).
-- **New project (greenfield):** asks for stack and constraints, proposes best practices, writes the profile. Then run `/light-bootstrap` to define the vision, architecture and a working skeleton.
+`light-init` prepares the project once:
+- **Existing project (adopt):** detects the stack and conventions, writes `.light-kit/project-profile.md` and a one-time `.light-kit/codebase-map.md`, then assesses the project against **its own** standards (what is good, what deviates). It proposes only minor, behavior-preserving, non-breaking fixes in `.light-kit/standardization-backlog.md` (never refactors) and changes nothing until you run `light-standardize` (all items, or some by id; one verified commit per item, on a work branch).
+- **New project (greenfield):** asks for stack and constraints, proposes best practices, writes the profile. Then run `light-bootstrap` to define the vision, architecture and a working skeleton.
 
 `.light-kit/project-profile.md` is yours: kit upgrades never overwrite it.
 
 ## How a request flows
-`/light-request "<what you want>"` creates `specs/NNN-slug/` and triages the request:
+`light-request` (with what you want) creates `specs/NNN-slug/` and triages the request:
 
 | Workflow | When | Steps |
 |---|---|---|
@@ -16,7 +16,7 @@
 | `standard` | medium | + discovery, plan; tester and reviewer in parallel |
 | `full` | complex, ambiguous or risky | clarify → discover → design → plan → implement → tester/reviewer/security in parallel → conclude |
 
-Override triage with `--workflow`. The `bootstrap` workflow (new projects, started by `/light-bootstrap` rather than triage) runs vision → architecture → plan → skeleton → review.
+Override triage with `--workflow`. The `bootstrap` workflow (new projects, started by `light-bootstrap` rather than triage) runs vision → architecture → plan → skeleton → review.
 
 Artifacts: `00-request`, `10-understanding`, `20-discovery`, `30-design`, `40-plan`, `50-implementation`, `60-conclusion`, plus `status.md`. Skip files the workflow does not need.
 
@@ -53,7 +53,7 @@ The count is best-effort: usage written to a separate subagent transcript is not
 light-orchestrator, light-product-owner, light-business-analyst, light-ux-designer, light-architect, light-tech-lead, light-developer, light-tester, light-reviewer, light-security-reviewer, light-tech-writer. Any agent or command can be invoked manually.
 
 ## Names
-Everything your AI client lists is prefixed `light-`, so it never clashes with other frameworks: agents (`light-developer`), skills (`light-commit`), commands (`/light-init`, `/light-request`, `/light-bootstrap`, `/light-standardize`, `/light-triage`, `/light-plan`, `/light-implement`, `/light-review`, `/light-status`, `/light-audit`) and Cursor rules. The kit's own folder is `.light-kit`, and its hooks and workflows live inside it. Your project's request folders stay `specs/`. When you upgrade, the installer removes the obsolete generated files of the earlier names (only files carrying the light-kit marker; your own files are never touched).
+Everything your AI client lists is prefixed `light-`, so it never clashes with other frameworks: agents (`light-developer`), skills (`light-commit`) and Cursor rules. The commands are skills too (`light-init`, `light-request`, `light-bootstrap`, `light-standardize`, `light-triage`, `light-plan`, `light-implement`, `light-review`, `light-status`, `light-audit`), so every client reads them from the same standard skill folder and none needs a client-specific prompt file. The kit's own folder is `.light-kit`, and its hooks and workflows live inside it. Your project's request folders stay `specs/`. When you upgrade, the installer removes the obsolete generated files of the earlier names (only files carrying the light-kit marker; your own files are never touched).
 
 ## Decisions
 The agents decide and move on: they pick the best option, record it with a one-line reason, and tell you in one line. They stop to ask only when two or more options are genuinely equivalent, or when a fact only you have is missing. Questions are short, plain and functional, with trade-offs as a comparison table (`light-approval-summary` skill).
