@@ -179,7 +179,7 @@ test('hooks: branch protection looks at the repository being committed to', () =
 
 test('workspace instructions are generated', () => {
   const d = mk('api/.git', 'web/.git'); asRoot(d);
-  const init = readFileSync(join(d, '.claude/commands/light-init.md'), 'utf8');
+  const init = readFileSync(join(d, '.claude/skills/light-init/SKILL.md'), 'utf8');
   assert.match(init, /Workspace procedure/);
   assert.match(readFileSync(join(d, '.claude/skills/light-request-branch/SKILL.md'), 'utf8'), /repos:/);
   assert.match(readFileSync(join(d, '.claude/agents/light-orchestrator.md'), 'utf8'), /project-scope/);
@@ -196,44 +196,47 @@ const userHook = (h, cwd, event, payload, client = 'claude') => {
 
 test('user level: files land where each client reads user-wide config', () => {
   const h = home();
-  // A VS Code install with a second profile: prompts must reach both prompt folders.
+  // A VS Code install with a second profile: an earlier version's prompt files must be found and swept.
   const vscodeUser = vscodeUserDir('Code');
   mkdirSync(join(h, vscodeUser, 'profiles/work'), { recursive: true });
   userInstall(h, ['claude', 'copilot', 'cursor', 'codex']);
   const has = (p) => existsSync(join(h, p));
-  const promptDirs = vscodePromptDirs(h);
-  for (const p of ['.claude/agents/light-orchestrator.md', '.claude/commands/light-request.md', '.claude/skills/light-commit/SKILL.md', '.claude/CLAUDE.md', '.claude/settings.json',
-    '.copilot/agents/light-reviewer.agent.md', '.copilot/skills/light-triage/SKILL.md', '.copilot/copilot-instructions.md', '.copilot/hooks/light-kit.json',
-    '.cursor/commands/light-request.md', '.cursor/hooks.json',
-    '.codex/agents/light-developer.toml', '.codex/prompts/light-request.md', '.codex/AGENTS.md', '.codex/hooks.json', '.agents/skills/light-triage/SKILL.md',
+  for (const p of ['.claude/agents/light-orchestrator.md', '.claude/skills/light-request/SKILL.md', '.claude/skills/light-commit/SKILL.md', '.claude/CLAUDE.md', '.claude/settings.json',
+    '.copilot/agents/light-reviewer.agent.md', '.copilot/skills/light-triage/SKILL.md', '.copilot/skills/light-request/SKILL.md', '.copilot/copilot-instructions.md', '.copilot/hooks/light-kit.json',
+    '.cursor/hooks.json',
+    '.codex/agents/light-developer.toml', '.agents/skills/light-request/SKILL.md', '.codex/AGENTS.md', '.codex/hooks.json', '.agents/skills/light-triage/SKILL.md',
     '.light-kit/workflows/full.md', '.light-kit/templates/project-profile.md', '.light-kit/hooks/run.mjs', '.light-kit/hooks.config.json', '.light-kit/kit.config.json'])
     assert.ok(has(p), p);
-  for (const p of ['CLAUDE.md', 'AGENTS.md', 'kit.config.json', '.github', '.cursor/rules', '.copilot/prompts', '.light-kit/project-profile.md', '.light-kit/projects.md', 'specs'])
+  for (const p of ['CLAUDE.md', 'AGENTS.md', 'kit.config.json', '.github', '.cursor/rules', '.cursor/commands', '.codex/prompts', '.light-kit/project-profile.md', '.light-kit/projects.md', 'specs'])
     assert.equal(has(p), false, `${p} must not be created in the home folder`);
-  // VS Code reads user prompt files from its profile storage: default profile and each named profile
-  assert.deepEqual(promptDirs, [`${vscodeUser}/prompts`, `${vscodeUser}/profiles/work/prompts`]);
-  for (const dir of promptDirs) {
-    const prompt = readFileSync(join(h, dir, 'light-request.prompt.md'), 'utf8');
-    assert.match(prompt, /\$\{input:request/);
-    assert.match(prompt, /light-kit:generated/);
-  }
+  assert.equal(has('.github/prompts'), false, 'copilot prompt files are not installed any more');
+  assert.deepEqual(vscodePromptDirs(h), [`${vscodeUser}/prompts`, `${vscodeUser}/profiles/work/prompts`]);
   assert.equal(JSON.parse(readFileSync(join(h, '.light-kit/kit.config.json'), 'utf8')).level, 'user');
 });
 
-test('user level: prompts go to the default VS Code folder when the editor folder is missing, and the old Copilot folder is swept', () => {
+test('user level: command files an earlier version wrote are swept, in the harness folder and every VS Code profile', () => {
   const h = home('.copilot/prompts');
   writeFileSync(join(h, '.copilot/prompts/light-request.prompt.md'), '<!-- light-kit:generated -->\nold\n');
   writeFileSync(join(h, '.copilot/prompts/mine.prompt.md'), 'not ours\n');
+  const vscodeUser = vscodeUserDir('Code');
+  for (const dir of [`${vscodeUser}/prompts`, `${vscodeUser}/profiles/work/prompts`]) {
+    mkdirSync(join(h, dir), { recursive: true });
+    writeFileSync(join(h, dir, 'light-request.prompt.md'), '<!-- light-kit:generated -->\nold\n');
+    writeFileSync(join(h, dir, 'mine.prompt.md'), 'not ours\n');
+  }
   const r = userInstall(h, ['copilot']);
-  const [dir] = vscodePromptDirs(h);
-  assert.ok(existsSync(join(h, dir, 'light-request.prompt.md')), dir);
   assert.ok(r.removed.includes('.copilot/prompts/light-request.prompt.md'));
   assert.equal(existsSync(join(h, '.copilot/prompts/mine.prompt.md')), true);
+  for (const dir of vscodePromptDirs(h)) {
+    assert.equal(existsSync(join(h, dir, 'light-request.prompt.md')), false, dir);
+    assert.equal(existsSync(join(h, dir, 'mine.prompt.md')), true, dir);
+  }
+  assert.ok(existsSync(join(h, '.copilot/skills/light-request/SKILL.md')));
 });
 
 test('user level: shared kit paths point at ~/.light-kit, project knowledge stays relative', () => {
   const h = home(); userInstall(h, ['claude']);
-  const init = readFileSync(join(h, '.claude/commands/light-init.md'), 'utf8');
+  const init = readFileSync(join(h, '.claude/skills/light-init/SKILL.md'), 'utf8');
   assert.match(init, /~\/\.light-kit\/templates\/project-profile\.md/);
   assert.doesNotMatch(init, /[^~/]\.light-kit\/templates/);
   assert.match(init, /not enabled yet/);
@@ -243,7 +246,7 @@ test('user level: shared kit paths point at ~/.light-kit, project knowledge stay
   assert.match(readFileSync(join(h, '.claude/agents/light-orchestrator.md'), 'utf8'), /\.light-kit\/projects\.md/);
   // the same kit installed at project level keeps plain relative paths
   const p = mk(); install(p, ['claude']);
-  assert.doesNotMatch(readFileSync(join(p, '.claude/commands/light-init.md'), 'utf8'), /~\/\.light-kit/);
+  assert.doesNotMatch(readFileSync(join(p, '.claude/skills/light-init/SKILL.md'), 'utf8'), /~\/\.light-kit/);
 });
 
 test('user level: hooks run from $HOME, existing user settings are kept, re-run is a no-op', () => {
@@ -293,7 +296,7 @@ test('user level hooks: safety applies in every project, workflow hooks only whe
   assert.match(wr(enabled, 'src/a.txt').out, /no active request/);
   assert.equal(userHook(h, plain, 'pre-tool', bash('git commit -m x')).code, 0); // not forced on other repos
   assert.equal(userHook(h, enabled, 'pre-tool', bash('git commit -m x')).code, 2);
-  assert.match(JSON.parse(userHook(h, plain, 'session-start', {}).out).hookSpecificOutput.additionalContext, /run the `light-init` command/);
+  assert.match(JSON.parse(userHook(h, plain, 'session-start', {}).out).hookSpecificOutput.additionalContext, /run the `light-init` skill/);
   assert.match(JSON.parse(userHook(h, enabled, 'session-start', {}).out || '{"hookSpecificOutput":{"additionalContext":""}}').hookSpecificOutput.additionalContext, /^((?!not set up).)*$/s);
 });
 

@@ -46,7 +46,7 @@ function coreParts(text, rules) {
 function fromSource(dir) {
   const rules = JSON.parse(read(join(dir, 'audit', 'rules.json')));
   const comps = [];
-  for (const [type, sub] of [['agent', 'agents'], ['prompt', 'prompts'], ['workflow', 'workflows']])
+  for (const [type, sub] of [['agent', 'agents'], ['workflow', 'workflows']])
     for (const f of list(join(dir, sub)).filter((e) => e.name.endsWith('.md'))) {
       const d = parseDoc(read(join(dir, sub, f.name)));
       comps.push({ type, id: d.meta.name ?? f.name, purpose: d.meta.purpose, description: d.meta.description ?? '', text: d.body });
@@ -84,21 +84,23 @@ const normalise = (s) => s.toLowerCase().replace(/[`*_>#|]/g, '').replace(/^[-\d
 
 function analyse(k) {
   const comps = k.comps.map((c) => ({ ...c, tokens: tokens(c.text), purpose: PURPOSES.includes(c.purpose) ? c.purpose : 'unclassified' }));
-  const known = new Set(comps.filter((c) => ['agent', 'skill', 'prompt'].includes(c.type)).map((c) => c.id));
+  const known = new Set(comps.filter((c) => ['agent', 'skill'].includes(c.type)).map((c) => c.id));
   const index = comps.filter((c) => known.has(c.id)).reduce((n, c) => n + tokens(`${c.id} ${c.description ?? ''}`), 0);
   const core = comps.filter((c) => c.type === 'rule' || c.type === 'instruction').reduce((n, c) => n + c.tokens, 0);
 
-  // who refers to whom; the Roles and Commands lists only enumerate, so they do not count as use
+  // who refers to whom; the Roles list only enumerates, so it does not count as use
   const usedBy = new Map([...known].map((id) => [id, new Set()]));
   const stale = new Map();
   for (const c of comps) {
-    if (c.type === 'template' || c.id === 'section: Roles' || c.id === 'section: Commands') continue;
+    if (c.type === 'template' || c.id === 'section: Roles') continue;
     for (const [, id] of c.text.matchAll(ID)) {
       if (id === 'light-kit') continue;
       if (!known.has(id)) { stale.set(id, [...(stale.get(id) ?? []), c.id]); continue; }
-      if (id !== c.id || c.type === 'prompt') usedBy.get(id).add(c.id); // a command may share its skill's name and still use it
+      if (id !== c.id) usedBy.get(id).add(c.id);
     }
   }
+  // Entry points are listed in the Commands section for the user, not called by another component.
+  for (const [, id] of (comps.find((c) => c.id === 'section: Commands')?.text ?? '').matchAll(ID)) usedBy.get(id)?.add('the user');
   const unreferenced = comps.filter((c) => (c.type === 'skill' || c.type === 'agent') && usedBy.get(c.id)?.size === 0).map((c) => c.id);
 
   const seen = new Map();
@@ -117,7 +119,7 @@ function analyse(k) {
   const sum = (t) => comps.filter((c) => c.type === t).reduce((n, c) => n + c.tokens, 0);
   return {
     mode: k.mode, where: k.where, level: k.level, clients: k.clients, date: new Date().toISOString().slice(0, 10),
-    totals: { alwaysLoaded: core + index, core, index, onDemand: { agents: sum('agent'), skills: sum('skill'), commands: sum('prompt'), workflows: sum('workflow') } },
+    totals: { alwaysLoaded: core + index, core, index, onDemand: { agents: sum('agent'), skills: sum('skill'), workflows: sum('workflow') } },
     components: comps.map(({ type, id, purpose, tokens: t, missingFile }) => ({ type, id, purpose, tokens: t, ...(missingFile && { missingFile }) })),
     guards: k.guards,
     findings: {
@@ -134,8 +136,8 @@ function markdown(r) {
   const byCost = [...r.components].sort((a, b) => b.tokens - a.tokens);
   const L = [`# light-kit audit`, `${r.mode === 'source' ? 'Kit sources' : `Installed kit (${r.level ?? '?'} level, clients: ${(r.clients ?? []).join(', ') || '?'})`} · ${r.where} · ${r.date}`, '',
     '## Cost (estimated tokens, 4 characters each)',
-    `- **Loaded every session: ${r.totals.alwaysLoaded}** (instructions ${r.totals.core}, name and description index of agents, skills and commands ${r.totals.index})`,
-    `- Loaded only when used: agents ${r.totals.onDemand.agents}, skills ${r.totals.onDemand.skills}, commands ${r.totals.onDemand.commands}, workflows ${r.totals.onDemand.workflows}`,
+    `- **Loaded every session: ${r.totals.alwaysLoaded}** (instructions ${r.totals.core}, name and description index of agents and skills ${r.totals.index})`,
+    `- Loaded only when used: agents ${r.totals.onDemand.agents}, skills ${r.totals.onDemand.skills}, workflows ${r.totals.onDemand.workflows}`,
     `- Guards (deterministic hook code, no context cost): ${r.guards.length}`, '',
     '## Most expensive', '| type | id | purpose | tokens |', '|---|---|---|---|', ...byCost.slice(0, 12).map(row), '',
     '## Necessity test candidates (purpose: compensation, most expensive first)', '| type | id | purpose | tokens |', '|---|---|---|---|', ...byCost.filter((c) => c.purpose === 'compensation').map(row), '',

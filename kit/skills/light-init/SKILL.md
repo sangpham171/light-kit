@@ -1,18 +1,17 @@
 ---
 name: light-init
-description: Set up light-kit for this project — detect or ask for language, framework and constraints, then fill the project profile.
+description: Set up light-kit for this project — detect or ask for language, framework and constraints, then fill the project profile, codebase map, assessment and hooks. Use when the project has no .light-kit/ yet or its profile is still empty.
 purpose: structure
-argument-hint: "[adopt | greenfield]"
 ---
 
 # Init
+
+The user may name the mode (`adopt` or `greenfield`) in the request. If they do not, decide: a folder with existing code is **adopt**, an empty one is **greenfield** with best practices; ask only if it is truly unclear.
 
 First work out where the kit is set up:
 - `kit.config.json` has `level: workspace`: this folder is a **workspace of several projects**; follow *Workspace procedure* below.
 - This project has no `.light-kit/` folder and no `kit.config.json`: the kit was installed once for the user (in the home folder) and this project is **not enabled yet**. Create `.light-kit/` here and seed `project-profile.md` from `.light-kit/templates/project-profile.md` and `hooks.config.json` from `.light-kit/templates/project-hooks.config.json`, then follow the project steps. (Shared files such as workflows and templates stay in the home folder; only this project's knowledge lives here.)
 - Otherwise follow the project steps.
-
-Mode: `$ARGUMENTS`. If empty, decide: a folder with existing code is **adopt**, an empty one is **greenfield** with best practices; ask only if it is truly unclear.
 
 1. **Adopt:** inspect the repo (manifests, CI config, test layout, linters, README, existing AI instruction files). Summarise what you detected in a few lines, flagging anything uncertain; do not wait for confirmation.
    **Greenfield:** ask only for what the request does not already say (language(s), framework(s), hosting, constraints); propose a default for the rest. Apply the best practices for that stack by default and mention them in one line.

@@ -18,7 +18,7 @@ export default {
       lines.push(`The client reports ${reported.join(' and ')}; use ${reported.length > 1 ? 'them' : 'it'} as ${labels} in the \`runs:\` headers you write.`);
     }
     if (ctx.userLevel && !ctx.kitEnabled) {
-      if (cfg.suggestInit) lines.unshift('light-kit is installed for your user but not set up in this project. Safety hooks apply here. To enable specs, the profile and the commit and branch workflow, run the `light-init` command.');
+      if (cfg.suggestInit) lines.unshift('light-kit is installed for your user but not set up in this project. Safety hooks apply here. To enable specs, the profile and the commit and branch workflow, run the `light-init` skill.');
       return lines.length ? { message: lines.join('\n') } : null;
     }
     const kit = (dir, file) => existsSync(join(dir, '.light-kit', file));

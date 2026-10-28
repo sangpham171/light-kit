@@ -1,10 +1,12 @@
 ---
 name: light-audit
-description: Audit the kit's own instructions, skills, agents and commands to find guidance a newer model no longer needs. Run after a model upgrade.
+description: Audit the kit's own instructions, skills, agents and workflows to find guidance a newer model no longer needs. Run after a model upgrade.
 purpose: structure
 ---
 
 # Audit the kit
+
+Used after a model upgrade, or when the user asks what the kit should drop. If the request contains `--apply`, and only in the kit's own repository, apply the high-confidence verdicts (step 6); otherwise report only.
 
 Models improve. Guidance written for an older model can become dead weight (tokens every session) or get in the way. The subject is the **kit**, not the user's project.
 
@@ -15,7 +17,7 @@ Run the static report: `node .light-kit/audit/audit.mjs` (user level: `node ~/.l
 | Purpose | Meaning | What to do |
 |---|---|---|
 | compensation | exists because a model needed it (checklists, "never do X", step-by-step procedures) | necessity test (step 3) |
-| structure | process design (roles, artifacts, workflows, commands) | is it still worth its cost? merge, shorten or drop if a capable model needs less ceremony |
+| structure | process design (roles, artifacts, workflows) | is it still worth its cost? merge, shorten or drop if a capable model needs less ceremony |
 | preference | the user's wishes (concise output, commit rules, how to ask) | keep: a better model does not change a preference. Shorten only if wordy |
 | enforcement | backed by hooks or safety | keep; never remove on model grounds |
 

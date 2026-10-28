@@ -10,7 +10,7 @@ import { homedir } from 'node:os';
 import { join, dirname, resolve, basename, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createInterface } from 'node:readline';
-import { build, loadKit, isManaged, HOOK_MARK, START, END, CLIENT_NAMES } from './build.mjs';
+import { build, loadKit, isManaged, HOOK_MARK, START, END, CLIENT_NAMES, legacyPromptRoots } from './build.mjs';
 import { findObsolete, detectProjects, detectClients } from './install.mjs';
 
 // Seeds that hold the user's own knowledge. Soft keeps them; hard removes them with the folder that contains them.
@@ -94,8 +94,8 @@ function removeFolders(target, { level, projects, report, dryRun }) {
 export function uninstall(target, clients, { level = 'project', projects = [], hard = false, dryRun = false } = {}) {
   const files = build(loadKit(), clients, { hooks: true, level, projects, home: target });
   const configPath = level === 'user' ? '.light-kit/kit.config.json' : 'kit.config.json';
-  // Prompts an earlier version wrote to the Copilot harness folder are not in the built list any more.
-  const staleRoots = level === 'user' && clients.includes('copilot') ? ['.copilot/prompts'] : [];
+  // Command files an earlier version wrote are not in the built list any more.
+  const staleRoots = legacyPromptRoots(clients, level, target);
   const report = { removed: [], cleaned: [], kept: [], skipped: [] };
   const removedAbs = [];
   const remove = (rel) => {

@@ -57,7 +57,7 @@ export function loadKit() {
   return {
     hooks: loadFiles('hooks'),
     audit: loadFiles('audit'),
-    agents: load('agents'), skills: load('skills'), prompts: load('prompts'),
+    agents: load('agents'), skills: load('skills'),
     workflows: load('workflows'), profiles: load('profiles'),
     core: load('instructions').find((d) => d.meta.name === 'core'),
     templates: readdirSync(join(KIT_DIR, 'templates')).sort().map((f) => ({ file: f, text: readFileSync(join(KIT_DIR, 'templates', f), 'utf8') })),
@@ -69,7 +69,7 @@ export function lint(kit) {
   const errors = [];
   const names = new Set(kit.agents.map((a) => a.meta.name));
   const skills = new Set(kit.skills.map((s) => s.meta.name));
-  for (const d of [...kit.agents, ...kit.skills, ...kit.prompts, ...kit.workflows, ...kit.profiles])
+  for (const d of [...kit.agents, ...kit.skills, ...kit.workflows, ...kit.profiles])
     for (const k of ['name', 'description'])
       if (!d.meta[k]) errors.push(`${d.file}: missing ${k}`);
   for (const s of kit.workflows) {
@@ -78,9 +78,9 @@ export function lint(kit) {
     for (const m of s.body.matchAll(/skill:\s*([\w-]+)/g))
       if (!skills.has(m[1])) errors.push(`workflow ${s.meta.name}: unknown skill ${m[1]}`);
   }
-  // every agent, skill, command and workflow says why it exists, so the audit knows which test applies
+  // every agent, skill and workflow says why it exists, so the audit knows which test applies
   const PURPOSES = ['compensation', 'preference', 'enforcement', 'structure'];
-  for (const d of [...kit.agents, ...kit.skills, ...kit.prompts, ...kit.workflows])
+  for (const d of [...kit.agents, ...kit.skills, ...kit.workflows])
     if (!PURPOSES.includes(d.meta.purpose)) errors.push(`${d.file}: purpose must be one of ${PURPOSES.join(', ')}`);
   const rules = JSON.parse(kit.audit.find((f) => f.rel === 'rules.json').text);
   const titles = [...kit.core.body.matchAll(/^## (.+)$/gm)].map((m) => m[1].trim()).filter((t) => t !== 'Rules');
@@ -96,17 +96,8 @@ const TOOLS = {
 };
 const mapTools = (client, tools = []) => [...new Set(tools.flatMap((t) => TOOLS[client][t] ?? []))];
 
-// How a prompt refers to the user's text, per client.
-const ARGS = {
-  claude: '$ARGUMENTS',
-  codex: '$ARGUMENTS',
-  copilot: '${input:request:What do you want?}',
-  cursor: "the text the user typed after the command",
-};
-
 const fm = (obj) => `---\n${Object.entries(obj).filter(([, v]) => v !== undefined).map(([k, v]) => `${k}: ${v}`).join('\n')}\n---\n`;
 const withMarker = (frontmatter, body) => `${frontmatter}${GENERATED}\n\n${body.trimEnd()}\n`;
-const promptBody = (client, p) => p.body.replaceAll('$ARGUMENTS', ARGS[client]);
 
 const PARALLEL_NOTE = {
   claude: '',
@@ -127,8 +118,6 @@ const CLIENTS = {
     const out = [];
     for (const a of kit.agents)
       out.push({ path: `.claude/agents/${a.meta.name}.md`, content: withMarker(fm({ name: a.meta.name, description: q(a.meta.description), tools: mapTools('claude', a.meta.tools).join(', ') }), a.body) });
-    for (const p of kit.prompts)
-      out.push({ path: `.claude/commands/${p.meta.name}.md`, content: withMarker(fm({ description: q(p.meta.description), 'argument-hint': p.meta['argument-hint'] && q(p.meta['argument-hint']) }), promptBody('claude', p)) });
     for (const s of kit.skills)
       out.push({ path: `.claude/skills/${s.meta.name}/SKILL.md`, content: withMarker(fm({ name: s.meta.name, description: q(s.meta.description) }), s.body) });
     out.push({ path: 'CLAUDE.md', block: instructionBlock(kit, 'claude') });
@@ -138,8 +127,6 @@ const CLIENTS = {
     const out = [];
     for (const a of kit.agents)
       out.push({ path: `.github/agents/${a.meta.name}.agent.md`, content: withMarker(fm({ name: a.meta.name, description: q(a.meta.description) }), a.body) });
-    for (const p of kit.prompts)
-      out.push({ path: `.github/prompts/${p.meta.name}.prompt.md`, content: withMarker(fm({ description: q(p.meta.description), agent: 'agent' }), promptBody('copilot', p)) });
     for (const s of kit.skills)
       out.push({ path: `.github/skills/${s.meta.name}/SKILL.md`, content: withMarker(fm({ name: s.meta.name, description: q(s.meta.description) }), s.body) });
     out.push({ path: '.github/copilot-instructions.md', block: instructionBlock(kit, 'copilot') });
@@ -152,8 +139,6 @@ const CLIENTS = {
     out.push(rule('light-kit-core', kit.core.meta.description, instructionBlock(kit, 'cursor').replace(START, '').replace(END, ''), true));
     for (const a of kit.agents) out.push(rule(`${a.meta.name}`, `Agent role: ${a.meta.description}`, a.body));
     for (const s of kit.skills) out.push(rule(`${s.meta.name}`, s.meta.description, s.body));
-    for (const p of kit.prompts)
-      out.push({ path: `.cursor/commands/${p.meta.name}.md`, content: `${GENERATED}\n\n${promptBody('cursor', p).trimEnd()}\n` });
     return out;
   },
   codex(kit) {
@@ -163,9 +148,6 @@ const CLIENTS = {
       out.push({ path: `.codex/agents/${a.meta.name}.toml`, content: `# light-kit:generated\nname = ${tq(a.meta.name)}\ndescription = ${tq(a.meta.description)}\ndeveloper_instructions = \'\'\'\n${a.body.trimEnd()}\n\'\'\'\n` });
     for (const s of kit.skills)
       out.push({ path: `.agents/skills/${s.meta.name}/SKILL.md`, content: withMarker(fm({ name: s.meta.name, description: q(s.meta.description) }), s.body) });
-    // Custom prompts are not confirmed for project scope; emitted for manual copy to ~/.codex/prompts.
-    for (const p of kit.prompts)
-      out.push({ path: `.codex/prompts/${p.meta.name}.md`, content: withMarker(fm({ description: q(p.meta.description), 'argument-hint': p.meta['argument-hint'] && q(p.meta['argument-hint']) }), promptBody('codex', p)) });
     return out;
   },
 };
@@ -220,15 +202,15 @@ export function mergeHooks(existingText, desired) {
 }
 
 // ---------- user level (the kit installed once in the home folder, for every project) ----------
-// VS Code reads user prompt files from its profile storage, not from the harness folder ~/.copilot/prompts.
+// An earlier version wrote one prompt file per command into VS Code's profile storage.
 const VSCODE_USER = { darwin: 'Library/Application Support', linux: '.config', win32: 'AppData/Roaming' };
 const VSCODE_EDITIONS = ['Code', 'Code - Insiders', 'VSCodium', 'VSCodium - Insiders'];
 
 // The user data root of one VS Code edition, relative to the home folder.
 export const vscodeUserDir = (edition = 'Code', platform = process.platform) => `${VSCODE_USER[platform] ?? VSCODE_USER.linux}/${edition}/User`;
 
-// Prompt folders VS Code reads at user level: every edition and profile found under `home`, else the stable
-// default so a fresh machine still gets them where VS Code will look.
+// Prompt folders VS Code reads at user level (every edition and profile found under `home`, else the stable
+// default). The kit writes no prompts now, so this only locates the files an earlier version left behind.
 export function vscodePromptDirs(home, platform = process.platform) {
   const out = [];
   for (const edition of VSCODE_EDITIONS) {
@@ -245,18 +227,26 @@ export function vscodePromptDirs(home, platform = process.platform) {
 // Where each client reads user-wide files, relative to the home folder. An empty list = no user-level equivalent.
 const USER_PATHS = {
   claude: (p) => (p === 'CLAUDE.md' ? ['.claude/CLAUDE.md'] : [p]),
-  copilot: (p, home) => {
+  copilot: (p) => {
     if (p === '.github/copilot-instructions.md') return ['.copilot/copilot-instructions.md'];
-    if (p.startsWith('.github/prompts/')) return vscodePromptDirs(home).map((d) => `${d}/${basename(p)}`);
     return [p.replace(/^\.github\/(agents|skills|hooks)\//, '.copilot/$1/')];
   },
   cursor: (p) => (p.startsWith('.cursor/rules/') ? [] : [p]),
   codex: (p) => (p === 'AGENTS.md' ? ['.codex/AGENTS.md'] : [p]),
 };
 export const USER_NOTES = {
-  copilot: 'Copilot: agents, skills, instructions and hooks go to ~/.copilot; prompts go to the VS Code prompt folder of each edition and profile, where Copilot Chat reads them.',
-  cursor: 'Cursor: user rules live in its settings, not in files, so only commands and hooks are installed globally. Use a project-level install to get agent roles and skills as rules.',
+  copilot: 'Copilot: agents, skills, instructions and hooks go to ~/.copilot.',
+  cursor: 'Cursor: user rules live in its settings, not in files, so only hooks are installed globally. Use a project-level install to get agent roles and skills as rules.',
 };
+
+// Where an earlier kit version wrote one file per slash command. Commands are skills now, so nothing is
+// generated there; the installer sweeps the marker files it once wrote so they do not linger beside the skills.
+export function legacyPromptRoots(clients, level = 'project', home = homedir()) {
+  const project = { claude: ['.claude/commands'], copilot: ['.github/prompts'], cursor: ['.cursor/commands'], codex: ['.codex/prompts'] };
+  const user = { claude: ['.claude/commands'], copilot: ['.copilot/prompts', ...vscodePromptDirs(home)], cursor: ['.cursor/commands'], codex: ['.codex/prompts'] };
+  const table = level === 'user' ? user : project;
+  return [...new Set(clients.flatMap((c) => table[c] ?? []))];
+}
 export const USER_CLIENT_FOLDERS = {
   claude: (has) => has('.claude'),
   copilot: (has) => has('.copilot'),
@@ -269,20 +259,20 @@ export const USER_SHARED = '~/.light-kit';
 const adaptText = (t) => t.replace(/(?<![~\w/])\.light-kit\/(workflows|templates|profiles)\b/g, `${USER_SHARED}/$1`);
 const adaptDocs = (list) => list.map((d) => ({ ...d, body: adaptText(d.body) }));
 export function adaptKit(kit) {
-  return { ...kit, agents: adaptDocs(kit.agents), skills: adaptDocs(kit.skills), prompts: adaptDocs(kit.prompts), workflows: adaptDocs(kit.workflows), profiles: adaptDocs(kit.profiles), core: { ...kit.core, body: adaptText(kit.core.body) } };
+  return { ...kit, agents: adaptDocs(kit.agents), skills: adaptDocs(kit.skills), workflows: adaptDocs(kit.workflows), profiles: adaptDocs(kit.profiles), core: { ...kit.core, body: adaptText(kit.core.body) } };
 }
 
 // Seed files are written once and never overwritten: they hold knowledge that people and `init` fill in.
 export const CLIENT_FOLDERS = {
   claude: (has) => has('.claude') || has('CLAUDE.md'),
   cursor: (has) => has('.cursor'),
-  copilot: (has) => ['.github/copilot-instructions.md', '.github/agents', '.github/prompts', '.github/instructions', '.github/hooks'].some(has),
+  copilot: (has) => ['.github/copilot-instructions.md', '.github/agents', '.github/prompts', '.github/skills', '.github/instructions', '.github/hooks'].some(has),
   codex: (has) => has('.codex') || has('.agents'),
 };
 
 // What the audit reads in an installed kit: every component with its purpose and the files generated for it.
 function auditManifest(kit, files, clients, level) {
-  const strip = (p) => basename(p).replace(/\.(agent\.md|prompt\.md|md|toml|mdc)$/, '');
+  const strip = (p) => basename(p).replace(/\.(agent\.md|md|toml|mdc)$/, '');
   const where = (paths, id, dirs) => paths.filter((p) => dirs.some((d) => p.includes(d)) && (basename(p) === 'SKILL.md' ? basename(dirname(p)) === id : strip(p) === id));
   const paths = files.map((f) => f.path);
   const comp = (type, d, dirs) => ({ type, id: d.meta.name, purpose: d.meta.purpose, description: d.meta.description, files: where(paths, d.meta.name, dirs) });
@@ -293,7 +283,6 @@ function auditManifest(kit, files, clients, level) {
     components: [
       ...kit.agents.map((d) => comp('agent', d, ['/agents/', '.cursor/rules/'])),
       ...kit.skills.map((d) => comp('skill', d, ['/skills/', '.cursor/rules/'])),
-      ...kit.prompts.map((d) => comp('prompt', d, ['/commands/', '/prompts/'])),
       ...kit.workflows.map((d) => ({ type: 'workflow', id: d.meta.name, purpose: d.meta.purpose, description: d.meta.description, files: [`${SHARED_DIR}/workflows/${d.file}.md`] })),
     ],
   };
@@ -332,7 +321,7 @@ export function build(kitIn, clients, { hooks = true, level = 'project', project
   else if (clients.some((c) => c !== 'claude')) files.push({ path: 'AGENTS.md', ...agentsBlock });
   for (const c of clients) {
     const own = CLIENTS[c](kit).map((f) => (f.block ? { ...f, block: instructionBlock(kit, c, shared) } : f));
-    // One generated file can land in several user folders (VS Code keeps one prompt folder per profile).
+    // Each generated file has one user-level path (empty = no user-level equivalent).
     files.push(...(user ? own.flatMap((f) => USER_PATHS[c](f.path, home).map((path) => ({ ...f, path }))) : own));
   }
   if (hooks) {
