@@ -6,8 +6,8 @@ runs:
     thinking: high
     level: medium
 usage:
-  tokens: 0 input · 0 cache read · 0 cache write · 0 output · 0 total
-  time: 0s
+  tokens: 86,340 input · 0 cache read · 0 cache write · 402 output · 86,742 total
+  time: 3s
 ---
 
 # Understanding
