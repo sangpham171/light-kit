@@ -56,3 +56,10 @@ usage:
   will outlive the files it looks for.
 - No test checks that a skill description contains wording a model will match on; the entry points rely on
   their descriptions being good.
+
+## Review rounds
+Round 1 (reviewer, checklist `light-review-checklist`):
+- F-1.1 nit, fixed — `README.md`: the get-started example read like a shell command; it now reads
+  `light-request: …`, which is what a user types in chat.
+- F-1.2 nit, fixed — `tools/build.mjs`: `USER_PATHS.copilot` carried a `home` parameter no branch used.
+Verdict: approve. `npm test` 150/150 after the fixes.
