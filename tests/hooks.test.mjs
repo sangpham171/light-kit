@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, rmSync, utimesSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { install } from '../tools/install.mjs';
@@ -130,6 +130,45 @@ test('an implement instruction without a written plan is flagged', () => {
   writeFileSync(join(d, 'specs/001-x/40-plan.md'), '# Plan');
   assert.equal(run(d, 'claude', 'prompt', { prompt: 'implement it' }).out, '');
   assert.equal(run(d, 'claude', 'prompt', { prompt: 'how does login work?' }).out, '');
+});
+
+test('the plan warning ignores questions, refusals and unrelated prompts', () => {
+  const d = project(); withSpec(d);
+  for (const prompt of ['how do I build this?', 'I do not want to do it yet', 'build and run the tests', 'what does this function do', 'no greetings or filler'])
+    assert.equal(run(d, 'claude', 'prompt', { prompt }).out, '', prompt);
+  writeFileSync(join(d, 'specs/001-x/00-request.md'), '# Request');
+  rmSync(join(d, 'specs/001-x/10-understanding.md'));
+  assert.match(JSON.parse(run(d, 'claude', 'prompt', { prompt: 'implement it' }).out).hookSpecificOutput.additionalContext, /00-request\.md/);
+});
+
+test('the plan warning follows the request being worked on, and a nested project', () => {
+  const d = project();
+  withSpec(d); // 001-x: step implement, no plan
+  mkdirSync(join(d, 'specs/002-new'), { recursive: true });
+  writeFileSync(join(d, 'specs/002-new/10-understanding.md'), '# u');
+  writeFileSync(join(d, 'specs/002-new/40-plan.md'), '# p');
+  writeFileSync(join(d, 'specs/002-new/status.md'), '---\nworkflow: standard\nstep: implement\nstate: in-progress\n---\n');
+  utimesSync(join(d, 'specs/001-x'), new Date(Date.now() - 60000), new Date(Date.now() - 60000));
+  assert.equal(run(d, 'claude', 'prompt', { prompt: 'implement it' }).out, ''); // the planned request is the current one
+  utimesSync(join(d, 'specs/002-new'), new Date(Date.now() - 60000), new Date(Date.now() - 60000));
+  utimesSync(join(d, 'specs/001-x'), new Date(), new Date());
+  assert.match(JSON.parse(run(d, 'claude', 'prompt', { prompt: 'implement it' }).out).hookSpecificOutput.additionalContext, /specs\/001-x/);
+
+  const w = project();
+  mkdirSync(join(w, 'app/.light-kit'), { recursive: true });
+  writeFileSync(join(w, '.light-kit/projects.md'), '# Projects');
+  mkdirSync(join(w, 'app/specs/001-x'), { recursive: true });
+  writeFileSync(join(w, 'app/specs/001-x/10-understanding.md'), '# u');
+  writeFileSync(join(w, 'app/specs/001-x/40-plan.md'), '# p');
+  writeFileSync(join(w, 'app/specs/001-x/status.md'), '---\nworkflow: direct\nstep: implement\nstate: in-progress\n---\n');
+  assert.equal(run(w, 'claude', 'prompt', { prompt: 'implement it' }).out, ''); // a planned request in a nested project
+  rmSync(join(w, 'app/specs/001-x/40-plan.md'));
+  assert.match(JSON.parse(run(w, 'claude', 'prompt', { prompt: 'implement it' }).out).hookSpecificOutput.additionalContext, /app\/specs\/001-x/);
+
+  const { home, proj } = userProject();
+  const r = userHook(home, proj, 'prompt', { prompt: 'implement it' });
+  assert.equal(r.stdout, ''); // the project never ran light-init: no spec workflow to remind about
+  assert.equal(r.stderr, '');
 });
 
 test('post-edit quality runs configured commands and reports failures', () => {
