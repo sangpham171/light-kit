@@ -19,7 +19,7 @@ test('audit of the kit sources: inventory, purposes, cost and no broken referenc
   assert.equal(count(rep, 'agent'), kit.agents.length);
   assert.equal(count(rep, 'skill'), kit.skills.length);
   assert.equal(count(rep, 'workflow'), kit.workflows.length);
-  assert.equal(count(rep, 'rule'), 13);
+  assert.equal(count(rep, 'rule'), 14);
   assert.deepEqual(rep.findings.unclassified, []);
   assert.deepEqual(rep.findings.stale, []);
   assert.deepEqual(rep.findings.unreferenced, []);
@@ -61,7 +61,7 @@ test('installed kit: the audit tool and manifest come with every install and agr
   assert.equal(rep.level, 'project');
   assert.equal(count(rep, 'agent'), kit.agents.length);
   assert.equal(count(rep, 'skill'), kit.skills.length);
-  assert.equal(count(rep, 'rule'), 13);
+  assert.equal(count(rep, 'rule'), 14);
   assert.deepEqual(rep.findings.missingFiles, []);
   assert.deepEqual(rep.findings.unclassified, []);
   assert.deepEqual(rep.findings.stale, []);
@@ -83,7 +83,7 @@ test('installed kit at user level: paths in the manifest follow each client\'s u
   const rep = json(join(home, '.light-kit/audit/audit.mjs'));
   assert.equal(rep.level, 'user');
   assert.deepEqual(rep.findings.missingFiles, []);
-  assert.ok(rep.components.filter((c) => c.type === 'rule').length === 13);
+  assert.ok(rep.components.filter((c) => c.type === 'rule').length === 14);
 });
 
 test('audit --record notes the model; it only works on an installed kit', () => {
