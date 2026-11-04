@@ -16,6 +16,7 @@ usage:
 - Task 1 — capture the conversation — core rule, audit purpose, `00-request.md` sections, `light-conversation-capture` skill, orchestrator and request references, kit test.
 - Task 2 — always write the plan — compact plan step in `direct`, adopt-from-chat rules in the implement and plan skills and the developer agent, plan-template note, kit test.
 - Task 3 — automatic nudge — `capture-discussion` prompt hook, `planned` flag in the specs reader, default mode, seed config, hooks README, kit and hook tests.
+- Task 4 — document — `docs/usage.md`, `docs/safety-hooks.md`, `README.md`; the audit test rule count moves to 14 for the new core rule.
 
 ## Technical debt
 None.
@@ -26,6 +27,8 @@ None.
 
 ## Verification (commands run and results)
 - `node --test tests/kit.test.mjs` — pass after tasks 1 and 2.
+- `node --test tests/hooks.test.mjs` — 49 pass after task 3.
+- `npm test` — 153 pass after task 4 (the audit test expected 13 core rules; updated to 14).
 
 ## Review rounds
 <!-- Round n of N (see the `light-review-cycle` skill). One line per finding:

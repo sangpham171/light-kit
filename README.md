@@ -73,7 +73,7 @@ Soft is the default: it removes every file the installer generated and leaves yo
    ```
    light-request: add an export button to the report page
    ```
-   The request is triaged. Easy work starts immediately; complex work is clarified first. Artifacts land in `specs/001-add-export-button/`.
+   The request is triaged. Easy work starts immediately; complex work is clarified first. Artifacts land in `specs/001-add-export-button/`. If the work came out of a discussion or plan mode, the whole exchange is kept in `00-request.md`, the plan is written before code and the work is logged — not just your final "implement".
 4. `light-status` shows where every request stands.
 
 For a new project, ask `light-bootstrap` (after `light-init`) to define the vision, architecture and skeleton.

@@ -12,13 +12,15 @@
 
 | Workflow | When | Steps |
 |---|---|---|
-| `direct` | easy, clear, low risk | understand → implement → review → conclude, no questions |
+| `direct` | easy, clear, low risk | understand → compact plan → implement → review → conclude, no questions |
 | `standard` | medium | + discovery, plan; tester and reviewer in parallel |
 | `full` | complex, ambiguous or risky | clarify → discover → design → plan → implement → tester/reviewer/security in parallel → conclude |
 
 Override triage with `--workflow`. The `bootstrap` workflow (new projects, started by `light-bootstrap` rather than triage) runs vision → architecture → plan → skeleton → review.
 
-Artifacts: `00-request`, `10-understanding`, `20-discovery`, `30-design`, `40-plan`, `50-implementation`, `60-conclusion`, plus `status.md`. Skip files the workflow does not need.
+Artifacts: `00-request`, `10-understanding`, `20-discovery`, `30-design`, `40-plan`, `50-implementation`, `60-conclusion`, plus `status.md`. Every workflow keeps the request, the understanding, the plan and the implementation log; discovery and design are added when the workflow needs them.
+
+A request that grew out of a discussion — plan mode, questions and answers, several refinements — keeps the whole exchange, not the final message. Before changing code the agent applies `light-conversation-capture`: `00-request.md` records every user turn, what each turn established, the decisions with their reasons, the rejected options, the constraints and the references; the plan goes to `40-plan.md` (compact for `direct`) and the work to `50-implementation.md`. When the last message is only "implement" or "go ahead", it is the discussion that is the request. The `capture-discussion` hook repeats this at prompt time when an implement instruction arrives with no active request or no written plan.
 
 Every artifact starts with a header recording which step it belongs to and which agent produced it, with what, so you can see how a result came about:
 ```
