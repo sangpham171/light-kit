@@ -20,7 +20,7 @@ If the project is not a git repository, skip committing and say so once.
 2. **Plan task done** — one commit per task, after its verification passes. The tick in `40-plan.md` and the log entry in `50-implementation.md` go in the same commit as the code.
 3. **Debt and review fixes** — each resolved technical-debt item and each review finding fixed gets its own commit (or one per coherent group), before moving on.
 4. **Conclusion** — `60-conclusion.md` and documentation updates.
-5. **Direct workflow** — the change is small: one commit with the code and the request folder.
+5. **Direct workflow** — the change is small: still two commits, the request folder with its compact plan first, then the code.
 6. **Bootstrap** — one commit per skeleton task, like any plan.
 
 If a task turns out too large for one coherent commit, split the task in the plan first.
