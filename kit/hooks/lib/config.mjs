@@ -19,6 +19,7 @@ export const DEFAULT_MODES = {
   'post-edit-quality': 'warn',
   'warn-secret-output': 'warn',
   'session-context': 'warn',
+  'tool-log': 'warn',
   'verify-on-stop': 'off',
   'audit-log': 'off',
   'commit-checkpoint': 'warn',

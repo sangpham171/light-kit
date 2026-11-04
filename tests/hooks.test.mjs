@@ -253,6 +253,38 @@ test('audit log is off by default, records redacted entries when on', () => {
   assert.doesNotMatch(line, /abcdefghijklmnopqrstuvwxyz012345/);
 });
 
+test('tool-log appends one row per tool call to specs/tool-log.md', () => {
+  const d = project(); withSpec(d);
+  assert.equal(run(d, 'claude', 'post-tool', bash('npm test')).out, '');
+  assert.equal(run(d, 'cursor', 'post-tool', write('src/a.txt', 'x')).out, '');
+  const log = readFileSync(join(d, 'specs/tool-log.md'), 'utf8');
+  assert.match(log, /^# Tool call log$/m);
+  assert.match(log, /^\| Time \| Client \| Tool \| Kind \| Target \|$/m);
+  assert.match(log, /\| claude \| Bash \| shell \| npm test \|/);
+  assert.match(log, /\| cursor \| Write \| write \| src\/a\.txt \|/);
+  assert.equal(log.split('\n').filter((l) => /^\| \d{4}-\d\d-\d\dT/.test(l)).length, 2);
+});
+
+test('tool-log redacts commands, writes no file without specs, and skips its own log', () => {
+  const d = project(); withSpec(d);
+  run(d, 'claude', 'post-tool', bash('curl -H "Authorization: ******" x'));
+  const log = readFileSync(join(d, 'specs/tool-log.md'), 'utf8');
+  assert.match(log, /curl/);
+  assert.doesNotMatch(log, /abcdefghijklmnopqrstuvwxyz012345/);
+
+  const none = project();
+  run(none, 'claude', 'post-tool', bash('ls'));
+  assert.equal(existsSync(join(none, 'specs/tool-log.md')), false);
+
+  const off = project({ hooks: { 'tool-log': 'off' } }); withSpec(off);
+  run(off, 'claude', 'post-tool', bash('ls'));
+  assert.equal(existsSync(join(off, 'specs/tool-log.md')), false);
+
+  const own = project(); withSpec(own);
+  run(own, 'claude', 'post-tool', write('specs/tool-log.md', '# mine\n'));
+  assert.equal(existsSync(join(own, 'specs/tool-log.md')), false);
+});
+
 test('bad input and internal problems fail open', () => {
   const d = project();
   assert.equal(run(d, 'claude', 'pre-tool', 'not json').code, 0);

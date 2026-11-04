@@ -16,5 +16,6 @@ import auditReminder from './audit-reminder.mjs';
 import artifactHeader from './artifact-header.mjs';
 import tokenUsage from './token-usage.mjs';
 import captureDiscussion from './capture-discussion.mjs';
+import toolLog from './tool-log.mjs';
 
-export const CHECKS = [protectSensitiveFiles, blockSecretsInWrites, redactPromptSecrets, guardDangerousCommands, protectPaths, requireSpec, postEditQuality, warnSecretOutput, sessionContext, verifyOnStop, auditLog, commitCheckpoint, protectBranches, cleanCommitMessage, auditReminder, artifactHeader, tokenUsage, captureDiscussion];
+export const CHECKS = [protectSensitiveFiles, blockSecretsInWrites, redactPromptSecrets, guardDangerousCommands, protectPaths, requireSpec, postEditQuality, warnSecretOutput, sessionContext, verifyOnStop, auditLog, commitCheckpoint, protectBranches, cleanCommitMessage, auditReminder, artifactHeader, tokenUsage, captureDiscussion, toolLog];
