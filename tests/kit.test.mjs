@@ -41,6 +41,22 @@ test('commands are skills, so no client gets a prompt or command file', () => {
   for (const s of kit.skills) assert.doesNotMatch(s.body, /\$ARGUMENTS|\$\{input:/, s.meta.name);
 });
 
+test('a request that grew out of a discussion keeps the whole exchange', () => {
+  const dir = tmp();
+  install(dir, ['claude']);
+  const read = (p) => readFileSync(join(dir, p), 'utf8');
+  assert.match(read('CLAUDE.md'), /A request is the whole conversation/);
+  assert.match(read('CLAUDE.md'), /light-conversation-capture/);
+  const skill = read('.claude/skills/light-conversation-capture/SKILL.md');
+  assert.match(skill, /final message is not the request/);
+  assert.match(skill, /plan mode/i);
+  assert.match(skill, /rejected/);
+  assert.match(read('.light-kit/templates/00-request.md'), /## Conversation context/);
+  assert.match(read('.light-kit/templates/00-request.md'), /### Decisions/);
+  assert.match(read('.claude/agents/light-orchestrator.md'), /light-conversation-capture/);
+  assert.match(read('.claude/skills/light-request/SKILL.md'), /light-conversation-capture/);
+});
+
 test('install into empty dir, then second run changes nothing', () => {
   const dir = tmp();
   const first = install(dir, CLIENT_NAMES);
