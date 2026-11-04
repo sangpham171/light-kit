@@ -180,7 +180,8 @@ export function hookRegistration(client, level = 'project') {
     const matcher = ev === 'pre-tool' ? TOOL_MATCH[client]?.pre : ev === 'post-tool' ? TOOL_MATCH[client]?.post : undefined;
     if (c.shape === 'grouped') hooks[name] = [{ ...(matcher && { matcher }), hooks: [{ type: 'command', command, timeout: 60 }] }];
     else if (c.shape === 'flat') hooks[name] = [{ command, ...(matcher && { matcher }), timeout: 60 }];
-    else hooks[name] = [{ type: 'command', command, timeoutSec: 60 }];
+    // Copilot CLI runs the explicit `bash` field on Unix and keeps `command` as the cross-platform fallback.
+    else hooks[name] = [{ type: 'command', command, bash: command, timeoutSec: 60 }];
   }
   // Claude Code adds a co-author trailer and PR credit by itself; switch both off unless the user already set their own value.
   const defaults = client === 'claude' ? { attribution: { commit: '', pr: '' } } : undefined;
