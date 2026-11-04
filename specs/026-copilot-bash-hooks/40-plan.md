@@ -12,9 +12,9 @@ usage:
 
 # Plan
 
-- [ ] 1. Emit `bash` beside `command` in generated Copilot hook entries — level: easy — files: `tools/build.mjs` — verify: inspect `hookRegistration('copilot')` output — commit: `fix(hooks): give Copilot CLI hooks an explicit bash command`
-- [ ] 2. Assert the `bash` field in the registration test — level: easy — files: `tests/hooks.test.mjs` — verify: `node --test tests/hooks.test.mjs` — commit: included with task 1
-- [ ] 3. Run the full suite and record the result — level: easy — files: none — verify: `npm test` — commit: `docs(specs): record request 026 implementation`
+- [x] 1. Emit `bash` beside `command` in generated Copilot hook entries — level: easy — files: `tools/build.mjs` — verify: inspect `hookRegistration('copilot')` output — commit: `fix(hooks): give Copilot CLI hooks an explicit bash command`
+- [x] 2. Assert the `bash` field in the registration test — level: easy — files: `tests/hooks.test.mjs` — verify: `node --test tests/hooks.test.mjs` — commit: included with task 1
+- [x] 3. Run the full suite and record the result — level: easy — files: none — verify: `npm test` — commit: `docs(specs): record request 026 implementation`
 
 ## Risks
 - Copilot might reject `command` and `bash` together; the reference states explicit `bash` wins and `command` stays a fallback, so both are safe.
