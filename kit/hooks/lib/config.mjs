@@ -15,6 +15,7 @@ export const DEFAULT_MODES = {
   'artifact-header': 'warn',
   'token-usage': 'warn',
   'require-spec': 'warn',
+  'capture-discussion': 'warn',
   'post-edit-quality': 'warn',
   'warn-secret-output': 'warn',
   'session-context': 'warn',
