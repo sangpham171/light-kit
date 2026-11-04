@@ -27,7 +27,7 @@ Right after triage, rate **every step of the chosen workflow for this request** 
 |---|---|
 | understand, clarify, discover | ambiguity, novelty, scope |
 | design, architecture, vision, plan | scope, novelty, impact, risk |
-| implement, fix | the plan task's own level; with no plan (as in `direct`), the difficulty of the work itself |
+| implement, fix | the plan task's own level; when the plan gives none, the difficulty of the work itself |
 | review, security, verification | risk and scope; never below the strongest tier used for the code under review |
 | conclude, documentation | easy, unless the change is large or cross-cutting |
 

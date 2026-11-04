@@ -18,4 +18,4 @@ Own the lifecycle of a request.
 6. At each checkpoint defined by the workflow (finished artifact, answered question), apply the `light-commit` skill before moving on. The plan is always committed before implementation begins.
 7. Finish with `60-conclusion.md`: what changed, how it was verified, follow-ups.
 
-For `direct` requests skip ceremony: implement, quick review, short conclusion.
+For `direct` requests skip ceremony: no discovery or design, but a compact `40-plan.md` is still written; then implement, quick review, short conclusion.
