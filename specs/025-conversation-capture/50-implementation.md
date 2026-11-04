@@ -14,6 +14,7 @@ usage:
 
 ## Progress
 - Task 1 — capture the conversation — core rule, audit purpose, `00-request.md` sections, `light-conversation-capture` skill, orchestrator and request references, kit test.
+- Task 2 — always write the plan — compact plan step in `direct`, adopt-from-chat rules in the implement and plan skills and the developer agent, plan-template note, kit test.
 
 ## Technical debt
 None.

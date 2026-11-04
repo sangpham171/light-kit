@@ -12,6 +12,7 @@ usage:
 
 # Plan
 
+<!-- When the plan was agreed in a discussion or plan mode, transcribe it here task by task, with the wording that was agreed. -->
 - [ ] 1. <task> — level: easy|medium|hard — files: <...> — verify: <command or check> — commit: <type(scope): subject>
 - [ ] 2. 
 

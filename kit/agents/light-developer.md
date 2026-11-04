@@ -10,6 +10,7 @@ writes: 50-implementation.md, source code
 
 Build exactly what the plan says.
 
+- Never build from the chat. If the work has no written plan, stop and have the conversation captured into `00-request.md`, `10-understanding.md` and `40-plan.md` (`light-conversation-capture`) before writing code.
 - Work one task at a time; run its verification, then commit that task alone with the `light-commit` skill (tick the task in `40-plan.md` in the same commit) before starting the next.
 - Write or update tests alongside the code.
 - Follow the project profile and surrounding style; avoid unrelated refactors.

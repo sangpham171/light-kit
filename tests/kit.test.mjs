@@ -57,6 +57,19 @@ test('a request that grew out of a discussion keeps the whole exchange', () => {
   assert.match(read('.claude/skills/light-request/SKILL.md'), /light-conversation-capture/);
 });
 
+test('the plan is written before code, even for direct requests', () => {
+  const dir = tmp();
+  install(dir, ['claude']);
+  const read = (p) => readFileSync(join(dir, p), 'utf8');
+  assert.match(read('.light-kit/workflows/direct.md'), /plan — agent: light-tech-lead — writes: 40-plan\.md/);
+  assert.match(read('.light-kit/workflows/direct.md'), /is written before code changes/);
+  assert.match(read('.claude/skills/light-implement/SKILL.md'), /Do not implement from the chat/);
+  assert.match(read('.claude/skills/light-implement/SKILL.md'), /40-plan\.md/);
+  assert.match(read('.claude/skills/light-plan/SKILL.md'), /agreed in a discussion/);
+  assert.match(read('.claude/agents/light-developer.md'), /written plan/);
+  assert.match(read('.light-kit/templates/40-plan.md'), /agreed in a discussion/);
+});
+
 test('install into empty dir, then second run changes nothing', () => {
   const dir = tmp();
   const first = install(dir, CLIENT_NAMES);
