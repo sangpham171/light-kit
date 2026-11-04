@@ -6,8 +6,8 @@ runs:
     thinking: unknown
     level: medium
 usage:
-  tokens: unknown input · unknown cache read · unknown cache write · unknown output · unknown total
-  time: unknown
+  tokens: 59,072 input · 734,592 cache read · 0 cache write · 18,368 output · 812,032 total
+  time: 21m 31s
 ---
 
 # Request 025 — Keep the conversation, the plan and the implementation

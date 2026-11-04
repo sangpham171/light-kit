@@ -6,8 +6,8 @@ runs:
     thinking: unknown
     level: medium
 usage:
-  tokens: unknown input · unknown cache read · unknown cache write · unknown output · unknown total
-  time: unknown
+  tokens: 3,566 input · 651,264 cache read · 0 cache write · 5,519 output · 660,349 total
+  time: 4m 29s
 ---
 
 # Plan
