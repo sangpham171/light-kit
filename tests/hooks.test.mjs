@@ -119,6 +119,19 @@ test('require-spec warns by default, blocks in block mode, quiet with an active 
   assert.equal(run(done, 'claude', 'pre-tool', write('src/app.txt', 'hello')).code, 2);
 });
 
+test('an implement instruction without a written plan is flagged', () => {
+  const d = project();
+  const none = run(d, 'claude', 'prompt', { prompt: 'go ahead and implement it' });
+  assert.equal(none.code, 0);
+  assert.match(JSON.parse(none.out).hookSpecificOutput.additionalContext, /light-conversation-capture/);
+  withSpec(d);
+  const unplanned = run(d, 'claude', 'prompt', { prompt: 'implement it' });
+  assert.match(JSON.parse(unplanned.out).hookSpecificOutput.additionalContext, /40-plan/);
+  writeFileSync(join(d, 'specs/001-x/40-plan.md'), '# Plan');
+  assert.equal(run(d, 'claude', 'prompt', { prompt: 'implement it' }).out, '');
+  assert.equal(run(d, 'claude', 'prompt', { prompt: 'how does login work?' }).out, '');
+});
+
 test('post-edit quality runs configured commands and reports failures', () => {
   const ok = project({ quality: { format: 'node -e "process.exit(0)" {file}' } });
   assert.equal(run(ok, 'claude', 'post-tool', write('a.txt', 'x')).out, '');

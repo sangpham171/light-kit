@@ -68,6 +68,7 @@ test('the plan is written before code, even for direct requests', () => {
   assert.match(read('.claude/skills/light-plan/SKILL.md'), /agreed in a discussion/);
   assert.match(read('.claude/agents/light-developer.md'), /written plan/);
   assert.match(read('.light-kit/templates/40-plan.md'), /agreed in a discussion/);
+  assert.match(read('.light-kit/hooks.config.json'), /"capture-discussion": "warn"/);
 });
 
 test('install into empty dir, then second run changes nothing', () => {
