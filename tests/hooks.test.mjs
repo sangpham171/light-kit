@@ -278,6 +278,19 @@ test('registration: hooks are merged into client files, user hooks kept, re-run 
   assert.equal(install(dir, CLIENT_NAMES).written.length, 0);
 });
 
+test('copilot hooks carry an explicit bash command', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'light-kit-copilot-'));
+  install(dir, ['copilot']);
+  const { hooks } = JSON.parse(readFileSync(join(dir, '.github/hooks/light-kit.json'), 'utf8'));
+  assert.deepEqual(Object.keys(hooks).sort(), ['postToolUse', 'preToolUse', 'sessionStart', 'userPromptSubmitted']);
+  for (const list of Object.values(hooks))
+    for (const entry of list) {
+      assert.equal(entry.type, 'command');
+      assert.equal(typeof entry.bash, 'string');
+      assert.equal(entry.bash, entry.command);
+    }
+});
+
 test('invalid JSON in a client hook file is skipped, not clobbered', () => {
   const dir = mkdtempSync(join(tmpdir(), 'light-kit-bad-'));
   mkdirSync(join(dir, '.claude'));
