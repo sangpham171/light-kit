@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
 export function listRequests(root) {
@@ -17,6 +17,15 @@ export function listRequests(root) {
 
 export const activeRequests = (...dirs) =>
   [...new Set(dirs)].flatMap((home) => listRequests(home).filter((r) => r.understood && r.state !== 'done').map((r) => ({ ...r, home })));
+
+// The request the session is working on: one at an implementing or reviewing step, else the most
+// recently touched one. Shared by the checks that attach something to a request (prompts, tool log).
+const WORKING = ['implement', 'fix', 'review'];
+const touched = (r) => { try { return statSync(join(r.home, 'specs', r.name)).mtimeMs; } catch { return 0; } };
+export const currentRequest = (active) => {
+  const pool = active.filter((r) => WORKING.includes(r.step));
+  return (pool.length ? pool : active).sort((a, b) => touched(b) - touched(a))[0];
+};
 
 // Directories (below the root, a few levels deep) that carry their own .light-kit: the workspace's projects.
 export function listProjectDirs(root, depth = 3) {

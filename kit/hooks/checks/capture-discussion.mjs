@@ -1,6 +1,5 @@
-import { statSync } from 'node:fs';
 import { join, relative } from 'node:path';
-import { activeRequests, listProjectDirs, listRequests } from '../lib/specs.mjs';
+import { activeRequests, currentRequest, listProjectDirs, listRequests } from '../lib/specs.mjs';
 
 // Explicit implement intent, so a mention of the word in passing does not fire.
 const INTENT = [
@@ -9,14 +8,6 @@ const INTENT = [
 ];
 // A question or a refusal is not an instruction to start work.
 const NOT_INTENT = /^\s*(?:how|what|why|when|where|who|which|can|could|should|shall|would|is|are|was|were|will|i\s+(?:do\s*n[o']?t|don'?t|did\s*n[o']?t|didn'?t|am\s+not|won'?t))\b/i;
-
-// A request being implemented or reviewed is the one the prompt is about.
-const WORKING = ['implement', 'fix', 'review'];
-const touched = (r) => { try { return statSync(join(r.home, 'specs', r.name)).mtimeMs; } catch { return 0; } };
-const current = (active) => {
-  const pool = active.filter((r) => WORKING.includes(r.step));
-  return (pool.length ? pool : active).sort((a, b) => touched(b) - touched(a))[0];
-};
 
 export default {
   id: 'capture-discussion',
@@ -41,7 +32,7 @@ export default {
         message: 'the user is asking to implement. If this continues a discussion or a plan-mode session, the whole exchange is the request: create `specs/<NNN-slug>/` and write `00-request.md` with every turn, decision and constraint (see the `light-conversation-capture` skill), then `10-understanding.md` and `40-plan.md`, before changing code; log the work in `50-implementation.md`.',
       };
     }
-    const request = current(active);
+    const request = currentRequest(active);
     if (request.planned) return null;
     const where = join(relative(ctx.root, request.home), 'specs', request.name);
     return {
