@@ -7,8 +7,8 @@ runs:
     thinking: unknown
     level: easy
 usage:
-  tokens: unknown input · unknown cache read · unknown cache write · unknown output · unknown total
-  time: unknown
+  tokens: 0 input · 0 cache read · 0 cache write · 0 output · 0 total
+  time: 0s
 ---
 
 # Understanding

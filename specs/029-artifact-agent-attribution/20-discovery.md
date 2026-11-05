@@ -7,8 +7,8 @@ runs:
     thinking: unknown
     level: medium
 usage:
-  tokens: 0 input · 0 cache read · 0 cache write · 0 output · 0 total
-  time: 0s
+  tokens: 858 input · 66,560 cache read · 0 cache write · 1,545 output · 68,963 total
+  time: 49s
 ---
 
 # Discovery

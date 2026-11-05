@@ -13,8 +13,8 @@ usage:
 
 # Plan
 
-- [ ] 1. State the attribution rule and add the `part:` field — level: medium — files: `kit/instructions/core.md`, `kit/templates/*.md`, `kit/skills/light-model-routing/SKILL.md`, `kit/agents/light-orchestrator.md`, `docs/usage.md`, `tests/kit.test.mjs` — verify: `node --test tests/kit.test.mjs` — commit: `docs(attribution): name the agent that did each step`
-- [ ] 2. Derive the step owner and warned attribution in the header hook — level: medium — files: `kit/hooks/checks/artifact-header.mjs`, `kit/hooks/README.md`, `tests/hooks.test.mjs` — verify: `node --test tests/hooks.test.mjs` — commit: `feat(hooks): check who did each artifact step`
+- [x] 1. State the attribution rule and add the `part:` field — level: medium — files: `kit/instructions/core.md`, `kit/templates/*.md`, `kit/skills/light-model-routing/SKILL.md`, `kit/agents/light-orchestrator.md`, `docs/usage.md`, `tests/kit.test.mjs` — verify: `node --test tests/kit.test.mjs` — commit: `docs(attribution): name the agent that did each step`
+- [x] 2. Derive the step owner and warned attribution in the header hook — level: medium — files: `kit/hooks/checks/artifact-header.mjs`, `kit/hooks/README.md`, `tests/hooks.test.mjs` — verify: `node --test tests/hooks.test.mjs` — commit: `feat(hooks): check who did each artifact step`
 
 Each task = one verified, coherent commit.
 
