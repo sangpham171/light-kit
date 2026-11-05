@@ -284,7 +284,7 @@ test('artifact headers: every artifact template starts with the runs header and 
   const labels = formatUsage({ input: 1, cacheRead: 2, cacheWrite: 3, output: 4 })
     .split(' · ').map((cell) => cell.replace(/^[\d,]+\s+/, ''));
   const placeholder = labels.map((label) => `<${label}> ${label}`).join(' · ');
-  const runEntry = '  - agent: <agent>\n    model: <model id>\n    thinking: <reasoning setting or unknown>\n    level: <easy\\|medium\\|hard\\|unknown>\n';
+  const runEntry = '  - agent: <agent>\n    part: <what this run produced>\n    model: <model id>\n    thinking: <reasoning setting or unknown>\n    level: <easy\\|medium\\|hard\\|unknown>\n';
   const headerStart = new RegExp(`^---\\nstep: <step>\\nruns:\\n${runEntry}usage:\\n`);
   const conclusionStart = new RegExp(`^---\\nstep: <step>\\nruns:\\n${runEntry}usage:\\n  - step: <step>\\n`);
   for (const t of ['00-request', '10-understanding', '20-discovery', '30-design', '40-plan', '50-implementation', '60-conclusion']) {
@@ -301,6 +301,8 @@ test('artifact headers: every artifact template starts with the runs header and 
   assert.match(read('.light-kit/templates/60-conclusion.md'), /^  - step: <step>$/m);
   assert.doesNotMatch(read('.light-kit/templates/status.md'), /runs:|usage:/); // state file, not an artifact
   assert.match(read('CLAUDE.md'), /Sign your artifacts/);
+  assert.match(read('CLAUDE.md'), /not the agent that only invoked it/);
+  assert.match(read('CLAUDE.md'), /`part:`/);
   assert.match(read('CLAUDE.md'), /token-usage/);
   assert.match(read('CLAUDE.md'), /otherwise `unknown`, never a guess/);
   for (const s of ['light-codebase-map', 'light-project-assessment', 'light-audit']) assert.match(read(`.claude/skills/${s}/SKILL.md`), /`runs:` header/, s);

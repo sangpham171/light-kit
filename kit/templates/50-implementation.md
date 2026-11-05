@@ -2,6 +2,7 @@
 step: <step>
 runs:
   - agent: <agent>
+    part: <what this run produced>
     model: <model id>
     thinking: <reasoning setting or unknown>
     level: <easy|medium|hard|unknown>
