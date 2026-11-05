@@ -32,8 +32,9 @@ export default {
     for (const f of ctx.files) {
       const rel = ctx.rel(f).replace(/\\/g, '/');
       if (!ARTIFACT.some((re) => re.test(rel))) continue;
+      const abs = f.startsWith('/') ? f : `${ctx.cwd}/${f}`;
       let text = '';
-      try { text = readFileSync(f.startsWith('/') ? f : `${ctx.cwd}/${f}`, 'utf8'); } catch { continue; }
+      try { text = readFileSync(abs, 'utf8'); } catch { continue; }
       const header = text.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
       // One block-sequence entry per run; its fields may share the `- ` line or follow on indented lines.
       // Stop at the usage block: its `- step:` rows are not runs.
@@ -47,16 +48,16 @@ export default {
 
       if (!REQUEST_ARTIFACT.test(rel)) continue;
       const agents = [...new Set(entries.map((b) => b.match(/\bagent:\s*(\S+)/)?.[1]).filter(Boolean))];
-      const places = entries.filter((b) => !hasPart(b)).length;
-      const workflow = workflowOf(f.startsWith('/') ? f : `${ctx.cwd}/${f}`);
+      const missingPart = entries.filter((b) => !hasPart(b)).length;
+      const workflow = workflowOf(abs);
       const owners = workflow
         ? workflowSteps(ctx, workflow).filter((s) => s.writes.includes(rel.split('/').pop()))
         : [];
       const expected = [...new Set(owners.flatMap((s) => s.agents))];
       const messages = [];
-      if (agents.length > 1 && places)
-        messages.push(`${rel} credits ${agents.length} agents but ${places} \`runs:\` ${places === 1 ? 'entry has' : 'entries have'} no \`part:\`; add \`part: <what that run produced>\` to each, so the reader sees which agent did which part.`);
-      if (expected.length && !agents.some((a) => expected.includes(a)) && places)
+      if (agents.length > 1 && missingPart)
+        messages.push(`${rel} credits ${agents.length} agents but ${missingPart} \`runs:\` ${missingPart === 1 ? 'entry has' : 'entries have'} no \`part:\`; add \`part: <what that run produced>\` to each, so the reader sees which agent did which part.`);
+      if (expected.length && !agents.some((a) => expected.includes(a)) && missingPart)
         messages.push(`${rel} credits ${agents.join(', ')} but the ${workflow} workflow runs its ${owners.map((s) => s.name).join(' / ')} step as ${expected.join(', ')}; record the agent that produced the work, not the one that called it, and add \`part:\` when the orchestrator did the step itself.`);
       if (messages.length) return { message: messages.join(' ') };
     }
