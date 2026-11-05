@@ -12,11 +12,11 @@ usage:
 
 # Plan
 
-- [ ] 1. Share the "current request" selection: export `currentRequest` from `kit/hooks/lib/specs.mjs` and use it in `capture-discussion` — level: easy — files: `kit/hooks/lib/specs.mjs`, `kit/hooks/checks/capture-discussion.mjs` — verify: `node --test tests/hooks.test.mjs` — commit: included with task 2
-- [ ] 2. Write the log into the active request folder — level: easy — files: `kit/hooks/checks/tool-log.mjs` — verify: focused tests — commit: `feat(hooks): keep the tool log in the active request folder`
-- [ ] 3. Update the tests to the request path and add inactive/done-request cases — level: easy — files: `tests/hooks.test.mjs` — verify: `node --test tests/hooks.test.mjs` — commit: included with task 2
-- [ ] 4. Update the docs to the request path — level: easy — files: `kit/hooks/README.md`, `docs/safety-hooks.md`, `specs/README.md` — verify: text review — commit: `docs(hooks): point the tool log at the active request`
-- [ ] 5. Run the full suite and record the result — level: easy — files: none — verify: `npm test` — commit: `docs(specs): record request 028 implementation`
+- [x] 1. Share the "current request" selection: export `currentRequest` from `kit/hooks/lib/specs.mjs` and use it in `capture-discussion` — level: easy — files: `kit/hooks/lib/specs.mjs`, `kit/hooks/checks/capture-discussion.mjs` — verify: `node --test tests/hooks.test.mjs` — commit: included with task 2
+- [x] 2. Write the log into the active request folder — level: easy — files: `kit/hooks/checks/tool-log.mjs` — verify: focused tests — commit: `feat(hooks): keep the tool log in the active request folder`
+- [x] 3. Update the tests to the request path and add inactive/done-request cases — level: easy — files: `tests/hooks.test.mjs` — verify: `node --test tests/hooks.test.mjs` — commit: included with task 2
+- [x] 4. Update the docs to the request path — level: easy — files: `kit/hooks/README.md`, `docs/safety-hooks.md`, `specs/README.md` — verify: text review — commit: `docs(hooks): point the tool log at the active request`
+- [x] 5. Run the full suite and record the result — level: easy — files: none — verify: `npm test` — commit: `docs(specs): record request 028 implementation`
 
 ## Risks
 - Two active requests: the step preference plus newest-folder rule decides; recorded in the docs.
