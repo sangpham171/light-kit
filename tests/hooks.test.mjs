@@ -253,36 +253,55 @@ test('audit log is off by default, records redacted entries when on', () => {
   assert.doesNotMatch(line, /abcdefghijklmnopqrstuvwxyz012345/);
 });
 
-test('tool-log appends one row per tool call to specs/tool-log.md', () => {
+test('tool-log appends one row per tool call to the active request folder', () => {
   const d = project(); withSpec(d);
   assert.equal(run(d, 'claude', 'post-tool', bash('npm test')).out, '');
   assert.equal(run(d, 'cursor', 'post-tool', write('src/a.txt', 'x')).out, '');
-  const log = readFileSync(join(d, 'specs/tool-log.md'), 'utf8');
+  const log = readFileSync(join(d, 'specs/001-x/tool-log.md'), 'utf8');
   assert.match(log, /^# Tool call log$/m);
   assert.match(log, /^\| Time \| Client \| Tool \| Kind \| Target \|$/m);
   assert.match(log, /\| claude \| Bash \| shell \| npm test \|/);
   assert.match(log, /\| cursor \| Write \| write \| src\/a\.txt \|/);
   assert.equal(log.split('\n').filter((l) => /^\| \d{4}-\d\d-\d\dT/.test(l)).length, 2);
+  assert.equal(existsSync(join(d, 'specs/tool-log.md')), false); // nothing at the specs root
 });
 
-test('tool-log redacts commands, writes no file without specs, and skips its own log', () => {
+test('tool-log follows the working request, redacts commands and writes nothing otherwise', () => {
   const d = project(); withSpec(d);
   run(d, 'claude', 'post-tool', bash('curl -H "Authorization: ******" x'));
-  const log = readFileSync(join(d, 'specs/tool-log.md'), 'utf8');
+  const log = readFileSync(join(d, 'specs/001-x/tool-log.md'), 'utf8');
   assert.match(log, /curl/);
   assert.doesNotMatch(log, /abcdefghijklmnopqrstuvwxyz012345/);
 
+  // A newer folder that is not at a working step loses to the implementing one.
+  const two = project(); withSpec(two);
+  mkdirSync(join(two, 'specs/002-y'), { recursive: true });
+  writeFileSync(join(two, 'specs/002-y/10-understanding.md'), '# u');
+  writeFileSync(join(two, 'specs/002-y/status.md'), '---\nstep: request\nstate: in-progress\n---\n');
+  run(two, 'claude', 'post-tool', bash('ls'));
+  assert.ok(existsSync(join(two, 'specs/001-x/tool-log.md')));
+  assert.equal(existsSync(join(two, 'specs/002-y/tool-log.md')), false);
+
+  // A finished request is not active, even when it is the newest.
+  const done = project(); withSpec(done);
+  mkdirSync(join(done, 'specs/002-z'), { recursive: true });
+  writeFileSync(join(done, 'specs/002-z/10-understanding.md'), '# u');
+  writeFileSync(join(done, 'specs/002-z/status.md'), '---\nstep: conclude\nstate: done\n---\n');
+  run(done, 'claude', 'post-tool', bash('ls'));
+  assert.ok(existsSync(join(done, 'specs/001-x/tool-log.md')));
+  assert.equal(existsSync(join(done, 'specs/002-z/tool-log.md')), false);
+
   const none = project();
   run(none, 'claude', 'post-tool', bash('ls'));
-  assert.equal(existsSync(join(none, 'specs/tool-log.md')), false);
+  assert.equal(existsSync(join(none, 'specs')), false);
 
   const off = project({ hooks: { 'tool-log': 'off' } }); withSpec(off);
   run(off, 'claude', 'post-tool', bash('ls'));
-  assert.equal(existsSync(join(off, 'specs/tool-log.md')), false);
+  assert.equal(existsSync(join(off, 'specs/001-x/tool-log.md')), false);
 
   const own = project(); withSpec(own);
-  run(own, 'claude', 'post-tool', write('specs/tool-log.md', '# mine\n'));
-  assert.equal(existsSync(join(own, 'specs/tool-log.md')), false);
+  run(own, 'claude', 'post-tool', write('specs/001-x/tool-log.md', '# mine\n'));
+  assert.equal(existsSync(join(own, 'specs/001-x/tool-log.md')), false);
 });
 
 test('bad input and internal problems fail open', () => {
