@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, rmSync, utimesSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { install } from '../tools/install.mjs';
 import { CLIENT_NAMES } from '../tools/build.mjs';
 
@@ -25,6 +25,12 @@ const withSpec = (dir, state = 'in-progress') => {
   mkdirSync(join(dir, 'specs/001-x'), { recursive: true });
   writeFileSync(join(dir, 'specs/001-x/10-understanding.md'), '# u');
   writeFileSync(join(dir, 'specs/001-x/status.md'), `---\nworkflow: direct\nstep: implement\nstate: ${state}\n---\n`);
+};
+// A real client writes the file, then calls the post-tool hook: mirror both.
+const created = (dir, file, content) => {
+  mkdirSync(dirname(join(dir, file)), { recursive: true });
+  writeFileSync(join(dir, file), content);
+  return run(dir, 'claude', 'post-tool', write(file, content));
 };
 // A user-level install serving a project that never ran light-init (no .light-kit in the project).
 function userProject() {
@@ -253,20 +259,69 @@ test('audit log is off by default, records redacted entries when on', () => {
   assert.doesNotMatch(line, /abcdefghijklmnopqrstuvwxyz012345/);
 });
 
-test('tool-log appends one row per tool call to the active request folder', () => {
-  const d = project(); withSpec(d);
+test('tool-log keeps calls made before a request folder in the shared specs log', () => {
+  const d = project();
   assert.equal(run(d, 'claude', 'post-tool', bash('npm test')).out, '');
   assert.equal(run(d, 'cursor', 'post-tool', write('src/a.txt', 'x')).out, '');
-  const log = readFileSync(join(d, 'specs/001-x/tool-log.md'), 'utf8');
+  const log = readFileSync(join(d, 'specs/tool-log.md'), 'utf8');
   assert.match(log, /^# Tool call log$/m);
   assert.match(log, /^\| Time \| Client \| Tool \| Kind \| Target \|$/m);
   assert.match(log, /\| claude \| Bash \| shell \| npm test \|/);
   assert.match(log, /\| cursor \| Write \| write \| src\/a\.txt \|/);
   assert.equal(log.split('\n').filter((l) => /^\| \d{4}-\d\d-\d\dT/.test(l)).length, 2);
-  assert.equal(existsSync(join(d, 'specs/tool-log.md')), false); // nothing at the specs root
 });
 
-test('tool-log follows the working request, redacts commands and writes nothing otherwise', () => {
+test('tool-log moves the shared log into the request folder when it is created', () => {
+  const d = project();
+  run(d, 'claude', 'post-tool', bash('git status'));
+  created(d, 'specs/001-x/00-request.md', '# r');
+  assert.equal(existsSync(join(d, 'specs/tool-log.md')), false);
+  created(d, 'specs/001-x/status.md', '---\nstep: request\nstate: in-progress\n---\n');
+  created(d, 'specs/001-x/10-understanding.md', '# u');
+  run(d, 'claude', 'post-tool', bash('npm test'));
+  const log = readFileSync(join(d, 'specs/001-x/tool-log.md'), 'utf8');
+  const rows = log.split('\n').filter((l) => /^\| \d{4}-\d\d-\d\dT/.test(l));
+  assert.equal(rows.length, 5); // git status, 00-request, status, 10-understanding, npm test
+  assert.match(log, /git status/);
+  assert.match(log, /npm test/);
+  assert.equal(existsSync(join(d, 'specs/tool-log.md')), false);
+});
+
+test('tool-log merges the shared log into a request log that already has rows', () => {
+  const d = project();
+  run(d, 'claude', 'post-tool', bash('before'));
+  created(d, 'specs/001-x/00-request.md', '# r');
+  run(d, 'claude', 'post-tool', bash('between')); // the request is not active yet
+  assert.ok(existsSync(join(d, 'specs/tool-log.md')));
+  created(d, 'specs/001-x/10-understanding.md', '# u');
+  assert.equal(existsSync(join(d, 'specs/tool-log.md')), false);
+  const log = readFileSync(join(d, 'specs/001-x/tool-log.md'), 'utf8');
+  assert.match(log, /before/);
+  assert.match(log, /between/);
+  assert.match(log, /10-understanding/);
+  assert.equal((log.match(/^# Tool call log$/gm) ?? []).length, 1);
+});
+
+test('tool-log ignores a statusless leftover folder', () => {
+  const d = project();
+  mkdirSync(join(d, 'specs/002-stale'), { recursive: true });
+  writeFileSync(join(d, 'specs/002-stale/00-request.md'), '# r');
+  writeFileSync(join(d, 'specs/002-stale/10-understanding.md'), '# u');
+  run(d, 'claude', 'post-tool', bash('ls'));
+  assert.ok(existsSync(join(d, 'specs/tool-log.md')));
+  assert.equal(existsSync(join(d, 'specs/002-stale/tool-log.md')), false);
+});
+
+test('tool-log never invents specs for an unmanaged user-level project', () => {
+  const home = mkdtempSync(join(tmpdir(), 'light-kit-user-'));
+  install(home, ['claude'], { level: 'user' });
+  const proj = join(home, 'proj');
+  mkdirSync(join(proj, '.git'), { recursive: true });
+  userHook(home, proj, 'post-tool', bash('ls'));
+  assert.equal(existsSync(join(proj, 'specs')), false);
+});
+
+test('tool-log follows the working request, redacts commands and skips its own writes', () => {
   const d = project(); withSpec(d);
   run(d, 'claude', 'post-tool', bash('curl -H "Authorization: ******" x'));
   const log = readFileSync(join(d, 'specs/001-x/tool-log.md'), 'utf8');
@@ -291,9 +346,10 @@ test('tool-log follows the working request, redacts commands and writes nothing 
   assert.ok(existsSync(join(done, 'specs/001-x/tool-log.md')));
   assert.equal(existsSync(join(done, 'specs/002-z/tool-log.md')), false);
 
+  // With no request at all the shared log is used; it is never invented for an unmanaged project.
   const none = project();
   run(none, 'claude', 'post-tool', bash('ls'));
-  assert.equal(existsSync(join(none, 'specs')), false);
+  assert.ok(existsSync(join(none, 'specs/tool-log.md')));
 
   const off = project({ hooks: { 'tool-log': 'off' } }); withSpec(off);
   run(off, 'claude', 'post-tool', bash('ls'));
@@ -302,6 +358,9 @@ test('tool-log follows the working request, redacts commands and writes nothing 
   const own = project(); withSpec(own);
   run(own, 'claude', 'post-tool', write('specs/001-x/tool-log.md', '# mine\n'));
   assert.equal(existsSync(join(own, 'specs/001-x/tool-log.md')), false);
+  const ownShared = project();
+  run(ownShared, 'claude', 'post-tool', write('specs/tool-log.md', '# mine\n'));
+  assert.equal(existsSync(join(ownShared, 'specs/tool-log.md')), false);
 });
 
 test('bad input and internal problems fail open', () => {
