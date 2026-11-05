@@ -6,6 +6,11 @@ runs:
     model: deepseek-flash
     thinking: unknown
     level: medium
+  - agent: light-reviewer
+    part: review and the F-1.1 cleanup
+    model: deepseek-flash
+    thinking: unknown
+    level: easy
 usage:
   tokens: 8,054 input · 1,459,200 cache read · 0 cache write · 11,680 output · 1,478,934 total
   time: 18m 25s
@@ -32,4 +37,7 @@ usage:
 - End-to-end on a temp install with 028's real headers under a `direct` status: the `40-plan.md` and `50-implementation.md` writes warn that the workflow runs those steps as `light-tech-lead` and `light-developer, light-reviewer`.
 
 ## Review rounds
-<!-- filled at the review step -->
+Round 1 of 1 (standard workflow):
+- F-1.1 [nit] `kit/hooks/checks/artifact-header.mjs` — the artifact path was computed twice and `places` read poorly — fixed in the review commit.
+- Checked: rule 12, templates, hook and docs say the same thing; the workflow-step parse is tested; no unrelated change; `npm test` green.
+Verdict: approve
