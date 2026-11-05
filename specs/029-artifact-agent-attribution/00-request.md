@@ -7,8 +7,8 @@ runs:
     thinking: unknown
     level: easy
 usage:
-  tokens: unknown input · unknown cache read · unknown cache write · unknown output · unknown total
-  time: unknown
+  tokens: 41,241 input · 659,072 cache read · 0 cache write · 17,495 output · 717,808 total
+  time: 14m 14s
 ---
 
 # Request 029 — Name the agent that actually did each step

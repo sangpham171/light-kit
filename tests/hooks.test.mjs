@@ -523,11 +523,28 @@ test('artifact-header: each required field matters, several runs are fine, mode 
     { writeFile(d, 'specs/001-x/10-understanding.md', header(fields)); assert.ok(warns(run(d, 'claude', 'post-tool', write('specs/001-x/10-understanding.md'))), fields.join(' | ')); }
   writeFile(d, 'specs/001-x/10-understanding.md', header(['agent: a', 'model: m', 'thinking: t'], '')); // no step anywhere
   assert.ok(warns(run(d, 'claude', 'post-tool', write('specs/001-x/10-understanding.md'))));
-  writeFile(d, 'specs/001-x/10-understanding.md', '---\nstep: understand\nruns:\n  - agent: light-orchestrator\n    model: m-1\n    thinking: t\n    level: medium\n  - agent: light-product-owner\n    model: m-2\n    thinking: t\n    level: medium\n---\n# x');
+  writeFile(d, 'specs/001-x/10-understanding.md', '---\nstep: understand\nruns:\n  - agent: light-orchestrator\n    part: restatement and triage\n    model: m-1\n    thinking: t\n    level: medium\n  - agent: light-product-owner\n    part: goals and outcomes\n    model: m-2\n    thinking: t\n    level: medium\n---\n# x');
   assert.equal(run(d, 'claude', 'post-tool', write('specs/001-x/10-understanding.md')).out, '');
   writeFile(d, 'specs/001-x/20-discovery.md', '# no header');
   writeFileSync(join(d, '.light-kit/hooks.config.json'), JSON.stringify({ hooks: { 'artifact-header': 'off' } }));
   assert.equal(run(d, 'claude', 'post-tool', write('specs/001-x/20-discovery.md')).out, '');
+});
+
+test('artifact-header: names the agent that did the step and asks each contributor for its part', () => {
+  const d = project(); withSpec(d); // direct workflow
+  const writeRun = (rel, text) => { writeFile(d, rel, text); return run(d, 'claude', 'post-tool', write(rel)); };
+  const entry = (agent, part = '') => `  - agent: ${agent}\n${part ? `    part: ${part}\n` : ''}    model: m\n    thinking: t\n    level: medium\n`;
+  // Several agents without a part: the header no longer says who did what.
+  const two = (parts) => `---\nstep: understand\nruns:\n${entry('light-orchestrator', parts ? 'restatement' : '')}${entry('light-product-owner', parts ? 'goals' : '')}---\n# x`;
+  assert.match(writeRun('specs/001-x/10-understanding.md', two(false)).out, /no `part:`/);
+  assert.equal(writeRun('specs/001-x/10-understanding.md', two(true)).out, '');
+  // The plan step belongs to the tech-lead, not to the orchestrator that called it.
+  const plan = (part = '') => `---\nstep: plan\nruns:\n${entry('light-orchestrator', part)}---\n# x`;
+  assert.match(writeRun('specs/001-x/40-plan.md', plan()).out, /light-tech-lead/);
+  assert.match(writeRun('specs/001-x/40-plan.md', plan()).out, /not the one that called it/);
+  assert.equal(writeRun('specs/001-x/40-plan.md', plan('ran this step itself')).out, '');
+  // Crediting the owner stays quiet.
+  assert.equal(writeRun('specs/001-x/40-plan.md', `---\nstep: plan\nruns:\n${entry('light-tech-lead')}---\n# x`).out, '');
 });
 
 test('artifact-header: other clients, nested projects and user level only where the kit is enabled', () => {
@@ -787,6 +804,7 @@ test('token-usage: a state file from another counting version restarts instead o
 
 test('token-usage: a conclusion usage list counts as filled only when tokens and time are set', () => {
   const d = project(); withSpec(d);
+  writeFile(d, 'specs/001-x/status.md', '---\nworkflow: standard\nstep: conclude\nstate: in-progress\n---\n'); // the tech-writer concludes
   const f = join(d, 'session.jsonl');
   writeFileSync(f, usageEntry(30, 5, '2026-01-01T00:00:00Z', 'm1', 200, 20));
   const conclusion = (rows) => `---\nstep: conclude\nruns:\n  - agent: light-tech-writer\n    model: m\n    thinking: high\n    level: easy\nusage:\n${rows}---\n\n# Conclusion\n`;
@@ -804,6 +822,7 @@ test('token-usage: a conclusion usage list counts as filled only when tokens and
 
 test('token-usage: a usage row without a time never counts as filled', () => {
   const d = project(); withSpec(d);
+  writeFile(d, 'specs/001-x/status.md', '---\nworkflow: standard\nstep: conclude\nstate: in-progress\n---\n'); // the tech-writer concludes
   const f = join(d, 'session.jsonl');
   writeFileSync(f, usageEntry(30, 5, '2026-01-01T00:00:00Z'));
   const artifact = (rows) => `---\nstep: conclude\nruns:\n  - agent: light-tech-writer\n    model: m\n    thinking: high\n    level: easy\nusage:\n${rows}---\n\n# Conclusion\n`;
