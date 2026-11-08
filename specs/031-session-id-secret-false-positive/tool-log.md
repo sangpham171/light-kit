@@ -105,3 +105,7 @@ stored. Safe to delete.
 | 2026-11-08T23:00:57Z | claude | Edit | write | specs/031-session-id-secret-false-positive/40-plan.md |
 | 2026-11-08T23:00:58Z | claude | Edit | write | specs/031-session-id-secret-false-positive/40-plan.md |
 | 2026-11-08T23:00:58Z | claude | Edit | write | specs/031-session-id-secret-false-positive/40-plan.md |
+| 2026-11-08T23:01:09Z | claude | Bash | shell | git add kit/hooks/README.md docs/safety-hooks.md specs/031-session-id-secret-false-positive && git commit -q -m "docs(hooks): scope the random-token rule" && git log --oneline -5 |
+| 2026-11-08T23:01:15Z | claude | Bash | shell | sed -n '1,60p' specs/030-tool-log-before-request/60-conclusion.md |
+| 2026-11-08T23:01:22Z | claude | Write | write | specs/031-session-id-secret-false-positive/60-conclusion.md |
+| 2026-11-08T23:01:23Z | claude | Edit | write | specs/031-session-id-secret-false-positive/status.md |
