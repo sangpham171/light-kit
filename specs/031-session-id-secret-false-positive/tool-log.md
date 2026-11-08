@@ -88,3 +88,6 @@ stored. Safe to delete.
 | 2026-11-08T22:58:59Z | claude | Bash | shell | P='{"prompt":"continue session-state/abcdefghijklmnopqrstuvwxyz0123456789ABCD/events.jsonl"}'; printf '%s' "$P" \| node kit/hooks/run.mjs --client claude --event prompt; echo "prompt-path exit=$?"; W= |
 | 2026-11-08T22:59:04Z | claude | Bash | shell | echo |
 | 2026-11-08T22:59:04Z | claude | Bash | shell | T='aB3dE5fG7hI9jK1lM3nO5pQ7rS9tU1vW3xY5zA7bC9dE1f'; printf '%s' "$(jq -nc --arg t "$T" '{prompt:("token " + $t)}')" \| node kit/hooks/run.mjs --client claude --event prompt >/tmp/o 2>/tmp/e; echo "bar |
+| 2026-11-08T22:59:08Z | claude | Bash | shell | git add kit/hooks/lib/secrets.mjs .light-kit/hooks.config.json specs/031-session-id-secret-false-positive/tool-log.md && git commit -q -m "fix(hooks): stop treating session ids and paths as secrets" & |
+| 2026-11-08T22:59:30Z | claude | Edit | write | tests/hooks.test.mjs |
+| 2026-11-08T22:59:51Z | claude | Bash | shell | node --test tests/hooks.test.mjs 2>&1 \| tail -25 |
