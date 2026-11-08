@@ -2,7 +2,7 @@
 
 Installed by default for every client that supports hooks (use `--no-hooks` to skip). They protect against the common mistakes of agent-driven work, with no stack assumptions built in:
 
-- block reading or editing files that hold secrets, and writing secrets into files or prompts
+- block reading or editing files that hold secrets, and writing secrets into files or prompts (opaque session ids and directory paths are not secrets)
 - block dangerous commands (mass deletion, force push, hard reset, piping downloads into a shell, environment dumps, destructive database statements)
 - keep commit messages and pull request text clean: no AI attribution (`Co-Authored-By` an assistant, "Generated with …") and no trailers
 - protect version-control internals, the hooks themselves and paths you declare generated or locked

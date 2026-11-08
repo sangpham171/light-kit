@@ -91,3 +91,17 @@ stored. Safe to delete.
 | 2026-11-08T22:59:08Z | claude | Bash | shell | git add kit/hooks/lib/secrets.mjs .light-kit/hooks.config.json specs/031-session-id-secret-false-positive/tool-log.md && git commit -q -m "fix(hooks): stop treating session ids and paths as secrets" & |
 | 2026-11-08T22:59:30Z | claude | Edit | write | tests/hooks.test.mjs |
 | 2026-11-08T22:59:51Z | claude | Bash | shell | node --test tests/hooks.test.mjs 2>&1 \| tail -25 |
+| 2026-11-08T23:00:10Z | claude | Bash | shell | git add tests/hooks.test.mjs specs/031-session-id-secret-false-positive/tool-log.md && git commit -q -m "test(hooks): cover session ids and paths" && git log --oneline -1; grep -n "long random\\|rando |
+| 2026-11-08T23:00:12Z | claude | Read | read | kit/hooks/README.md |
+| 2026-11-08T23:00:16Z | claude | Read | read | docs/safety-hooks.md |
+| 2026-11-08T23:00:20Z | claude | Edit | write | kit/hooks/README.md |
+| 2026-11-08T23:00:20Z | claude | Edit | write | kit/hooks/README.md |
+| 2026-11-08T23:00:21Z | claude | Edit | write | docs/safety-hooks.md |
+| 2026-11-08T23:00:43Z | claude | Bash | shell | npm test 2>&1 \| tail -20 |
+| 2026-11-08T23:00:51Z | claude | Write | write | specs/031-session-id-secret-false-positive/50-implementation.md |
+| 2026-11-08T23:00:54Z | claude | Edit | write | specs/031-session-id-secret-false-positive/40-plan.md |
+| 2026-11-08T23:00:54Z | claude | Edit | write | specs/031-session-id-secret-false-positive/50-implementation.md |
+| 2026-11-08T23:00:57Z | claude | Edit | write | specs/031-session-id-secret-false-positive/40-plan.md |
+| 2026-11-08T23:00:57Z | claude | Edit | write | specs/031-session-id-secret-false-positive/40-plan.md |
+| 2026-11-08T23:00:58Z | claude | Edit | write | specs/031-session-id-secret-false-positive/40-plan.md |
+| 2026-11-08T23:00:58Z | claude | Edit | write | specs/031-session-id-secret-false-positive/40-plan.md |
