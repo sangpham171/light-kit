@@ -27,7 +27,7 @@ export const DEFAULT_MODES = {
 
 export const BUILTIN = {
   sensitiveFiles: ['.env', '.env.*', '*.pem', '*.key', '*.p12', '*.pfx', 'id_rsa*', 'id_dsa*', 'id_ecdsa*', 'id_ed25519*', '*.secret', '*.secrets', 'secrets.*', 'credentials', 'credentials.*'],
-  sensitiveAllow: ['*.example', '*.sample', '*.template', '*.dist', '*.tpl'],
+  sensitiveAllow: ['*.example', '*.sample', '*.template', '*.dist', '*.tpl', '**/kit/hooks/lib/secrets.mjs'],
   envKeywords: ['password', 'passwd', 'secret', 'token', 'api_key', 'apikey', 'access_key', 'private_key', 'credential'],
   // "**/" so the same rules hold for every project nested under a workspace root
   protectedPaths: ['**/.git/**', '**/.light-kit/hooks/**', '**/.claude/settings.json', '**/.claude/settings.local.json', '**/.github/hooks/**', '**/.cursor/hooks.json', '**/.codex/hooks.json'],
