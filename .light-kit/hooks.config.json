@@ -1,5 +1,5 @@
 {
-  "sensitive": { "extraFiles": [], "allow": [], "extraEnvKeywords": [] },
+  "sensitive": { "extraFiles": [], "allow": ["**/kit/hooks/lib/secrets.mjs"], "extraEnvKeywords": [] },
   "secrets": { "extraPatterns": [] },
   "commands": { "extraDeny": [], "allow": [] },
   "protect": { "paths": [] },

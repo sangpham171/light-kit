@@ -24,6 +24,11 @@ const looksSecretValue = (v) => {
 
 const preview = (s) => `${s.slice(0, 4)}…`;
 
+// A path, URL or folder chain is an identifier, not a credential: `session-state/<id>/events.jsonl`,
+// `/Users/me/Library/…`. One segment of plain words (no digit) marks the whole run as a path.
+const WORD_SEGMENT = /^[A-Za-z][A-Za-z._-]*$/;
+const looksLikePath = (s) => s.includes('/') && s.split('/').some((seg) => WORD_SEGMENT.test(seg));
+
 export function findSecrets(text, extraPatterns = []) {
   const found = [];
   if (!text) return found;
@@ -34,7 +39,7 @@ export function findSecrets(text, extraPatterns = []) {
   for (const m of t.matchAll(/\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}/g)) found.push({ rule: 'signed token', preview: preview(m[0]) });
   for (const m of t.matchAll(ASSIGN)) if (looksSecretValue(m[2])) found.push({ rule: `value assigned to "${m[1]}"`, preview: preview(m[2]) });
   for (const m of t.matchAll(/(?<![A-Za-z0-9+/_-])[A-Za-z0-9+/_-]{40,}={0,2}(?![A-Za-z0-9+/_-])/g))
-    if (/\d/.test(m[0]) && /[a-z]/.test(m[0]) && /[A-Z]/.test(m[0]) && entropy(m[0]) >= 4.5) found.push({ rule: 'long random token', preview: preview(m[0]) });
+    if (!looksLikePath(m[0]) && /\d/.test(m[0]) && /[a-z]/.test(m[0]) && /[A-Z]/.test(m[0]) && entropy(m[0]) >= 4.5) found.push({ rule: 'long random token', preview: preview(m[0]) });
   for (const re of regexes(extraPatterns)) { const m = t.match(re); if (m) found.push({ rule: `project pattern ${re.source}`, preview: preview(m[0]) }); }
   return found;
 }
