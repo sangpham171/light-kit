@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, rmSync, utimesSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, rmSync, utimesSync, chmodSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { install } from '../tools/install.mjs';
@@ -923,4 +923,109 @@ test('token-usage: an artifact written before the move still counts as filled', 
   writeFile(d, 'specs/001-x/50-implementation.md',
     '---\nruns:\n  - step: implement\n    agent: light-developer\n    model: m\n    thinking: high\n    level: medium\n---\n\n# Implementation log\n\n## Token usage\nTokens: 10 input · 0 cache read · 0 cache write · 1 output · 11 total\nTime: 0s\n');
   assert.equal(run(d, 'claude', 'post-tool', { ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's7' }).out, '');
+});
+
+test('token-usage: an artifact without a usage entry gets the message and is left untouched', () => {
+  const d = project(); withSpec(d);
+  const f = join(d, 'session.jsonl');
+  writeFileSync(f, usageEntry(10, 1, '2026-01-01T00:00:00Z'));
+  const text = '---\nstep: implementation\nruns:\n  - agent: light-developer\n    model: m\n    thinking: high\n    level: medium\n---\n\n# Implementation log\n';
+  writeFile(d, 'specs/001-x/50-implementation.md', text);
+  const out = JSON.parse(run(d, 'claude', 'post-tool', { ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's1' }).out).hookSpecificOutput.additionalContext;
+  assert.match(out, /Add a `usage:` block to the header of specs\/001-x\/50-implementation.md/);
+  assert.equal(readFileSync(join(d, 'specs/001-x/50-implementation.md'), 'utf8'), text);
+});
+
+test('token-usage: an unfilled legacy section falls back to the message, a filled one stays untouched', () => {
+  const d = project(); withSpec(d);
+  const f = join(d, 'session.jsonl');
+  writeFileSync(f, usageEntry(10, 1, '2026-01-01T00:00:00Z', 'm1'));
+  const call = () => ({ ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's7' });
+  const before = '---\nstep: implementation\nruns:\n  - agent: light-developer\n    model: m\n    thinking: high\n    level: medium\n---\n\n# Implementation log\n\n## Token usage\nTokens: unknown\nTime: unknown\n';
+  writeFile(d, 'specs/001-x/50-implementation.md', before);
+  assert.match(run(d, 'claude', 'post-tool', call()).out, /Token usage/);
+  assert.equal(readFileSync(join(d, 'specs/001-x/50-implementation.md'), 'utf8'), before); // never rewritten
+  const filled = '---\nstep: implementation\nruns:\n  - agent: light-developer\n    model: m\n    thinking: high\n    level: medium\n---\n\n# Implementation log\n\n## Token usage\nTokens: 10 input · 0 cache read · 0 cache write · 1 output · 11 total\nTime: 0s\n';
+  writeFile(d, 'specs/001-x/50-implementation.md', filled);
+  assert.equal(run(d, 'claude', 'post-tool', call()).out, '');
+  assert.equal(readFileSync(join(d, 'specs/001-x/50-implementation.md'), 'utf8'), filled);
+});
+
+test('token-usage: a header key after usage is preserved', () => {
+  const d = project(); withSpec(d);
+  const f = join(d, 'session.jsonl');
+  writeFileSync(f, usageEntry(10, 1, '2026-01-01T00:00:00Z', 'm1'));
+  const text = '---\nstep: implementation\nruns:\n  - agent: light-developer\n    model: m\n    thinking: high\n    level: medium\nusage:\n  tokens: unknown\n  time: unknown\nmodel: m-2\n---\n\n# Implementation log\n';
+  writeFile(d, 'specs/001-x/50-implementation.md', text);
+  assert.equal(run(d, 'claude', 'post-tool', { ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's1' }).out, '');
+  assert.equal(readFileSync(join(d, 'specs/001-x/50-implementation.md'), 'utf8'),
+    text.replace('  tokens: unknown\n  time: unknown', '  tokens: 10 input · 0 cache read · 0 cache write · 1 output · 11 total\n  time: 0s'));
+});
+
+test('token-usage: the rest of the header and the body are preserved byte for byte', () => {
+  const d = project(); withSpec(d);
+  const f = join(d, 'session.jsonl');
+  writeFileSync(f, usageEntry(10, 1, '2026-01-01T00:00:00Z', 'm1'));
+  const header = 'step: implementation\nruns:\n  - agent: light-developer\n    model: m\n    thinking: high\n    level: medium\nusage:\n  tokens: unknown\n  time: unknown';
+  const body = '\n# Implementation log\n\n  indented line\n\n<!-- keep me -->\n\n';
+  writeFile(d, 'specs/001-x/50-implementation.md', `---\n${header}\n---${body}`);
+  assert.equal(run(d, 'claude', 'post-tool', { ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's1' }).out, '');
+  assert.equal(readFileSync(join(d, 'specs/001-x/50-implementation.md'), 'utf8'),
+    `---\n${header.replace('  tokens: unknown\n  time: unknown', '  tokens: 10 input · 0 cache read · 0 cache write · 1 output · 11 total\n  time: 0s')}\n---${body}`);
+});
+
+test('token-usage: a second run with the same totals does not write the artifact', () => {
+  const d = project(); withSpec(d);
+  const f = join(d, 'session.jsonl');
+  writeFileSync(f, usageEntry(10, 1, '2026-01-01T00:00:00Z', 'm1'));
+  const p = join(d, 'specs/001-x/50-implementation.md');
+  writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact());
+  const call = () => ({ ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's1' });
+  assert.equal(run(d, 'claude', 'post-tool', call()).out, '');
+  const written = readFileSync(p, 'utf8');
+  const stamp = new Date('2020-01-01T00:00:00Z');
+  utimesSync(p, stamp, stamp);
+  const before = statSync(p).mtimeMs;
+  assert.equal(run(d, 'claude', 'post-tool', call()).out, '');
+  assert.equal(readFileSync(p, 'utf8'), written);
+  assert.equal(statSync(p).mtimeMs, before); // unchanged text: no write
+});
+
+test('token-usage: the conclusion list is sorted, includes its own step and sums the total', () => {
+  const d = project(); withSpec(d);
+  writeFile(d, 'specs/001-x/status.md', '---\nworkflow: standard\nstep: conclude\nstate: in-progress\n---\n');
+  writeFileSync(join(d, '.light-kit/usage.json'), JSON.stringify({
+    version: 3,
+    sessions: { s2: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, timeMs: 0 } },
+    requests: { '001-x': { steps: {
+      '50-implementation': { input: 100, output: 20, cacheRead: 300, cacheWrite: 40, timeMs: 5000, timed: true },
+      '10-understanding': { input: 10, output: 1, cacheRead: 0, cacheWrite: 0, timeMs: 0, timed: false },
+    } } },
+  }));
+  const f = join(d, 'session.jsonl');
+  writeFileSync(f, usageEntry(30, 5, '2026-01-01T00:00:00Z', 'm1', 200, 20));
+  writeFile(d, 'specs/001-x/60-conclusion.md', '---\nstep: conclude\nruns:\n  - agent: light-tech-writer\n    model: m\n    thinking: high\n    level: easy\nusage:\n  - step: 50-implementation\n    tokens: old\n    time: old\n---\n\n# Conclusion\n');
+  assert.equal(run(d, 'claude', 'post-tool', { ...write('specs/001-x/60-conclusion.md'), transcript_path: f, session_id: 's2' }).out, '');
+  assert.equal(readFileSync(join(d, 'specs/001-x/60-conclusion.md'), 'utf8'),
+    '---\nstep: conclude\nruns:\n  - agent: light-tech-writer\n    model: m\n    thinking: high\n    level: easy\nusage:\n'
+    + '  - step: 10-understanding\n    tokens: 10 input · 0 cache read · 0 cache write · 1 output · 11 total\n    time: unknown\n'
+    + '  - step: 50-implementation\n    tokens: 100 input · 300 cache read · 40 cache write · 20 output · 460 total\n    time: 5s\n'
+    + '  - step: 60-conclusion\n    tokens: 30 input · 200 cache read · 20 cache write · 5 output · 255 total\n    time: 0s\n'
+    + '  - step: total\n    tokens: 140 input · 500 cache read · 60 cache write · 26 output · 726 total\n    time: 5s\n'
+    + '---\n\n# Conclusion\n');
+});
+
+test('token-usage: a write failure falls back to the message', () => {
+  const d = project(); withSpec(d);
+  const f = join(d, 'session.jsonl');
+  writeFileSync(f, usageEntry(10, 1, '2026-01-01T00:00:00Z', 'm1'));
+  const p = join(d, 'specs/001-x/50-implementation.md');
+  writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact());
+  if (process.getuid?.() === 0) return; // root writes through a read-only file
+  chmodSync(p, 0o444);
+  const out = run(d, 'claude', 'post-tool', { ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's1' }).out;
+  chmodSync(p, 0o644);
+  assert.match(JSON.parse(out).hookSpecificOutput.additionalContext, /Token usage — 001-x, step 50-implementation/);
+  assert.equal(readFileSync(p, 'utf8'), usageArtifact()); // the artifact keeps the agent's text
+  assert.equal(JSON.parse(readFileSync(join(d, '.light-kit/usage.json'), 'utf8')).requests['001-x'].steps['50-implementation'].input, 10); // state was saved first
 });
