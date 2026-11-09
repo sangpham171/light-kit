@@ -38,3 +38,28 @@ stored. Safe to delete.
 | 2026-11-09T12:37:20Z | claude | Edit | write | specs/032-token-usage-rewrite/00-request.md |
 | 2026-11-09T12:37:28Z | claude | Write | write | specs/032-token-usage-rewrite/10-understanding.md |
 | 2026-11-09T12:37:32Z | claude | Edit | write | specs/032-token-usage-rewrite/10-understanding.md |
+| 2026-11-09T12:37:36Z | claude | Bash | shell | git add specs/032-token-usage-rewrite && git commit -q -m "docs(specs): open request 032" && git log --oneline -2 |
+| 2026-11-09T12:37:44Z | claude | Read | read | specs/032-token-usage-rewrite/00-request.md |
+| 2026-11-09T12:37:44Z | claude | Read | read | specs/032-token-usage-rewrite/10-understanding.md |
+| 2026-11-09T12:37:45Z | claude | Read | read | kit/hooks/checks/token-usage.mjs |
+| 2026-11-09T12:37:46Z | claude | Read | read | kit/hooks/lib/usage.mjs |
+| 2026-11-09T12:37:46Z | claude | Bash | shell | grep -n "core.md\\|CLAUDE.md\\|instructions" tools/build.mjs \| head -30; echo ---; grep -rn "token-usage hook" kit/instructions/core.md docs/usage.md kit/hooks/README.md \| head |
+| 2026-11-09T12:37:47Z | claude | Read | read | tests/hooks.test.mjs |
+| 2026-11-09T12:37:49Z | claude | Read | read | /Users/light/.claude/skills/light-tech-debt/SKILL.md |
+| 2026-11-09T12:37:49Z | claude | Read | read | /Users/light/.claude/skills/light-review-cycle/SKILL.md |
+| 2026-11-09T12:37:49Z | claude | Read | read | /Users/light/.claude/skills/light-commit/SKILL.md |
+| 2026-11-09T12:37:50Z | claude | Read | read | tests/hooks.test.mjs |
+| 2026-11-09T12:37:53Z | claude | Read | read | docs/usage.md |
+| 2026-11-09T12:37:53Z | claude | Read | read | kit/hooks/README.md |
+| 2026-11-09T12:38:19Z | claude | Read | read | kit/instructions/core.md |
+| 2026-11-09T12:38:19Z | claude | Read | read | package.json |
+| 2026-11-09T12:38:21Z | claude | Read | read | kit/hooks/checks/index.mjs |
+| 2026-11-09T12:38:29Z | claude | Read | read | .gitignore |
+| 2026-11-09T12:38:29Z | claude | Read | read | specs/032-token-usage-rewrite/status.md |
+| 2026-11-09T12:38:54Z | claude | Write | write | specs/032-token-usage-rewrite/40-plan.md |
+| 2026-11-09T12:39:00Z | claude | Read | read | specs/032-token-usage-rewrite/40-plan.md |
+| 2026-11-09T12:39:07Z | claude | Read | read | .light-kit/usage.json |
+| 2026-11-09T12:39:15Z | claude | Edit | write | specs/032-token-usage-rewrite/00-request.md |
+| 2026-11-09T12:39:15Z | claude | Edit | write | specs/032-token-usage-rewrite/10-understanding.md |
+| 2026-11-09T12:39:16Z | claude | Edit | write | specs/032-token-usage-rewrite/40-plan.md |
+| 2026-11-09T12:39:16Z | claude | Edit | write | specs/032-token-usage-rewrite/status.md |

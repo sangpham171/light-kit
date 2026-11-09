@@ -7,8 +7,8 @@ runs:
     thinking: unknown
     level: easy
 usage:
-  tokens: 0 input · 0 cache read · 0 cache write · 0 output · 0 total
-  time: 2s
+  tokens: 684 input · 126,976 cache read · 0 cache write · 1,514 output · 129,174 total
+  time: 11s
 ---
 
 # Understanding
