@@ -41,11 +41,9 @@ const usageRows = (text) => {
   if (!first?.startsWith('- ')) return [body.join('\n')]; // one block: the artifact's own step
   return body.join('\n').split(/\n(?=\s*- )/).filter((b) => /^\s*- /.test(b));
 };
-const field = (block, name) => block.match(new RegExp(`^\\s*${name}:\\s*(.+)$`, 'm'))?.[1]?.trim() ?? '';
 const section = (text) => text.split(/^## /m).find((p) => p.startsWith('Token usage')) ?? '';
 // Both fields must be present: a duration when the transcript carries timestamps, `unknown` when it does not.
 const filledTime = (value, timeKnown) => /^\d/.test(value) || (!timeKnown && /^unknown\b/i.test(value));
-const filledTokens = (value) => /\d[\d,]*/.test(value);
 const legacyTokensFilled = (body) => /\bTokens?:\s*\d/i.test(body) || /\|\s*\d[\d,]*\s*\|/.test(body);
 const legacyTimeFilled = (body, timeKnown) => {
   const line = body.match(/^Time:\s*(.+)$/im);
@@ -58,9 +56,8 @@ const legacyTimeFilled = (body, timeKnown) => {
   const index = header.findIndex((c) => /^time$/i.test(c));
   return table.some((cells) => cells.length === header.length && filledTime(cells[index], timeKnown));
 };
-const filled = (text, timeKnown) => {
-  const rows = usageRows(text);
-  if (rows.length) return rows.some((row) => filledTokens(field(row, 'tokens')) && filledTime(field(row, 'time'), timeKnown));
+// Only artifacts without a header `usage:` entry reach this: the header path is rewritten above.
+const legacyFilled = (text, timeKnown) => {
   const body = section(text);
   return legacyTokensFilled(body) && legacyTimeFilled(body, timeKnown);
 };
@@ -207,7 +204,7 @@ export default {
       return null;
     }
 
-    if (filled(text, delta.timeKnown)) return null;
+    if (legacyFilled(text, delta.timeKnown)) return null;
     return message();
   },
 };
