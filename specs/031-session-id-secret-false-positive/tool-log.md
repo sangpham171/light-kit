@@ -109,3 +109,4 @@ stored. Safe to delete.
 | 2026-11-08T23:01:15Z | claude | Bash | shell | sed -n '1,60p' specs/030-tool-log-before-request/60-conclusion.md |
 | 2026-11-08T23:01:22Z | claude | Write | write | specs/031-session-id-secret-false-positive/60-conclusion.md |
 | 2026-11-08T23:01:23Z | claude | Edit | write | specs/031-session-id-secret-false-positive/status.md |
+| 2026-11-09T12:49:20Z | claude | Read | read | specs/031-session-id-secret-false-positive/60-conclusion.md |
