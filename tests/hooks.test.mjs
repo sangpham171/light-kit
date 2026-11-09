@@ -886,25 +886,23 @@ test('token-usage: a state file from another counting version restarts instead o
     { input: 10, output: 1, cacheRead: 0, cacheWrite: 0, timeMs: 2000, timed: true });
 });
 
-test('token-usage: a conclusion usage list counts as filled only when tokens and time are set', () => {
+test('token-usage: the conclusion gains a row per recorded step and the total', () => {
   const d = project(); withSpec(d);
   writeFile(d, 'specs/001-x/status.md', '---\nworkflow: standard\nstep: conclude\nstate: in-progress\n---\n'); // the tech-writer concludes
   const f = join(d, 'session.jsonl');
   writeFileSync(f, usageEntry(30, 5, '2026-01-01T00:00:00Z', 'm1', 200, 20));
-  const conclusion = (rows) => `---\nstep: conclude\nruns:\n  - agent: light-tech-writer\n    model: m\n    thinking: high\n    level: easy\nusage:\n${rows}---\n\n# Conclusion\n`;
+  const conclusion = (usage) => `---\nstep: conclude\nruns:\n  - agent: light-tech-writer\n    model: m\n    thinking: high\n    level: easy\nusage:\n${usage}---\n\n# Conclusion\n`;
   const call = () => ({ ...write('specs/001-x/60-conclusion.md'), transcript_path: f, session_id: 's2' });
   writeFile(d, 'specs/001-x/60-conclusion.md', conclusion('  - step: 50-implementation\n    tokens: unknown\n    time: unknown\n'));
-  const first = run(d, 'claude', 'post-tool', call()).out;
-  assert.match(first, /Token usage — 001-x, step 60-conclusion/);
-  assert.match(first, /fill the `usage:` list with the rows below/); // the conclusion holds every step, not one row
-  assert.doesNotMatch(first, /set the `usage:` block/);
-  writeFile(d, 'specs/001-x/60-conclusion.md', conclusion('  - step: 50-implementation\n    tokens: 30 input · 200 cache read · 20 cache write · 5 output · 255 total\n    time: unknown\n'));
-  assert.match(run(d, 'claude', 'post-tool', call()).out, /Token usage/); // time known: `unknown` does not count
-  writeFile(d, 'specs/001-x/60-conclusion.md', conclusion('  - step: 50-implementation\n    tokens: 30 input · 200 cache read · 20 cache write · 5 output · 255 total\n    time: 0s\n'));
   assert.equal(run(d, 'claude', 'post-tool', call()).out, '');
+  // The hook records only the steps it saw: the agent's row for a step state never recorded is dropped,
+  // and the conclusion's own step and the total are added (see 50-implementation.md).
+  assert.equal(readFileSync(join(d, 'specs/001-x/60-conclusion.md'), 'utf8'), conclusion(
+    '  - step: 60-conclusion\n    tokens: 30 input · 200 cache read · 20 cache write · 5 output · 255 total\n    time: 0s\n'
+    + '  - step: total\n    tokens: 30 input · 200 cache read · 20 cache write · 5 output · 255 total\n    time: 0s\n'));
 });
 
-test('token-usage: a usage row without a time never counts as filled', () => {
+test('token-usage: a conclusion row without a time is rewritten too', () => {
   const d = project(); withSpec(d);
   writeFile(d, 'specs/001-x/status.md', '---\nworkflow: standard\nstep: conclude\nstate: in-progress\n---\n'); // the tech-writer concludes
   const f = join(d, 'session.jsonl');
@@ -912,9 +910,10 @@ test('token-usage: a usage row without a time never counts as filled', () => {
   const artifact = (rows) => `---\nstep: conclude\nruns:\n  - agent: light-tech-writer\n    model: m\n    thinking: high\n    level: easy\nusage:\n${rows}---\n\n# Conclusion\n`;
   const call = () => ({ ...write('specs/001-x/60-conclusion.md'), transcript_path: f, session_id: 's6' });
   writeFile(d, 'specs/001-x/60-conclusion.md', artifact('  - step: 50-implementation\n    tokens: 30 input · 5 output · 35 total\n'));
-  assert.match(run(d, 'claude', 'post-tool', call()).out, /Token usage/);
-  writeFile(d, 'specs/001-x/60-conclusion.md', artifact('  - step: 50-implementation\n    tokens: 30 input · 5 output · 35 total\n    time: 0s\n'));
   assert.equal(run(d, 'claude', 'post-tool', call()).out, '');
+  assert.equal(readFileSync(join(d, 'specs/001-x/60-conclusion.md'), 'utf8'), artifact(
+    '  - step: 60-conclusion\n    tokens: 30 input · 0 cache read · 0 cache write · 5 output · 35 total\n    time: 0s\n'
+    + '  - step: total\n    tokens: 30 input · 0 cache read · 0 cache write · 5 output · 35 total\n    time: 0s\n'));
 });
 
 test('token-usage: an artifact written before the move still counts as filled', () => {

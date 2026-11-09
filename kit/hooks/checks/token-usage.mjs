@@ -194,8 +194,12 @@ export default {
       ].join('\n'),
     });
 
-    if (!conclusion && headerUsage(text)) {
-      const next = rewriteUsage(text, ['usage:', ...yamlBlock(totals, timeOf(totals)).split('\n')]);
+    if (headerUsage(text)) {
+      const block = conclusion
+        // The conclusion holds every recorded step, so it gets one row each plus the request total.
+        ? ['usage:', ...rows(steps).split('\n'), ...yamlRow('total', requestTotal, requestTime).split('\n')]
+        : ['usage:', ...yamlBlock(totals, timeOf(totals)).split('\n')];
+      const next = rewriteUsage(text, block);
       if (next === null) return message();
       try {
         if (next !== text) writeFileSync(hit.path, next);
