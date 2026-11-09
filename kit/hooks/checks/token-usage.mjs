@@ -74,8 +74,10 @@ const rewriteUsage = (text, block) => {
   const header = match[1].split('\n');
   const start = header.findIndex((line) => /^usage:\s*$/.test(line));
   if (start === -1) return null;
+  // A list item at column 0 belongs to the entry; only an unindented mapping key ends it.
+  const isKey = (line) => /^\S/.test(line) && !/^-\s/.test(line);
   let end = start + 1;
-  while (end < header.length && !/^\S/.test(header[end])) end++;
+  while (end < header.length && !isKey(header[end])) end++;
   while (end > start + 1 && !header[end - 1].trim()) end--;
   const at = match.index + 4;
   return text.slice(0, at)

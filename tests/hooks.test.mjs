@@ -1015,6 +1015,33 @@ test('token-usage: the conclusion list is sorted, includes its own step and sums
     + '---\n\n# Conclusion\n');
 });
 
+test('token-usage: unindented conclusion rows are replaced, not left behind', () => {
+  const d = project(); withSpec(d);
+  writeFile(d, 'specs/001-x/status.md', '---\nworkflow: standard\nstep: conclude\nstate: in-progress\n---\n');
+  writeFileSync(join(d, '.light-kit/usage.json'), JSON.stringify({
+    version: 3,
+    sessions: { s2: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0, timeMs: 0 } },
+    requests: { '001-x': { steps: {
+      '50-implementation': { input: 100, output: 20, cacheRead: 0, cacheWrite: 0, timeMs: 0, timed: false },
+      '10-understanding': { input: 10, output: 1, cacheRead: 0, cacheWrite: 0, timeMs: 0, timed: false },
+    } } },
+  }));
+  const f = join(d, 'session.jsonl');
+  writeFileSync(f, usageEntry(30, 5));
+  writeFile(d, 'specs/001-x/60-conclusion.md', '---\nstep: conclude\nruns:\n  - agent: light-tech-writer\n    model: m\n    thinking: high\n    level: easy\nusage:\n- step: 50-implementation\n  tokens: old\n  time: old\n- step: 99-stale\n  tokens: stale\n  time: stale\n---\n\n# Conclusion\n');
+  assert.equal(run(d, 'claude', 'post-tool', { ...write('specs/001-x/60-conclusion.md'), transcript_path: f, session_id: 's2' }).out, '');
+  const written = readFileSync(join(d, 'specs/001-x/60-conclusion.md'), 'utf8');
+  // Column-0 rows are part of the entry: the rewrite replaces them instead of appending to them.
+  assert.equal(written, '---\nstep: conclude\nruns:\n  - agent: light-tech-writer\n    model: m\n    thinking: high\n    level: easy\nusage:\n'
+    + '  - step: 10-understanding\n    tokens: 10 input · 0 cache read · 0 cache write · 1 output · 11 total\n    time: unknown\n'
+    + '  - step: 50-implementation\n    tokens: 100 input · 0 cache read · 0 cache write · 20 output · 120 total\n    time: unknown\n'
+    + '  - step: 60-conclusion\n    tokens: 30 input · 0 cache read · 0 cache write · 5 output · 35 total\n    time: unknown\n'
+    + '  - step: total\n    tokens: 140 input · 0 cache read · 0 cache write · 26 output · 166 total\n    time: unknown\n'
+    + '---\n\n# Conclusion\n');
+  assert.equal((written.match(/- step: /g) ?? []).length, 4); // no stale row survives
+  assert.doesNotMatch(written, /stale/);
+});
+
 test('token-usage: a write failure falls back to the message', () => {
   const d = project(); withSpec(d);
   const f = join(d, 'session.jsonl');
