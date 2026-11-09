@@ -12,8 +12,8 @@ runs:
     thinking: unknown
     level: unknown
 usage:
-  tokens: unknown
-  time: unknown
+  tokens: 19,830 input · 1,422,720 cache read · 0 cache write · 8,958 output · 1,451,508 total
+  time: 15m 57s
 ---
 
 # Implementation
@@ -49,7 +49,8 @@ usage:
   returns the informational message.
 - The hook rewrites a header entry that already holds numbers, because the state is the source of
   truth; an identical result skips the write, so a repeated run is silent and leaves the file alone.
-- `.light-kit/usage.json` stays untracked as local hook state.
+- `.light-kit/usage.json` is local hook state; it is committed in the final checkpoint so the request
+  leaves no uncommitted change, as the user asked.
 
 ## Verification
 
@@ -79,3 +80,5 @@ Round 1 fixes: the region now ends only at an unindented mapping key, with regre
 column-0 rows and for blank lines before a key and before the closing `---`.
 
 Verdict: changes requested
+
+Outcome: every finding is fixed and verified; no finding is open.
