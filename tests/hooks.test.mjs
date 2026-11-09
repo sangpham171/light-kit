@@ -661,15 +661,10 @@ test('token-usage: reports the step delta, time and accumulated request totals',
   writeFileSync(f, usageEntry(100, 20, '2026-01-01T00:00:00Z', 'm1', 300, 40));
   writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact());
   const call = () => ({ ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's1' });
-  const first = JSON.parse(run(d, 'claude', 'post-tool', call()).out).hookSpecificOutput.additionalContext;
-  assert.match(first, /Token usage — 001-x, step 50-implementation/);
-  assert.match(first, /This write: 100 input · 300 cache read · 40 cache write · 20 output · 460 total · time 0s/);
-  assert.match(first, /Step total: 100 input · 300 cache read · 40 cache write · 20 output · 460 total · time 0s/);
-  assert.match(first, /Request total: 100 input · 300 cache read · 40 cache write · 20 output · 460 total · time 0s/);
-  assert.match(first, /tokens: 100 input · 300 cache read · 40 cache write · 20 output · 460 total/);
-  assert.match(first, /time: 0s/);
-  assert.match(first, /  - step: 50-implementation\n    tokens: 100 input · 300 cache read · 40 cache write · 20 output · 460 total\n    time: 0s/);
-  assert.match(first, /set the `usage:` block:\n  tokens: 100 input · 300 cache read · 40 cache write · 20 output · 460 total\n  time: 0s/);
+  const first = run(d, 'claude', 'post-tool', call());
+  assert.equal(first.out, ''); // the hook writes the row itself: nothing for the agent to copy
+  assert.equal(readFileSync(join(d, 'specs/001-x/50-implementation.md'), 'utf8'),
+    usageArtifact('100 input · 300 cache read · 40 cache write · 20 output · 460 total', '0s'));
   let state = JSON.parse(readFileSync(join(d, '.light-kit/usage.json'), 'utf8'));
   assert.deepEqual(state.sessions.s1, { input: 100, output: 20, cacheRead: 300, cacheWrite: 40, timeMs: 0 });
   assert.deepEqual(state.requests['001-x'].steps['50-implementation'],
@@ -678,46 +673,54 @@ test('token-usage: reports the step delta, time and accumulated request totals',
   writeFileSync(f, usageEntry(50, 10, '2026-01-01T00:00:30Z'), { flag: 'a' });
   writeFile(d, 'specs/001-x/50-implementation.md',
     usageArtifact('100 input · 300 cache read · 40 cache write · 20 output · 460 total', '0s'));
-  assert.equal(run(d, 'claude', 'post-tool', call()).out, ''); // already filled: no nag
+  assert.equal(run(d, 'claude', 'post-tool', call()).out, '');
+  assert.equal(readFileSync(join(d, 'specs/001-x/50-implementation.md'), 'utf8'),
+    usageArtifact('150 input · 300 cache read · 40 cache write · 30 output · 520 total', '30s')); // hook totals replace an old fill
   state = JSON.parse(readFileSync(join(d, '.light-kit/usage.json'), 'utf8'));
   assert.deepEqual(state.sessions.s1, { input: 150, output: 30, cacheRead: 300, cacheWrite: 40, timeMs: 30_000 }); // the baseline still advances
   assert.deepEqual(state.requests['001-x'].steps['50-implementation'],
     { input: 150, output: 30, cacheRead: 300, cacheWrite: 40, timeMs: 30_000, timed: true });
 });
 
-test('token-usage: groups thousands in the suggested row', () => {
+test('token-usage: groups thousands in the written row', () => {
   const d = project(); withSpec(d);
   const f = join(d, 'session.jsonl');
   writeFileSync(f, usageEntry(1_200_000, 34_000, '2026-01-01T00:00:00Z', 'm1', 4_000_000, 10));
   writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact());
-  const out = JSON.parse(run(d, 'claude', 'post-tool', { ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's5' }).out).hookSpecificOutput.additionalContext;
-  assert.match(out, /tokens: 1,200,000 input · 4,000,000 cache read · 10 cache write · 34,000 output · 5,234,010 total/);
-  assert.match(out, /  - step: 50-implementation\n    tokens: 1,200,000 input · 4,000,000 cache read · 10 cache write · 34,000 output · 5,234,010 total\n    time: 0s/);
-  assert.match(out, /  - step: total\n    tokens: 1,200,000 input · 4,000,000 cache read · 10 cache write · 34,000 output · 5,234,010 total\n    time: 0s/);
+  assert.equal(run(d, 'claude', 'post-tool', { ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's5' }).out, '');
+  assert.equal(readFileSync(join(d, 'specs/001-x/50-implementation.md'), 'utf8'),
+    usageArtifact('1,200,000 input · 4,000,000 cache read · 10 cache write · 34,000 output · 5,234,010 total', '0s'));
 });
 
-test('token-usage: time is unknown without timestamps, and the agent may write that', () => {
+test('token-usage: time is unknown without timestamps and the hook writes that', () => {
   const d = project(); withSpec(d);
   const f = join(d, 'session.jsonl');
   writeFileSync(f, usageEntry(10, 1));
-  writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact('123/45 (total 168)', 'unknown')); // the previous format is still a valid fill
+  writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact());
   const call = () => ({ ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's4' });
-  assert.equal(run(d, 'claude', 'post-tool', call()).out, ''); // `time: unknown` is a valid fill here
-  writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact('10 input · 1 output · 11 total', 'unknown'));
-  assert.equal(run(d, 'claude', 'post-tool', call()).out, ''); // and so is the 010 shape with `time: unknown`
+  assert.equal(run(d, 'claude', 'post-tool', call()).out, '');
+  assert.equal(readFileSync(join(d, 'specs/001-x/50-implementation.md'), 'utf8'),
+    usageArtifact('10 input · 0 cache read · 0 cache write · 1 output · 11 total', 'unknown')); // no timestamps: time unknown
+  writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact('123/45 (total 168)', 'unknown'));
+  assert.equal(run(d, 'claude', 'post-tool', call()).out, '');
+  assert.equal(readFileSync(join(d, 'specs/001-x/50-implementation.md'), 'utf8'),
+    usageArtifact('10 input · 0 cache read · 0 cache write · 1 output · 11 total', 'unknown')); // an older shape is replaced too
   writeFileSync(f, usageEntry(10, 1, '2026-01-01T00:00:00Z'), { flag: 'a' });
-  assert.match(run(d, 'claude', 'post-tool', call()).out, /Token usage/); // timestamps exist now: a duration is expected
+  assert.equal(run(d, 'claude', 'post-tool', call()).out, '');
+  assert.equal(readFileSync(join(d, 'specs/001-x/50-implementation.md'), 'utf8'),
+    usageArtifact('20 input · 0 cache read · 0 cache write · 2 output · 22 total', '0s')); // timestamps exist now: a duration is written
 });
 
-test('token-usage: the template placeholder does not count as a filled row', () => {
+test('token-usage: the template placeholder is replaced by the step totals', () => {
   const d = project(); withSpec(d);
   const f = join(d, 'session.jsonl');
   writeFileSync(f, usageEntry(10, 1, '2026-01-01T00:00:00Z'));
   writeFile(d, 'specs/001-x/50-implementation.md',
     readFileSync(new URL('../kit/templates/50-implementation.md', import.meta.url), 'utf8'));
-  const out = JSON.parse(run(d, 'claude', 'post-tool', { ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's6' }).out).hookSpecificOutput.additionalContext;
-  assert.match(out, /set the `usage:` block/);
-  assert.match(out, /tokens: 10 input · 0 cache read · 0 cache write · 1 output · 11 total/);
+  assert.equal(run(d, 'claude', 'post-tool', { ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's6' }).out, '');
+  const written = readFileSync(join(d, 'specs/001-x/50-implementation.md'), 'utf8');
+  assert.match(written, /usage:\n  tokens: 10 input · 0 cache read · 0 cache write · 1 output · 11 total\n  time: 0s\n---/);
+  assert.doesNotMatch(written, /<input>/);
 });
 
 test('token-usage: silent without a readable transcript, for other clients and for other files', () => {
@@ -752,11 +755,10 @@ test('token-usage: Copilot in VS Code reads the chat session log', () => {
     sessionId: 'sid', timestamp: '2026-01-01T00:00:20Z',
     transcript_path: join(home, 'transcripts/sid.jsonl'), // VS Code sends it; it holds no usage
   });
-  const out = JSON.parse(run(d, 'copilot', 'post-tool', call(), { HOME: home }).out).additionalContext;
-  assert.match(out, /Token usage — 001-x, step 50-implementation/);
-  assert.match(out, /This write: 42,000 input · 0 cache read · 0 cache write · 2,000 output · 44,000 total · time 7s/);
-  assert.match(out, /tokens: 42,000 input · 0 cache read · 0 cache write · 2,000 output · 44,000 total/);
-  assert.match(out, /time: 7s/);
+  const out = run(d, 'copilot', 'post-tool', call(), { HOME: home });
+  assert.equal(out.out, '');
+  assert.equal(readFileSync(join(d, 'specs/001-x/50-implementation.md'), 'utf8'),
+    usageArtifact('42,000 input · 0 cache read · 0 cache write · 2,000 output · 44,000 total', '7s'));
   const state = JSON.parse(readFileSync(join(d, '.light-kit/usage.json'), 'utf8'));
   assert.deepEqual(state.sessions['copilot:sid'], { input: 42_000, output: 2000, cacheRead: 0, cacheWrite: 0, timeMs: 7200 });
   assert.deepEqual(state.requests['001-x'].steps['50-implementation'],
@@ -772,11 +774,11 @@ test('token-usage: Copilot in VS Code reads a named-profile chat session log', (
     + op({ kind: 2, k: ['requests'], v: [{ requestId: 'r1', timestamp: 1000, promptTokens: 700, completionTokens: 80, result: { timings: { totalElapsed: 2500 } } }] }),
     'work-profile');
   writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact());
-  const out = JSON.parse(run(d, 'copilot', 'post-tool', {
+  assert.equal(run(d, 'copilot', 'post-tool', {
     toolName: 'create_file', toolArgs: { filePath: 'specs/001-x/50-implementation.md' }, sessionId: 'profile-sid',
-  }, { HOME: home }).out).additionalContext;
-  assert.match(out, /This write: 700 input · 0 cache read · 0 cache write · 80 output · 780 total · time 2s/);
-  assert.match(out, /time: 2s/);
+  }, { HOME: home }).out, '');
+  assert.equal(readFileSync(join(d, 'specs/001-x/50-implementation.md'), 'utf8'),
+    usageArtifact('700 input · 0 cache read · 0 cache write · 80 output · 780 total', '2s'));
 });
 
 const copilotEvents = (home, sessionId, lines) => {
@@ -795,14 +797,13 @@ test('token-usage: Copilot agent host sessions read the event log', () => {
       { inputTokens: 53_000, outputTokens: 800, cacheReadTokens: 40_000, cacheWriteTokens: 1000 })
     + ev('tool.execution_start', '2026-01-01T00:00:09.000Z'));
   writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact());
-  const out = JSON.parse(run(d, 'copilot', 'post-tool', {
+  assert.equal(run(d, 'copilot', 'post-tool', {
     toolName: 'create', toolArgs: { filePath: 'specs/001-x/50-implementation.md' },
     sessionId: 'host-sid', timestamp: '2026-01-01T00:00:12.000Z',
     transcript_path: join(home, 'transcripts/host-sid.jsonl'), // VS Code sends it; it holds no usage
-  }, { HOME: home, COPILOT_HOME: join(home, '.copilot') }).out).additionalContext;
-  assert.match(out, /Token usage — 001-x, step 50-implementation/);
-  assert.match(out, /This write: 12,000 input · 40,000 cache read · 1,000 cache write · 800 output · 53,800 total · time 12s/);
-  assert.match(out, /time: 12s/);
+  }, { HOME: home, COPILOT_HOME: join(home, '.copilot') }).out, '');
+  assert.equal(readFileSync(join(d, 'specs/001-x/50-implementation.md'), 'utf8'),
+    usageArtifact('12,000 input · 40,000 cache read · 1,000 cache write · 800 output · 53,800 total', '12s'));
   const state = JSON.parse(readFileSync(join(d, '.light-kit/usage.json'), 'utf8'));
   assert.deepEqual(state.sessions['copilot:host-sid'],
     { input: 12_000, output: 800, cacheRead: 40_000, cacheWrite: 1000, timeMs: 12_000 });
@@ -826,12 +827,14 @@ test('token-usage: user level reports in a project without .light-kit and keeps 
   writeFileSync(f, usageEntry(100, 20));
   writeFile(proj, 'specs/001-x/50-implementation.md', usageArtifact());
   const call = () => userHook(home, proj, 'post-tool', { ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's1' });
-  assert.match(JSON.parse(call().stdout).hookSpecificOutput.additionalContext, /Token usage — 001-x, step 50-implementation/);
+  assert.equal(call().stdout, '');
+  assert.equal(readFileSync(join(proj, 'specs/001-x/50-implementation.md'), 'utf8'),
+    usageArtifact('100 input · 0 cache read · 0 cache write · 20 output · 120 total', 'unknown'));
   assert.equal(existsSync(join(proj, '.light-kit')), false); // reporting must not look like an `init`
   writeFileSync(f, usageEntry(50, 10), { flag: 'a' });
-  const second = JSON.parse(call().stdout).hookSpecificOutput.additionalContext;
-  assert.match(second, /This write: 50 input · 0 cache read · 0 cache write · 10 output · 60 total/); // the baseline advanced
-  assert.match(second, /tokens: 150 input · 0 cache read · 0 cache write · 30 output · 180 total/);
+  assert.equal(call().stdout, '');
+  assert.equal(readFileSync(join(proj, 'specs/001-x/50-implementation.md'), 'utf8'),
+    usageArtifact('150 input · 0 cache read · 0 cache write · 30 output · 180 total', 'unknown')); // the baseline advanced
   assert.equal(existsSync(join(proj, '.light-kit')), false);
   const dir = join(home, '.light-kit/state');
   const files = readdirSync(dir);
@@ -856,7 +859,9 @@ test('user level: a project outside the home folder still anchors at its reposit
   writeFileSync(f, usageEntry(11, 2));
   writeFile(proj, 'specs/001-x/50-implementation.md', usageArtifact());
   const r = hook('post-tool', { ...write(join(proj, 'specs/001-x/50-implementation.md')), transcript_path: f, session_id: 's1' });
-  assert.match(JSON.parse(r.stdout).hookSpecificOutput.additionalContext, /Token usage — 001-x, step 50-implementation/);
+  assert.equal(r.stdout, '');
+  assert.equal(readFileSync(join(proj, 'specs/001-x/50-implementation.md'), 'utf8'),
+    usageArtifact('11 input · 0 cache read · 0 cache write · 2 output · 13 total', 'unknown'));
   assert.equal(existsSync(join(proj, '.light-kit')), false);
 });
 
@@ -871,8 +876,9 @@ test('token-usage: a state file from another counting version restarts instead o
   writeFileSync(f, usageEntry(10, 1, '2026-01-01T00:00:00Z', 'm1') + usageEntry(10, 1, '2026-01-01T00:00:02Z', 'm1'));
   writeFile(d, 'specs/001-x/50-implementation.md', usageArtifact());
   const call = () => ({ ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's1' });
-  const out = JSON.parse(run(d, 'claude', 'post-tool', call()).out).hookSpecificOutput.additionalContext;
-  assert.match(out, /This write: 10 input · 0 cache read · 0 cache write · 1 output · 11 total/); // the repeated block counts once
+  assert.equal(run(d, 'claude', 'post-tool', call()).out, '');
+  assert.equal(readFileSync(join(d, 'specs/001-x/50-implementation.md'), 'utf8'),
+    usageArtifact('10 input · 0 cache read · 0 cache write · 1 output · 11 total', '2s')); // the repeated block counts once
   const state = JSON.parse(readFileSync(join(d, '.light-kit/usage.json'), 'utf8'));
   assert.equal(state.version, 3);
   assert.deepEqual(state.sessions.s1, { input: 10, output: 1, cacheRead: 0, cacheWrite: 0, timeMs: 2000 });

@@ -4,7 +4,8 @@ import { basename, dirname, isAbsolute, join } from 'node:path';
 import { deltaUsage, formatDuration, formatUsage, totalUsage, usageFromCopilot, usageFromTranscript } from '../lib/usage.mjs';
 
 // Request artifacts carry a `usage:` entry in their header. After an artifact is written, read how much
-// the client processed in this session and report the step's share; the agent fills the row.
+// the client processed in this session and fill the step's entry in place, so the agent has nothing to
+// copy. An artifact without a `usage:` entry still gets the old informational message.
 // Clients with a readable session record (Claude Code, Copilot in VS Code) are counted; Cursor and
 // Codex keep `unknown`.
 
@@ -64,6 +65,26 @@ const filled = (text, timeKnown) => {
   return legacyTokensFilled(body) && legacyTimeFilled(body, timeKnown);
 };
 const timeOf = (u) => (u.timed ? formatDuration(u.timeMs) : 'unknown');
+
+const headerUsage = (text) => headerOf(text).split('\n').some((line) => /^usage:\s*$/.test(line));
+
+// Replace the header's `usage:` entry, from its line to the next unindented key or the closing `---`,
+// and leave every other header line and the body exactly as they were. Blank lines before the next key
+// stay where they are, so only the entry itself changes.
+const rewriteUsage = (text, block) => {
+  const match = text.match(/^---\n([\s\S]*?)\n---/);
+  if (!match) return null;
+  const header = match[1].split('\n');
+  const start = header.findIndex((line) => /^usage:\s*$/.test(line));
+  if (start === -1) return null;
+  let end = start + 1;
+  while (end < header.length && !/^\S/.test(header[end])) end++;
+  while (end > start + 1 && !header[end - 1].trim()) end--;
+  const at = match.index + 4;
+  return text.slice(0, at)
+    + [...header.slice(0, start), ...block, ...header.slice(end)].join('\n')
+    + text.slice(at + match[1].length);
+};
 
 const readState = (file) => {
   try {
@@ -141,8 +162,6 @@ export default {
     }
     saveState(stateFile, state);
 
-    if (filled(text, delta.timeKnown)) return null;
-
     const steps = state.requests[request].steps;
     const stepList = Object.values(steps);
     const requestTotal = stepList.reduce((a, u) => ({
@@ -159,7 +178,7 @@ export default {
     const requestTime = requestTimed ? formatDuration(requestTimeMs) : 'unknown';
     // The conclusion holds every step, so the single-step suggestion would be wrong there.
     const conclusion = step === '60-conclusion';
-    return {
+    const message = () => ({
       message: [
         `Token usage — ${request}, step ${step}`,
         `This write: ${formatUsage(delta)} · time ${delta.timeKnown ? formatDuration(delta.timeMs) : 'unknown'}`,
@@ -173,6 +192,18 @@ export default {
         yamlRow('total', requestTotal, requestTime),
         'Write `unknown` when the client exposes no usage or time.',
       ].join('\n'),
-    };
+    });
+
+    if (!conclusion && headerUsage(text)) {
+      const next = rewriteUsage(text, ['usage:', ...yamlBlock(totals, timeOf(totals)).split('\n')]);
+      if (next === null) return message();
+      try {
+        if (next !== text) writeFileSync(hit.path, next);
+      } catch { return message(); }
+      return null;
+    }
+
+    if (filled(text, delta.timeKnown)) return null;
+    return message();
   },
 };
