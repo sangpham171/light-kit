@@ -962,6 +962,25 @@ test('token-usage: a header key after usage is preserved', () => {
     text.replace('  tokens: unknown\n  time: unknown', '  tokens: 10 input · 0 cache read · 0 cache write · 1 output · 11 total\n  time: 0s'));
 });
 
+test('token-usage: blank lines after the usage body are kept', () => {
+  const d = project(); withSpec(d);
+  const f = join(d, 'session.jsonl');
+  writeFileSync(f, usageEntry(10, 1, '2026-01-01T00:00:00Z', 'm1'));
+  const call = () => ({ ...write('specs/001-x/50-implementation.md'), transcript_path: f, session_id: 's1' });
+  const filled = (text) => text.replace('  tokens: unknown\n  time: unknown',
+    '  tokens: 10 input · 0 cache read · 0 cache write · 1 output · 11 total\n  time: 0s');
+  // A blank line before a following header key stays, and the key is preserved.
+  const beforeKey = '---\nstep: implementation\nruns:\n  - agent: light-developer\n    model: m\n    thinking: high\n    level: medium\nusage:\n  tokens: unknown\n  time: unknown\n\nmodel: m-2\n---\n\n# Implementation log\n';
+  writeFile(d, 'specs/001-x/50-implementation.md', beforeKey);
+  assert.equal(run(d, 'claude', 'post-tool', call()).out, '');
+  assert.equal(readFileSync(join(d, 'specs/001-x/50-implementation.md'), 'utf8'), filled(beforeKey));
+  // A blank line before the closing `---` stays too.
+  const beforeClose = '---\nstep: implementation\nruns:\n  - agent: light-developer\n    model: m\n    thinking: high\n    level: medium\nusage:\n  tokens: unknown\n  time: unknown\n\n---\n\n# Implementation log\n';
+  writeFile(d, 'specs/001-x/50-implementation.md', beforeClose);
+  assert.equal(run(d, 'claude', 'post-tool', call()).out, '');
+  assert.equal(readFileSync(join(d, 'specs/001-x/50-implementation.md'), 'utf8'), filled(beforeClose));
+});
+
 test('token-usage: the rest of the header and the body are preserved byte for byte', () => {
   const d = project(); withSpec(d);
   const f = join(d, 'session.jsonl');
