@@ -57,6 +57,24 @@ test('a request that grew out of a discussion keeps the whole exchange', () => {
   assert.match(read('.claude/skills/light-request/SKILL.md'), /light-conversation-capture/);
 });
 
+test('earlier requests are checked before understanding and discovery, read from the end backwards', () => {
+  const dir = tmp();
+  install(dir, ['claude']);
+  const read = (p) => readFileSync(join(dir, p), 'utf8');
+  const order = /`60-conclusion\.md`.*`50-implementation\.md`.*`20-discovery\.md`/;
+  const skill = read('.claude/skills/light-discovery/SKILL.md');
+  assert.match(skill, /same, similar or related work/);
+  assert.match(skill, /judge each folder by its name/);
+  assert.match(skill, /from the end backwards/);
+  assert.match(skill, order);
+  assert.match(skill, /stale/);
+  assert.match(skill, /current code/);
+  assert.match(read('.claude/agents/light-orchestrator.md'), order);
+  assert.match(read('.claude/agents/light-business-analyst.md'), order);
+  assert.match(read('.light-kit/templates/10-understanding.md'), /## Prior requests/);
+  assert.match(read('.light-kit/templates/20-discovery.md'), /## Prior requests/);
+});
+
 test('the plan is written before code, even for direct requests', () => {
   const dir = tmp();
   install(dir, ['claude']);
