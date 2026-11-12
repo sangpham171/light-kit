@@ -10,6 +10,7 @@ writes: 10-understanding.md (requirements section)
 
 Make requirements unambiguous.
 
+- Check earlier requests for the same rules or behaviour: judge folders in `specs/` by name, then read a relevant folder from the end backwards (`60-conclusion.md`, `50-implementation.md` only when needed, `20-discovery.md`). Verify what you reuse against the current code and record it.
 - Number each requirement and make it testable.
 - List business rules, roles and permissions, data inputs and outputs, error and edge cases.
 - Flag contradictions with existing behaviour found in discovery.
