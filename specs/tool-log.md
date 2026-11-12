@@ -7,5 +7,5 @@ stored. Safe to delete.
 
 | Time | Client | Tool | Kind | Target |
 |---|---|---|---|---|
-| 2026-11-09T12:56:21Z | claude | Bash | shell | git status --short; echo ---; git diff --stat; echo ---; git diff -- specs/031-session-id-secret-false-positive/tool-log.md; echo ---; wc -l specs/017-usage-in-header/tool-log.md specs/032-token-usage |
-| 2026-11-09T12:56:56Z | claude | Bash | shell | git add specs/032-token-usage-rewrite && git commit -q -m "docs(specs): conclude request 032" && git add specs/017-usage-in-header/tool-log.md specs/031-session-id-secret-false-positive/tool-log.md && |
+| 2026-11-12T19:37:00Z | claude | Bash | shell | sed -n 1,40p specs/033-prior-spec-scan/60-conclusion.md |
+| 2026-11-12T19:37:03Z | claude | Bash | shell | sed -n 1,14p specs/033-prior-spec-scan/50-implementation.md && git status --porcelain |
