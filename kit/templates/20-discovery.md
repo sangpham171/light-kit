@@ -13,6 +13,8 @@ usage:
 
 # Discovery
 
+## Prior requests
+<!-- Earlier folders checked in specs/, read from the end backwards (60, 50 when needed, 20), what was reused or contradicted; verified against the current code. -->
 ## Relevant code
 ## Conventions
 ## Constraints

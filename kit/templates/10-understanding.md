@@ -14,6 +14,8 @@ usage:
 # Understanding
 
 ## Restatement
+## Prior requests
+<!-- Earlier folders checked in specs/, what was reused or contradicted; verified against the current code. Write "none" if nothing matched. -->
 ## Assumptions
 ## Open questions (with proposed defaults)
 ## Requirements
