@@ -77,6 +77,13 @@
       "cacheRead": 3812096,
       "cacheWrite": 0,
       "timeMs": 1237684
+    },
+    "ca57d167-9a90-4cb6-8277-f44d0d8dec48": {
+      "input": 43639,
+      "output": 14956,
+      "cacheRead": 1233536,
+      "cacheWrite": 0,
+      "timeMs": 199446
     }
   },
   "requests": {
@@ -580,6 +587,50 @@
           "cacheRead": 348672,
           "cacheWrite": 0,
           "timeMs": 21056,
+          "timed": true
+        }
+      }
+    },
+    "033-prior-spec-scan": {
+      "steps": {
+        "00-request": {
+          "input": 38514,
+          "output": 6343,
+          "cacheRead": 279936,
+          "cacheWrite": 0,
+          "timeMs": 107215,
+          "timed": true
+        },
+        "10-understanding": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "timeMs": 1000,
+          "timed": true
+        },
+        "40-plan": {
+          "input": 2917,
+          "output": 5511,
+          "cacheRead": 526976,
+          "cacheWrite": 0,
+          "timeMs": 40762,
+          "timed": true
+        },
+        "50-implementation": {
+          "input": 1693,
+          "output": 2026,
+          "cacheRead": 316672,
+          "cacheWrite": 0,
+          "timeMs": 38493,
+          "timed": true
+        },
+        "60-conclusion": {
+          "input": 515,
+          "output": 1076,
+          "cacheRead": 109952,
+          "cacheWrite": 0,
+          "timeMs": 11976,
           "timed": true
         }
       }
