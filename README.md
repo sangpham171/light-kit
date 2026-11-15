@@ -53,7 +53,7 @@ Run `light-init` once per project: it writes the project profile, codebase map a
 | **Cursor** | `.cursor/rules/*.mdc`, one rule per agent and skill, hooks merged into `.cursor/hooks.json` | Open the project in Cursor; the `light-*` skills are available in chat. |
 | **Codex** | `AGENTS.md`, `.codex/agents/*.toml`, `.agents/skills/`, hooks merged into `.codex/hooks.json` | Start `codex` in the project and run `/hooks` once to trust the hooks; the `light-*` skills are picked up from `.agents/skills/`. |
 
-Every command is a skill with the same name, so there are no client-specific prompt or command files to keep in step: the commands `light-init`, `light-request`, `light-plan`, `light-implement`, `light-review`, `light-status`, `light-triage`, `light-bootstrap`, `light-standardize` and `light-audit` are skills like the others, and a client invokes them by name or from its description.
+Every command is a skill with the same name, so there are no client-specific prompt or command files to keep in step: the commands `light-init`, `light-request`, `light-plan`, `light-implement`, `light-review`, `light-status`, `light-triage`, `light-brainstorm`, `light-bootstrap`, `light-standardize` and `light-audit` are skills like the others, and a client invokes them by name or from its description.
 
 At project and workspace level, `AGENTS.md` is also written for Copilot and Cursor. At user level, Cursor rules are not installed (Cursor keeps user rules in its settings).
 
@@ -86,6 +86,7 @@ Each command is a skill: invoke it by name, or describe what you want and its de
 | `light-init` | Set up the kit in this project: profile, codebase map, assessment. |
 | `light-request` | Start a request; triage picks the workflow and runs it end to end. |
 | `light-triage` | Score a request and recommend a workflow without running it. |
+| `light-brainstorm` | Explore an idea in several directions before it becomes a request. |
 | `light-plan` | Produce or refresh discovery, design and plan for a request. |
 | `light-implement` | Implement an existing request's plan, task by task. |
 | `light-review` | Review a request's implementation. |
