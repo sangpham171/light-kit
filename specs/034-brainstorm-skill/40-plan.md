@@ -7,13 +7,13 @@ runs:
     thinking: unknown
     level: medium
 usage:
-  tokens: 429 input · 51,712 cache read · 0 cache write · 1,836 output · 53,977 total
-  time: 9s
+  tokens: 578 input · 109,952 cache read · 0 cache write · 2,380 output · 112,910 total
+  time: 11s
 ---
 
 # Plan
 
-- [ ] 1. Add the `light-brainstorm` skill with the framing step, the exploration directions, divergence before convergence, the idea-map output and the no-implementation rule — level: medium — files: `kit/skills/light-brainstorm/SKILL.md` — verify: the file exists, its frontmatter passes kit lint and it names every required direction and idea-map section — commit: `feat(kit): add the light-brainstorm skill`
+- [x] 1. Add the `light-brainstorm` skill with the framing step, the exploration directions, divergence before convergence, the idea-map output and the no-implementation rule — level: medium — files: `kit/skills/light-brainstorm/SKILL.md` — verify: the file exists, its frontmatter passes kit lint and it names every required direction and idea-map section — commit: `feat(kit): add the light-brainstorm skill`
 - [ ] 2. Document the command and point to it from `light-request` for vague ideas — level: easy — files: `kit/instructions/core.md`, `README.md`, `docs/usage.md`, `kit/skills/light-request/SKILL.md` — verify: grep each file for `light-brainstorm` — commit: `docs(kit): document the brainstorming skill`
 - [ ] 3. Cover the generated skill and its wiring with tests — level: easy — files: `tests/kit.test.mjs` — verify: `node --test tests/kit.test.mjs` — commit: `test(kit): cover the brainstorming skill`
 
