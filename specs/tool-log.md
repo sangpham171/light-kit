@@ -7,5 +7,4 @@ stored. Safe to delete.
 
 | Time | Client | Tool | Kind | Target |
 |---|---|---|---|---|
-| 2026-11-12T19:37:00Z | claude | Bash | shell | sed -n 1,40p specs/033-prior-spec-scan/60-conclusion.md |
-| 2026-11-12T19:37:03Z | claude | Bash | shell | sed -n 1,14p specs/033-prior-spec-scan/50-implementation.md && git status --porcelain |
+| 2026-11-15T21:43:46Z | claude | Bash | shell | sed -n 1,32p specs/034-brainstorm-skill/60-conclusion.md && echo '---status---' && git status --short |

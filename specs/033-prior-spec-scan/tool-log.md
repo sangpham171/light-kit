@@ -56,3 +56,4 @@ stored. Safe to delete.
 | 2026-11-12T19:36:52Z | claude | Bash | shell | sed -n 1,30p specs/032-token-usage-rewrite/60-conclusion.md |
 | 2026-11-12T19:36:57Z | claude | Write | write | specs/033-prior-spec-scan/60-conclusion.md |
 | 2026-11-12T19:36:57Z | claude | Edit | write | specs/033-prior-spec-scan/status.md |
+| 2026-11-15T21:39:39Z | claude | Read | read | specs/033-prior-spec-scan/50-implementation.md |
