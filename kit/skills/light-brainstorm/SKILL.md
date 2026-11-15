@@ -59,7 +59,7 @@ Never present an option as obvious, and never rank a case as a risk without a co
 - **Options** — the distinct options with their trade-offs, evidence needed and a recommendation.
 - **Assumptions** — what is believed, and the cheapest way to verify or falsify it.
 - **Open questions** — only those that change the decision, each with a proposed default.
-- **Next step** — a spike, a question to the user, or a request.
+- **Next step** — the step you recommend (a spike, a question to the user, or a request) and why.
 
 If a request folder is active, append the map under `## Brainstorm` in `00-request.md`; otherwise present it and offer to open a request with `light-request`.
 

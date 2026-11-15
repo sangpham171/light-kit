@@ -80,13 +80,25 @@ test('brainstorming diverges across directions before it converges, and never im
   install(dir, ['claude']);
   const read = (p) => readFileSync(join(dir, p), 'utf8');
   const kit = loadKit();
+  const where = {
+    claude: '.claude/skills/light-brainstorm/SKILL.md',
+    copilot: '.github/skills/light-brainstorm/SKILL.md',
+    cursor: '.cursor/rules/light-brainstorm.mdc',
+    codex: '.agents/skills/light-brainstorm/SKILL.md',
+  };
   for (const c of CLIENT_NAMES)
-    assert.ok(build(kit, [c]).some((f) => f.path.includes('light-brainstorm')), c);
+    assert.ok(build(kit, [c]).some((f) => f.path === where[c]), c);
   const skill = read('.claude/skills/light-brainstorm/SKILL.md');
   assert.match(skill, /## 1\. Frame the idea/);
   assert.match(skill, /## 2\. Diverge/);
   assert.match(skill, /## 3\. Converge/);
   assert.match(skill, /## 4\. Output the idea map/);
+  assert.ok(skill.indexOf('## 2. Diverge') < skill.indexOf('## 3. Converge'));
+  assert.match(skill, /Generate first, judge afterwards/);
+  assert.match(skill, /one pass must not close another/);
+  assert.match(skill, /Stop when a new pass stops producing new cases/);
+  assert.match(skill, /what success looks like/);
+  assert.match(skill, /Only after divergence/);
   for (const d of ['Actors', 'Journey and lifecycle', 'Alternatives', 'Solution shape', 'Scale and cost', 'Failure and misuse', 'Second-order effects', 'Precedent'])
     assert.match(skill, new RegExp(`\\| ${d} \\|`), d);
   for (const t of ['Inversion', 'Assumption inventory', 'Constraint shift', 'Analogy'])
