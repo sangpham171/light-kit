@@ -7,8 +7,8 @@ runs:
     thinking: unknown
     level: medium
 usage:
-  tokens: 4,548 input · 702,592 cache read · 0 cache write · 5,710 output · 712,850 total
-  time: 1m 11s
+  tokens: 12,263 input · 1,648,128 cache read · 0 cache write · 11,650 output · 1,672,041 total
+  time: 5m 29s
 ---
 
 # Implementation log
@@ -33,3 +33,19 @@ usage:
 ## Technical debt
 - TD-1 `kit/instructions/core.md`, `README.md`, `docs/usage.md` — the command list is repeated in three places — pre-existing pattern; this change followed it rather than restructuring it — status: noticed
 - Introduced by this change: none.
+
+## Review rounds
+
+### Round 1 of 1
+- F-1.1 [should-fix] `kit/skills/light-request/SKILL.md:13` — the pointer applied brainstorming before the request folder and `00-request.md` existed, and a later request write could overwrite the map — suggested fix: move it after the folder-creation and recording step — status: fixed (9cdb7c6)
+- F-1.2 [nit] `kit/skills/light-brainstorm/SKILL.md:62` — the "Next step" output listed the possibilities without recommending one — suggested fix: recommend the step and give the reason — status: fixed (9cdb7c6)
+- F-1.3 [nit] `tests/kit.test.mjs:86-89` — the test checked that the section names exist, not that divergence comes before convergence or that its discipline is stated — suggested fix: assert the section order and pin the divergence sentences — status: fixed (9cdb7c6)
+- F-1.4 [nit] `tests/kit.test.mjs:83-84` — every client was checked by substring, and the framing and "Only after divergence" text were unpinned — suggested fix: assert the exact per-client paths and the missing phrases — status: fixed (9cdb7c6)
+
+Verdict: changes requested by the reviewer; the tester approved with nits. All acceptance criteria passed, `npm test` 176/176.
+
+## Review fixes
+- Moved the `light-brainstorm` pointer after the request is recorded in `00-request.md`.
+- The idea map now recommends a next step with its reason.
+- The test asserts the exact generated path for each client, the Diverge-before-Converge order, and the divergence discipline.
+- Verified after the fixes: `node --test tests/kit.test.mjs` 22/22; `npm test` 176/176.
