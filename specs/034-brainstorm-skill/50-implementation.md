@@ -7,8 +7,8 @@ runs:
     thinking: unknown
     level: medium
 usage:
-  tokens: 1,677 input · 221,312 cache read · 0 cache write · 3,027 output · 226,016 total
-  time: 26s
+  tokens: 1,904 input · 286,464 cache read · 0 cache write · 3,500 output · 291,868 total
+  time: 27s
 ---
 
 # Implementation log
@@ -18,3 +18,9 @@ usage:
 - Decision: skill over agent, as recorded in `10-understanding.md`. The skill can still use parallel subagents for the passes where the client supports them.
 - Decision: with an active request folder the map goes under `## Brainstorm` in `00-request.md`; this reuses the conversation-capture pattern instead of adding an artifact file.
 - Verified: kit lint is clean and all four clients build a `light-brainstorm` file.
+
+## Task 2 — documentation and entry point
+- Listed the command in `kit/instructions/core.md`, the `README.md` command table and skill list, and the `docs/usage.md` names list.
+- Added a `## Brainstorming an idea` section to `docs/usage.md`: when to use it, the directions, and what it returns.
+- Added a pointer in `light-request`: vague, novel or high-impact ideas get a brainstorming pass before triage, and the map lands under `## Brainstorm` in `00-request.md`.
+- Verified: every edited file mentions `light-brainstorm`.

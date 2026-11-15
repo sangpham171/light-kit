@@ -38,7 +38,7 @@ Agents available: light-orchestrator, light-product-owner, light-business-analys
 
 ## Commands
 Each command is a skill with the same name, so every client reads it from its standard skill folder: invoke it by name, or say what you want and let its description select it.
-`light-init`, `light-bootstrap` (new projects), `light-standardize` (apply the init assessment items), `light-request`, `light-triage`, `light-plan`, `light-implement`, `light-review`, `light-status`, `light-audit` (after a model upgrade: find guidance the model no longer needs).
+`light-init`, `light-bootstrap` (new projects), `light-standardize` (apply the init assessment items), `light-brainstorm` (explore an idea in several directions before it becomes a request), `light-request`, `light-triage`, `light-plan`, `light-implement`, `light-review`, `light-status`, `light-audit` (after a model upgrade: find guidance the model no longer needs).
 
 ## Project knowledge
 - `.light-kit/project-profile.md` — languages, frameworks, build/test commands, conventions, constraints. Written by `light-init`, never overwritten by upgrades.
