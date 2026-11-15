@@ -7,8 +7,8 @@ runs:
     thinking: unknown
     level: medium
 usage:
-  tokens: 1,904 input · 286,464 cache read · 0 cache write · 3,500 output · 291,868 total
-  time: 27s
+  tokens: 2,205 input · 354,432 cache read · 0 cache write · 3,979 output · 360,616 total
+  time: 28s
 ---
 
 # Implementation log
@@ -24,3 +24,8 @@ usage:
 - Added a `## Brainstorming an idea` section to `docs/usage.md`: when to use it, the directions, and what it returns.
 - Added a pointer in `light-request`: vague, novel or high-impact ideas get a brainstorming pass before triage, and the map lands under `## Brainstorm` in `00-request.md`.
 - Verified: every edited file mentions `light-brainstorm`.
+
+## Task 3 — tests
+- Added an install-based test that checks every client build includes the skill, pins the four sections, the eight directions, the four divergence techniques, the options and unmentioned-cases contract, the no-implementation rule and the `00-request.md` output.
+- It also checks the command appears in the generated `CLAUDE.md` and in `light-request`.
+- Verified: `node --test tests/kit.test.mjs` — 22 tests pass.

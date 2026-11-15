@@ -75,6 +75,33 @@ test('earlier requests are checked before understanding and discovery, read from
   assert.match(read('.light-kit/templates/20-discovery.md'), /## Prior requests/);
 });
 
+test('brainstorming diverges across directions before it converges, and never implements', () => {
+  const dir = tmp();
+  install(dir, ['claude']);
+  const read = (p) => readFileSync(join(dir, p), 'utf8');
+  const kit = loadKit();
+  for (const c of CLIENT_NAMES)
+    assert.ok(build(kit, [c]).some((f) => f.path.includes('light-brainstorm')), c);
+  const skill = read('.claude/skills/light-brainstorm/SKILL.md');
+  assert.match(skill, /## 1\. Frame the idea/);
+  assert.match(skill, /## 2\. Diverge/);
+  assert.match(skill, /## 3\. Converge/);
+  assert.match(skill, /## 4\. Output the idea map/);
+  for (const d of ['Actors', 'Journey and lifecycle', 'Alternatives', 'Solution shape', 'Scale and cost', 'Failure and misuse', 'Second-order effects', 'Precedent'])
+    assert.match(skill, new RegExp(`\\| ${d} \\|`), d);
+  for (const t of ['Inversion', 'Assumption inventory', 'Constraint shift', 'Analogy'])
+    assert.match(skill, new RegExp(`\\*\\*${t}\\*\\*`), t);
+  assert.match(skill, /cases absent from the user's wording/);
+  assert.match(skill, /2–4 genuinely distinct options/);
+  assert.match(skill, /impact × uncertainty/);
+  assert.match(skill, /proposed default/);
+  assert.match(skill, /pre-planning: do not edit code/);
+  assert.match(skill, /`## Brainstorm` in `00-request\.md`/);
+  assert.match(skill, /run passes in parallel/);
+  assert.match(read('CLAUDE.md'), /light-brainstorm/);
+  assert.match(read('.claude/skills/light-request/SKILL.md'), /light-brainstorm/);
+});
+
 test('the plan is written before code, even for direct requests', () => {
   const dir = tmp();
   install(dir, ['claude']);
