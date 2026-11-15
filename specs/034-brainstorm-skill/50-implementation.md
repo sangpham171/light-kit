@@ -7,8 +7,8 @@ runs:
     thinking: unknown
     level: medium
 usage:
-  tokens: 2,205 input · 354,432 cache read · 0 cache write · 3,979 output · 360,616 total
-  time: 28s
+  tokens: 4,548 input · 702,592 cache read · 0 cache write · 5,710 output · 712,850 total
+  time: 1m 11s
 ---
 
 # Implementation log
@@ -29,3 +29,7 @@ usage:
 - Added an install-based test that checks every client build includes the skill, pins the four sections, the eight directions, the four divergence techniques, the options and unmentioned-cases contract, the no-implementation rule and the `00-request.md` output.
 - It also checks the command appears in the generated `CLAUDE.md` and in `light-request`.
 - Verified: `node --test tests/kit.test.mjs` — 22 tests pass.
+
+## Technical debt
+- TD-1 `kit/instructions/core.md`, `README.md`, `docs/usage.md` — the command list is repeated in three places — pre-existing pattern; this change followed it rather than restructuring it — status: noticed
+- Introduced by this change: none.
