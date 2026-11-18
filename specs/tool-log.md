@@ -7,4 +7,4 @@ stored. Safe to delete.
 
 | Time | Client | Tool | Kind | Target |
 |---|---|---|---|---|
-| 2026-11-15T21:43:46Z | claude | Bash | shell | sed -n 1,32p specs/034-brainstorm-skill/60-conclusion.md && echo '---status---' && git status --short |
+| 2026-11-18T13:55:24Z | claude | Bash | shell | git add specs/035-brainstorm-output-file/60-conclusion.md specs/035-brainstorm-output-file/status.md && git commit -m "docs(spec): conclude request 035" && git status --short |
