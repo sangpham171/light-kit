@@ -7,13 +7,13 @@ runs:
     thinking: unknown
     level: easy
 usage:
-  tokens: 0 input · 0 cache read · 0 cache write · 0 output · 0 total
-  time: 2s
+  tokens: 175 input · 101,376 cache read · 0 cache write · 511 output · 102,062 total
+  time: 4s
 ---
 
 # Plan
 
-- [ ] 1. Add the brainstorm file template and make the skill write to `brainstorms/<date>-<slug>.md`, with the request reference instead of an appended section — level: easy — files: `kit/templates/brainstorm.md`, `kit/skills/light-brainstorm/SKILL.md`, `kit/skills/light-request/SKILL.md` — verify: grep the skill and template for `brainstorms/`, and confirm the old `## Brainstorm` instruction is gone — commit: `feat(kit): write brainstorms to brainstorms/`
+- [x] 1. Add the brainstorm file template and make the skill write to `brainstorms/<date>-<slug>.md`, with the request reference instead of an appended section — level: easy — files: `kit/templates/brainstorm.md`, `kit/skills/light-brainstorm/SKILL.md`, `kit/skills/light-request/SKILL.md` — verify: grep the skill and template for `brainstorms/`, and confirm the old `## Brainstorm` instruction is gone — commit: `feat(kit): write brainstorms to brainstorms/`
 - [ ] 2. Explain `brainstorms/` in the core project knowledge and update the user docs — level: easy — files: `kit/instructions/core.md`, `README.md`, `docs/usage.md` — verify: grep each file for `brainstorms/` — commit: `docs(kit): document the brainstorms folder`
 - [ ] 3. Update the tests for the file output, the installed template and the absence of the old section — level: easy — files: `tests/kit.test.mjs` — verify: `node --test tests/kit.test.mjs` — commit: `test(kit): cover the brainstorm output file`
 

@@ -52,7 +52,10 @@ Only after divergence:
 
 Never present an option as obvious, and never rank a case as a risk without a concrete trigger and consequence.
 
-## 4. Output the idea map
+## 4. Write the idea map
+Write the map to `brainstorms/<YYYY-MM-DD>-<slug>.md`, using `.light-kit/templates/brainstorm.md` as the skeleton. Create `brainstorms/` when it does not exist. Always write the file before replying; never return the map only in the chat. If the same idea already has a file, append `## Round N — <date>` with the new map instead of creating a second file. In a multi-project workspace use the root of the project under discussion; for a cross-project idea use the workspace root.
+
+The map holds:
 - **Framing** — job, affected people, success, constraints.
 - **Directions** — one row per direction: what it surfaced, and the options it suggests.
 - **Cases the user did not mention** — ranked by impact × uncertainty, each with a proposed default.
@@ -61,7 +64,7 @@ Never present an option as obvious, and never rank a case as a risk without a co
 - **Open questions** — only those that change the decision, each with a proposed default.
 - **Next step** — the step you recommend (a spike, a question to the user, or a request) and why.
 
-If a request folder is active, append the map under `## Brainstorm` in `00-request.md`; otherwise present it and offer to open a request with `light-request`.
+If a request folder is active, add one line to its `00-request.md` pointing at the file (`Brainstorm: brainstorms/...`); do not copy the map into `specs/`. Otherwise give the path and offer to open a request with `light-request`. Keep the reply to the path and the few decisions that need the user.
 
 ## Rules
 - Brainstorming is pre-planning: do not edit code, write plan tasks or commit to scope. The user decides, or `light-request` triages.
