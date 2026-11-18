@@ -7,8 +7,8 @@ runs:
     thinking: unknown
     level: easy
 usage:
-  tokens: 1,431 input · 608,256 cache read · 0 cache write · 4,046 output · 613,733 total
-  time: 20s
+  tokens: 1,734 input · 716,288 cache read · 0 cache write · 4,176 output · 722,198 total
+  time: 49s
 ---
 
 # Implementation log
@@ -29,3 +29,7 @@ usage:
 - The test now checks the `brainstorms/<YYYY-MM-DD>-<slug>.md` path, the "write before replying" rule, the round append, and the absence of the old `00-request.md` instruction in both skills.
 - It checks the installed `.light-kit/templates/brainstorm.md` sections and the `brainstorms/` guidance in `CLAUDE.md`.
 - Verified: `node --test tests/kit.test.mjs` — 22 tests pass.
+
+## Technical debt
+None introduced by this change. The template's section names mirror the skill's output contract on purpose; the test pins both.
+
