@@ -12,4 +12,4 @@ If the request follows a discussion or a plan-mode session (the message may only
 
 Create the next `specs/NNN-slug/` folder, then follow the orchestrator instructions: record the request, write the understanding, triage, and execute the workflow. If the request contains `--workflow direct|standard|full`, use that workflow instead of the triage result; if it contains `--review-turns N`, use that many review turns. Ask the user only at the gates and blocking questions that the workflow defines.
 
-Once the request is recorded in `00-request.md`, and before triage, apply the `light-brainstorm` skill when the idea is vague, novel or high-impact: explore it in several directions and append the map under `## Brainstorm`.
+Once the request is recorded in `00-request.md`, and before triage, apply the `light-brainstorm` skill when the idea is vague, novel or high-impact: explore it in several directions; the skill writes the map to `brainstorms/`, and the request references the file with one line.
