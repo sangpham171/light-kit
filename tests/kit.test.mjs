@@ -92,7 +92,7 @@ test('brainstorming diverges across directions before it converges, and never im
   assert.match(skill, /## 1\. Frame the idea/);
   assert.match(skill, /## 2\. Diverge/);
   assert.match(skill, /## 3\. Converge/);
-  assert.match(skill, /## 4\. Output the idea map/);
+  assert.match(skill, /## 4\. Write the idea map/);
   assert.ok(skill.indexOf('## 2. Diverge') < skill.indexOf('## 3. Converge'));
   assert.match(skill, /Generate first, judge afterwards/);
   assert.match(skill, /one pass must not close another/);
@@ -108,10 +108,20 @@ test('brainstorming diverges across directions before it converges, and never im
   assert.match(skill, /impact × uncertainty/);
   assert.match(skill, /proposed default/);
   assert.match(skill, /pre-planning: do not edit code/);
-  assert.match(skill, /`## Brainstorm` in `00-request\.md`/);
+  assert.match(skill, /brainstorms\/<YYYY-MM-DD>-<slug>\.md/);
+  assert.match(skill, /Always write the file before replying/);
+  assert.match(skill, /## Round N/);
+  assert.doesNotMatch(skill, /append the map under/);
   assert.match(skill, /run passes in parallel/);
+  const template = read('.light-kit/templates/brainstorm.md');
+  for (const s of ['# Brainstorm — ', '## Original idea', '## Framing', '## Directions', '## Cases the user did not mention', '## Options', '## Assumptions', '## Open questions', '## Next step'])
+    assert.ok(template.includes(s), s);
   assert.match(read('CLAUDE.md'), /light-brainstorm/);
-  assert.match(read('.claude/skills/light-request/SKILL.md'), /light-brainstorm/);
+  assert.match(read('CLAUDE.md'), /brainstorms\//);
+  const request = read('.claude/skills/light-request/SKILL.md');
+  assert.match(request, /light-brainstorm/);
+  assert.match(request, /brainstorms\//);
+  assert.doesNotMatch(request, /append the map under/);
 });
 
 test('the plan is written before code, even for direct requests', () => {
