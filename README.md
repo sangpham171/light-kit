@@ -86,7 +86,7 @@ Each command is a skill: invoke it by name, or describe what you want and its de
 | `light-init` | Set up the kit in this project: profile, codebase map, assessment. |
 | `light-request` | Start a request; triage picks the workflow and runs it end to end. |
 | `light-triage` | Score a request and recommend a workflow without running it. |
-| `light-brainstorm` | Explore an idea in several directions before it becomes a request. |
+| `light-brainstorm` | Explore an idea in several directions; writes a dated file in `brainstorms/`. |
 | `light-plan` | Produce or refresh discovery, design and plan for a request. |
 | `light-implement` | Implement an existing request's plan, task by task. |
 | `light-review` | Review a request's implementation. |
