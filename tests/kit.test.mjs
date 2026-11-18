@@ -108,20 +108,28 @@ test('brainstorming diverges across directions before it converges, and never im
   assert.match(skill, /impact × uncertainty/);
   assert.match(skill, /proposed default/);
   assert.match(skill, /pre-planning: do not edit code/);
+  for (const s of ['**Framing**', '**Directions**', '**Cases the user did not mention**', '**Options**', '**Assumptions**', '**Open questions**', '**Next step**'])
+    assert.ok(skill.includes(s), s);
   assert.match(skill, /brainstorms\/<YYYY-MM-DD>-<slug>\.md/);
   assert.match(skill, /Always write the file before replying/);
-  assert.match(skill, /## Round N/);
+  assert.match(skill, /## Round N — <date>/);
+  assert.match(skill, /look for an existing file whose slug or title matches/);
   assert.doesNotMatch(skill, /append the map under/);
+  assert.doesNotMatch(skill, /## Brainstorm/);
   assert.match(skill, /run passes in parallel/);
   const template = read('.light-kit/templates/brainstorm.md');
-  for (const s of ['# Brainstorm — ', '## Original idea', '## Framing', '## Directions', '## Cases the user did not mention', '## Options', '## Assumptions', '## Open questions', '## Next step'])
+  for (const s of ['# Brainstorm — ', '## Original idea', '## Round 1 — ', '### Framing', '### Directions', '### Cases the user did not mention', '### Options', '- Recommendation:', '### Assumptions', '### Open questions', '### Next step'])
     assert.ok(template.includes(s), s);
   assert.match(read('CLAUDE.md'), /light-brainstorm/);
   assert.match(read('CLAUDE.md'), /brainstorms\//);
   const request = read('.claude/skills/light-request/SKILL.md');
   assert.match(request, /light-brainstorm/);
   assert.match(request, /brainstorms\//);
-  assert.doesNotMatch(request, /append the map under/);
+  assert.doesNotMatch(request, /append the map under|lands under|## Brainstorm/);
+  for (const p of ['../README.md', '../docs/usage.md']) {
+    const doc = readFileSync(new URL(p, import.meta.url), 'utf8');
+    assert.doesNotMatch(doc, /append the map under|lands under/, p);
+  }
 });
 
 test('the plan is written before code, even for direct requests', () => {

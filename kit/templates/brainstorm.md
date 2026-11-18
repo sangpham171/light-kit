@@ -7,13 +7,14 @@ Request: <specs/NNN-slug, when one exists; otherwise omit this line>
 ## Original idea
 <the user's words>
 
-## Framing
+## Round 1 — <YYYY-MM-DD>
+### Framing
 - Job:
 - Affected people:
 - Success:
 - Constraints:
 
-## Directions
+### Directions
 | Direction | What it surfaced | Options |
 |---|---|---|
 | Actors | | |
@@ -25,28 +26,29 @@ Request: <specs/NNN-slug, when one exists; otherwise omit this line>
 | Second-order effects | | |
 | Precedent | | |
 
-## Cases the user did not mention
+### Cases the user did not mention
 | Case | Impact × uncertainty | Proposed default |
 |---|---|---|
 | | | |
 
-## Options
-### Option 1 — <name>
+### Options
+#### Option 1 — <name>
 - Makes easy:
 - Makes hard:
 - Cost and risk:
 - Reversible:
 - Evidence needed:
+- Recommendation:
 
-## Assumptions
+### Assumptions
 | Assumption | Verify by |
 |---|---|
 | | |
 
-## Open questions
+### Open questions
 | Question | Proposed default |
 |---|---|
 | | |
 
-## Next step
+### Next step
 <the recommended step and why>
