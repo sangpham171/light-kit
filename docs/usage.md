@@ -10,7 +10,7 @@
 ## Brainstorming an idea
 Before asking for a request, `light-brainstorm` explores an idea in several independent directions: actors and affected people, the journey and lifecycle, alternatives, solution shape, scale and cost, failure and misuse, second-order effects, and precedent. It pushes each direction with inversion, an assumption inventory, constraint shifts and analogies, then lists the cases the user did not mention and ranks them by impact and uncertainty.
 
-It writes no code and commits to no scope. It returns a compact idea map: framing, directions, unmentioned cases, distinct options with trade-offs, assumptions with the cheapest way to verify them, and decision-changing questions with proposed defaults. With an active request folder it appends the map under `## Brainstorm` in `00-request.md`; otherwise it offers to open a request.
+It writes no code and commits to no scope. It returns a compact idea map: framing, directions, unmentioned cases, distinct options with trade-offs, assumptions with the cheapest way to verify them, and decision-changing questions with proposed defaults. The map is always written to `brainstorms/<YYYY-MM-DD>-<slug>.md` — one file per idea, owned by you and never touched by kit upgrades or uninstall — and the reply gives the path and the few decisions that need you. Brainstorming the same idea again appends a round to that file. When a request is active, its `00-request.md` gets one line pointing at the file; the map is not copied into `specs/`.
 
 ## How a request flows
 `light-request` (with what you want) creates `specs/NNN-slug/` and triages the request:

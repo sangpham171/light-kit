@@ -45,6 +45,7 @@ Each command is a skill with the same name, so every client reads it from its st
 - `.light-kit/projects.md` — present only in a multi-project workspace: the registry of projects. Apply the `light-project-scope` skill first; each project keeps its own `.light-kit/` profile, map and hooks config, which override the workspace defaults. Never mix the conventions of different projects.
 - `.light-kit/hooks.config.json` — tunes the safety hooks (see below). Written by `light-init`, never overwritten by upgrades.
 - `.light-kit/codebase-map.md` — structure of an existing codebase, written by `light-init` in adopt mode. Read it before discovery; update it when the structure changes.
+- `brainstorms/` — idea explorations written by `light-brainstorm`, one dated Markdown file per idea. It belongs to the user, is not a request, and is never managed by the kit's installer or uninstaller.
 
 ## Safety hooks
 Hooks run automatically in clients that support them. They block reads and edits of sensitive files, secrets in files or prompts, dangerous commands and edits to protected paths. They warn when work starts without an active request or when an implement instruction arrives with no written plan, report format and lint problems after edits, and flag secrets in tool output. If a hook blocks you, do not work around it: explain it to the user and propose a safe alternative. Never edit `.light-kit/hooks/` or the hook registration files.

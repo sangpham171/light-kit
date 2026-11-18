@@ -7,8 +7,8 @@ runs:
     thinking: unknown
     level: easy
 usage:
-  tokens: 1,012 input · 396,416 cache read · 0 cache write · 3,286 output · 400,714 total
-  time: 18s
+  tokens: 1,253 input · 500,736 cache read · 0 cache write · 3,648 output · 505,637 total
+  time: 19s
 ---
 
 # Implementation log
@@ -19,3 +19,8 @@ usage:
 - A request, when active, gets one `Brainstorm: brainstorms/...` reference line; the map itself stays out of `specs/`.
 - Updated the `light-request` pointer to match.
 - Verified: the skill and `light-request` name `brainstorms/`, and the old append-to-`00-request.md` instruction is gone from both.
+
+## Task 2 — documentation
+- Added `brainstorms/` to the core project knowledge: user-owned, not a request, never managed by the kit.
+- Updated the README command description and the `docs/usage.md` brainstorming section with the file location, the round append and the request reference line.
+- Verified: all three files mention `brainstorms/`.
