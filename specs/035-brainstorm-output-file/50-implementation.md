@@ -7,8 +7,8 @@ runs:
     thinking: unknown
     level: easy
 usage:
-  tokens: 1,253 input · 500,736 cache read · 0 cache write · 3,648 output · 505,637 total
-  time: 19s
+  tokens: 1,431 input · 608,256 cache read · 0 cache write · 4,046 output · 613,733 total
+  time: 20s
 ---
 
 # Implementation log
@@ -24,3 +24,8 @@ usage:
 - Added `brainstorms/` to the core project knowledge: user-owned, not a request, never managed by the kit.
 - Updated the README command description and the `docs/usage.md` brainstorming section with the file location, the round append and the request reference line.
 - Verified: all three files mention `brainstorms/`.
+
+## Task 3 — tests
+- The test now checks the `brainstorms/<YYYY-MM-DD>-<slug>.md` path, the "write before replying" rule, the round append, and the absence of the old `00-request.md` instruction in both skills.
+- It checks the installed `.light-kit/templates/brainstorm.md` sections and the `brainstorms/` guidance in `CLAUDE.md`.
+- Verified: `node --test tests/kit.test.mjs` — 22 tests pass.
