@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "recent": [
+    "call_00_kYkZaVwcZsnqZlsvADBR0362",
+    "call_00_nYKRHSg81abJ9RpO5Gy78882",
+    "call_00_PlLo7btkY18As8X6QtwP4849",
+    "call_00_ttpdkRz6G8xti7gJJqNq3903"
+  ],
+  "requests": {
+    "(no request)": {
+      "first": "2026-11-22T14:56:26.370Z",
+      "last": "2026-11-22T14:56:26.370Z",
+      "agents": {},
+      "skills": {
+        "light-hooks-config": 1
+      }
+    },
+    "043-rule-triggers": {
+      "first": "2026-11-22T15:07:30.229Z",
+      "last": "2026-11-22T15:07:30.229Z",
+      "agents": {
+        "light-reviewer": 1
+      },
+      "skills": {}
+    },
+    "044-multilingual-rules-reminder": {
+      "first": "2026-11-22T15:19:30.709Z",
+      "last": "2026-11-22T15:19:30.709Z",
+      "agents": {
+        "light-reviewer": 1
+      },
+      "skills": {}
+    },
+    "045-universal-rules-reminder": {
+      "first": "2026-11-22T15:29:15.178Z",
+      "last": "2026-11-22T15:29:15.178Z",
+      "agents": {
+        "light-reviewer": 1
+      },
+      "skills": {}
+    }
+  }
+}
