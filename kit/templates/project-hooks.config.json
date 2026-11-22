@@ -4,6 +4,9 @@
   "commands": { "extraDeny": [], "allow": [] },
   "protect": { "paths": [] },
   "spec": { "exempt": [] },
-  "quality": { "format": "", "lint": "" },
-  "verify": { "command": "" }
+  "quality": { "format": "", "lint": "", "timeoutSec": 60 },
+  "verify": { "command": "", "timeoutSec": 300 },
+  "branches": { "protected": [] },
+  "commit": { "maxUncommittedFiles": 8, "extraForbiddenText": [] },
+  "audit": { "file": ".light-kit/audit.log", "remind": true }
 }

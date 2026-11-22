@@ -225,12 +225,13 @@ test('project rules: a seeded file, a skill, and a before/after loop at every ch
   assert.match(read('.claude/skills/light-implement/SKILL.md'), /apply the `light-rules` skill/);
   assert.match(read('.claude/agents/light-orchestrator.md'), /apply the `light-rules` skill/);
   assert.match(read('.claude/skills/light-review-checklist/SKILL.md'), /`confirmed` rule in `\.light-kit\/rules\.md`/);
-  // the template and the project's own rules are seeds: both survive an upgrade
-  writeFileSync(join(dir, '.light-kit/templates/rules.md'), '# Project rules\n\n| R-001 | confirmed | 3 | Keep this row. |\n');
+  // the templates are kit copies, so a reinstall refreshes them; the project's own documents survive
+  writeFileSync(join(dir, '.light-kit/templates/rules.md'), '# Project rules\n\n| R-001 | confirmed | 3 | Keep this template row. |\n');
   writeFileSync(join(dir, '.light-kit/rules.md'), '# Project rules\n\n| R-002 | confirmed | 3 | Keep this project row. |\n');
   install(dir, ['claude']);
-  assert.match(read('.light-kit/templates/rules.md'), /R-001/);
-  assert.match(read('.light-kit/rules.md'), /R-002/);
+  assert.doesNotMatch(read('.light-kit/templates/rules.md'), /Keep this template row/);
+  assert.match(read('.light-kit/templates/rules.md'), /\| `pending` \|/);
+  assert.match(read('.light-kit/rules.md'), /Keep this project row/);
 });
 
 test('install into empty dir, then second run changes nothing', () => {
