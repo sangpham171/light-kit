@@ -69,6 +69,7 @@ export function normalize(client, event, p, installRoot) {
     layersFor: (dir) => locate(kitHome, dir).layers,
     rel: (f) => { const abs = realish(resolve(cwd, f)); const r = relative(root, abs); return r.startsWith('..') || isAbsolute(r) ? abs : r; },
     tool: { name, kind },
+    input: input && typeof input === 'object' ? input : {},
     files: [...files],
     command: Array.isArray(cmd) ? cmd.join(' ') : typeof cmd === 'string' ? cmd : '',
     text: kind === 'write' ? texts.join('\n') : '',
