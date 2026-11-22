@@ -36,3 +36,8 @@ stored. Safe to delete.
 | 2026-11-22T16:33:11Z | claude | Edit | write | specs/048-usage-history/50-implementation.md |
 | 2026-11-22T16:33:11Z | claude | Write | write | specs/048-usage-history/status.md |
 | 2026-11-22T16:33:14Z | claude | Bash | shell | git add -A specs/048-usage-history .light-kit/usage.json .light-kit/agent-skill-usage.json .light-kit/agent-skill-usage.md && git commit -q -m "docs(spec): conclude request 048" && git status --short  |
+| 2026-11-22T16:35:20Z | claude | Bash | shell | grep -n "kit/hooks\\|hooks/checks\\|walk\\|readdir" tools/build.mjs \| head -40 |
+| 2026-11-22T16:35:22Z | claude | Read | read | tools/build.mjs |
+| 2026-11-22T16:35:30Z | claude | Bash | shell | grep -n "## Roles" -A4 kit/instructions/core.md; echo ---; grep -n "agent-skill-usage" -A2 kit/hooks/README.md \| head -8 |
+| 2026-11-22T16:35:38Z | claude | Bash | shell | git switch -c feat/049-usage-record-script && mkdir -p specs/049-usage-record-script && git rev-parse HEAD |
+| 2026-11-22T16:41:25Z | claude | Bash | shell | for f in specs/047-generic-rules/status.md specs/048-usage-history/status.md specs/049-usage-record-script/status.md; do echo "== $f"; head -2 "$f"; done |
