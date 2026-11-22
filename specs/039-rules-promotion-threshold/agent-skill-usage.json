@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "requests": {
+    "039-rules-promotion-threshold": {
+      "first": "2026-11-22T13:12:01.271Z",
+      "last": "2026-11-22T13:15:41.950Z",
+      "agents": {
+        "light-tech-lead": 1,
+        "light-developer": 1,
+        "light-reviewer": 1
+      },
+      "skills": {}
+    }
+  }
+}

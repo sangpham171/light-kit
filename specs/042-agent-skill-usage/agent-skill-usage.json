@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "requests": {
+    "042-agent-skill-usage": {
+      "first": "2026-11-22T14:45:42.140Z",
+      "last": "2026-11-22T14:45:42.140Z",
+      "agents": {
+        "light-reviewer": 1
+      },
+      "skills": {}
+    }
+  }
+}

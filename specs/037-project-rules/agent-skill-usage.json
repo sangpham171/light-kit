@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "requests": {
+    "037-project-rules": {
+      "first": "2026-11-22T11:41:18.761Z",
+      "last": "2026-11-22T11:41:20.425Z",
+      "agents": {
+        "light-reviewer": 1,
+        "light-tester": 1
+      },
+      "skills": {}
+    }
+  }
+}

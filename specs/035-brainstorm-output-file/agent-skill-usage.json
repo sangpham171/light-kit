@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "requests": {
+    "035-brainstorm-output-file": {
+      "first": "2026-11-18T13:50:10.472Z",
+      "last": "2026-11-18T13:50:11.847Z",
+      "agents": {
+        "light-reviewer": 1,
+        "light-tester": 1
+      },
+      "skills": {}
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "requests": {
+    "010-token-usage-format": {
+      "first": "2026-10-26T21:11:30.690Z",
+      "last": "2026-10-26T21:11:30.690Z",
+      "agents": {
+        "light-reviewer": 1
+      },
+      "skills": {}
+    }
+  }
+}

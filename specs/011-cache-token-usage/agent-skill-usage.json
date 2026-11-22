@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "requests": {
+    "011-cache-token-usage": {
+      "first": "2026-10-26T21:31:10.050Z",
+      "last": "2026-10-26T21:31:10.050Z",
+      "agents": {
+        "light-reviewer": 1
+      },
+      "skills": {}
+    }
+  }
+}
