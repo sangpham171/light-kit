@@ -87,3 +87,32 @@ stored. Safe to delete.
 | 2026-11-22T14:06:10Z | claude | Bash | shell | grep -rn "Deferred technical debt\\|still open\\|accepted" specs/03*/60-conclusion.md specs/04*/60-conclusion.md \| head -30 |
 | 2026-11-22T14:06:14Z | claude | Bash | shell | for f in 036-brainstormer-agent 039-rules-promotion-threshold 040-init-updates-existing-kit; do echo "=== $f"; sed -n '/## Deferred technical debt/,/## Follow-ups/p' specs/$f/60-conclusion.md; done |
 | 2026-11-22T14:06:23Z | claude | Write | write | specs/041-dynamic-agent-selection/50-implementation.md |
+| 2026-11-22T14:06:26Z | claude | Bash | shell | sed -i '' 's/^- \[ \] \([0-9]\)/- [x] \1/' specs/041-dynamic-agent-selection/40-plan.md && sed -i '' 's/^step: plan$/step: review/' specs/041-dynamic-agent-selection/status.md && git add specs/041-dyn |
+| 2026-11-22T14:06:29Z | claude | Read | read | kit/skills/light-review-cycle/SKILL.md |
+| 2026-11-22T14:06:29Z | claude | Read | read | kit/agents/light-reviewer.md |
+| 2026-11-22T14:06:36Z | claude | Read | read | specs/041-dynamic-agent-selection/00-request.md |
+| 2026-11-22T14:06:36Z | claude | Read | read | specs/041-dynamic-agent-selection/10-understanding.md |
+| 2026-11-22T14:06:36Z | claude | Read | read | specs/041-dynamic-agent-selection/20-discovery.md |
+| 2026-11-22T14:06:36Z | claude | Bash | shell | git diff --stat 1f50a5cc84682a15848bc2ff2ea6d82ee40e8ce2..HEAD && git status --porcelain |
+| 2026-11-22T14:06:38Z | claude | Read | read | specs/041-dynamic-agent-selection/40-plan.md |
+| 2026-11-22T14:06:38Z | claude | Read | read | specs/041-dynamic-agent-selection/50-implementation.md |
+| 2026-11-22T14:06:38Z | claude | Read | read | kit/skills/light-review-checklist/SKILL.md |
+| 2026-11-22T14:06:38Z | claude | Read | read | kit/skills/light-review-cycle/SKILL.md |
+| 2026-11-22T14:06:40Z | claude | Read | read | kit/skills/light-agent-selection/SKILL.md |
+| 2026-11-22T14:06:40Z | claude | Read | read | kit/agents/light-orchestrator.md |
+| 2026-11-22T14:06:40Z | claude | Bash | shell | grep -rn "light-model-routing\\|light-triage" docs README.md kit/audit \| head -20 |
+| 2026-11-22T14:06:40Z | claude | Read | read | kit/instructions/core.md |
+| 2026-11-22T14:06:41Z | claude | Read | read | kit/workflows/direct.md |
+| 2026-11-22T14:06:41Z | claude | Read | read | kit/workflows/standard.md |
+| 2026-11-22T14:06:41Z | claude | Read | read | kit/workflows/full.md |
+| 2026-11-22T14:06:41Z | claude | Read | read | docs/model-routing.md |
+| 2026-11-22T14:06:41Z | claude | Read | read | kit/workflows/bootstrap.md |
+| 2026-11-22T14:06:42Z | claude | Read | read | kit/workflows/standardize.md |
+| 2026-11-22T14:06:43Z | claude | Read | read | kit/templates/10-understanding.md |
+| 2026-11-22T14:06:43Z | claude | Read | read | kit/skills/light-model-routing/SKILL.md |
+| 2026-11-22T14:06:43Z | claude | Read | read | docs/usage.md |
+| 2026-11-22T14:06:44Z | claude | Read | read | tools/build.mjs |
+| 2026-11-22T14:06:44Z | claude | Bash | shell | sed -n '95,110p' README.md |
+| 2026-11-22T14:06:45Z | claude | Read | read | tests/kit.test.mjs |
+| 2026-11-22T14:06:48Z | claude | Bash | shell | sed -n '1,20p' specs/041-dynamic-agent-selection/status.md |
+| 2026-11-22T14:06:52Z | claude | Bash | shell | sed -i '' 's/^review_round: 0$/review_round: 1/' specs/041-dynamic-agent-selection/status.md && grep -E '^review_round\|^step' specs/041-dynamic-agent-selection/status.md |
