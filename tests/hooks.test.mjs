@@ -213,7 +213,10 @@ test('a user defect report triggers the rules reminder', () => {
   const bug = run(d, 'claude', 'prompt', { prompt: 'the export still does not work after request 041' });
   assert.equal(bug.code, 0);
   assert.match(JSON.parse(bug.out).hookSpecificOutput.additionalContext, /light-rules/);
+  assert.match(JSON.parse(run(d, 'claude', 'prompt', { prompt: 'the export fails' }).out).hookSpecificOutput.additionalContext, /light-rules/);
+  assert.match(JSON.parse(run(d, 'claude', 'prompt', { prompt: 'it crashes when I open it' }).out).hookSpecificOutput.additionalContext, /light-rules/);
   assert.equal(run(d, 'claude', 'prompt', { prompt: 'add an export button' }).out, '');
+  assert.equal(run(d, 'claude', 'prompt', { prompt: 'add a bug tracker' }).out, '');
   const off = project({ hooks: { 'rules-reminder': 'off' } });
   assert.equal(run(off, 'claude', 'prompt', { prompt: 'the export still does not work' }).out, '');
   const none = project();

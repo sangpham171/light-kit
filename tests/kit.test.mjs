@@ -288,7 +288,10 @@ test('project rules: a seeded file, a skill, and a before/after loop at every ch
   assert.match(read('CLAUDE.md'), /the user reports a bug/);
   assert.match(read('.claude/skills/light-request/SKILL.md'), /still does not work/);
   assert.match(read('.claude/skills/light-implement/SKILL.md'), /failed verification/);
-  for (const w of ['direct', 'standard', 'full']) assert.match(read(`.light-kit/workflows/${w}.md`), /skill: light-rules/, w);
+  assert.match(read('.claude/agents/light-orchestrator.md'), /still not working/);
+  assert.match(read('.claude/agents/light-tester.md'), /rule trigger/);
+  assert.match(read('.claude/skills/light-review-checklist/SKILL.md'), /user-reported bug/);
+  for (const w of ['direct', 'standard', 'full', 'bootstrap', 'standardize']) assert.match(read(`.light-kit/workflows/${w}.md`), /skill: light-rules/, w);
   assert.match(read('.light-kit/hooks.config.json'), /"rules-reminder": "warn"/);
   assert.match(read('.light-kit/hooks/README.md'), /`rules-reminder`/);
   // the templates are kit copies, so a reinstall refreshes them; the project's own documents survive
