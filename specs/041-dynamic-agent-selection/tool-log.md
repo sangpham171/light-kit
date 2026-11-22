@@ -58,3 +58,32 @@ stored. Safe to delete.
 | 2026-11-22T14:03:57Z | claude | Write | write | specs/041-dynamic-agent-selection/40-plan.md |
 | 2026-11-22T14:03:59Z | claude | Bash | shell | git status --porcelain && ls specs/041-dynamic-agent-selection/ |
 | 2026-11-22T14:04:01Z | claude | Bash | shell | git log --oneline -5 -- .light-kit/usage.json; echo ---; git diff --stat .light-kit/usage.json |
+| 2026-11-22T14:04:04Z | claude | Bash | shell | sed -i '' 's/^step: understand$/step: plan/' specs/041-dynamic-agent-selection/status.md && git add specs/041-dynamic-agent-selection specs/tool-log.md && git commit -q -m "docs(spec): plan request 04 |
+| 2026-11-22T14:04:13Z | claude | Write | write | kit/skills/light-agent-selection/SKILL.md |
+| 2026-11-22T14:04:16Z | claude | Bash | shell | node -e "import('./tools/build.mjs').then(m => { const k = m.loadKit(); const s = k.skills.find(x => x.meta.name === 'light-agent-selection'); console.log('found:', !!s, 'purpose:', s?.meta.purpose);  |
+| 2026-11-22T14:04:18Z | claude | Bash | shell | git add kit/skills/light-agent-selection/SKILL.md && git commit -q -m "feat(kit): add the agent selection skill" && git log --oneline -1 |
+| 2026-11-22T14:04:22Z | claude | Edit | write | kit/agents/light-orchestrator.md |
+| 2026-11-22T14:04:23Z | claude | Edit | write | kit/instructions/core.md |
+| 2026-11-22T14:04:28Z | claude | Bash | shell | node -e " import('./tools/build.mjs').then(m => { const k = m.loadKit(); console.log('lint:', JSON.stringify(m.lint(k))); const orch = k.agents.find(a => a.meta.name === 'light-orchestrator').body; co |
+| 2026-11-22T14:04:30Z | claude | Bash | shell | git add kit/agents/light-orchestrator.md kit/instructions/core.md && git commit -q -m "feat(kit): let the orchestrator adapt the agent roster" && git log --oneline -1 |
+| 2026-11-22T14:04:34Z | claude | Edit | write | kit/workflows/direct.md |
+| 2026-11-22T14:04:34Z | claude | Edit | write | kit/workflows/standard.md |
+| 2026-11-22T14:04:34Z | claude | Edit | write | kit/workflows/full.md |
+| 2026-11-22T14:04:35Z | claude | Edit | write | kit/workflows/bootstrap.md |
+| 2026-11-22T14:04:35Z | claude | Edit | write | kit/workflows/standardize.md |
+| 2026-11-22T14:04:36Z | claude | Edit | write | kit/templates/10-understanding.md |
+| 2026-11-22T14:04:39Z | claude | Bash | shell | node -e " import('./tools/build.mjs').then(m => { const k = m.loadKit(); console.log('lint:', JSON.stringify(m.lint(k))); for (const w of k.workflows) console.log(w.meta.name + ':', /are the baseline/ |
+| 2026-11-22T14:04:42Z | claude | Bash | shell | git add kit/workflows kit/templates/10-understanding.md && git commit -q -m "docs(kit): mark workflow agents as a baseline" && git log --oneline -1 |
+| 2026-11-22T14:04:46Z | claude | Edit | write | kit/skills/light-model-routing/SKILL.md |
+| 2026-11-22T14:04:46Z | claude | Edit | write | kit/skills/light-model-routing/SKILL.md |
+| 2026-11-22T14:04:47Z | claude | Edit | write | docs/usage.md |
+| 2026-11-22T14:04:49Z | claude | Edit | write | docs/usage.md |
+| 2026-11-22T14:05:18Z | claude | Bash | shell | npm test 2>&1 \| tail -8 && grep -c "light-agent-selection" docs/usage.md kit/skills/light-model-routing/SKILL.md |
+| 2026-11-22T14:05:21Z | claude | Bash | shell | git add kit/skills/light-model-routing/SKILL.md docs/usage.md && git commit -q -m "docs(kit): document dynamic agent selection" && git log --oneline -1 |
+| 2026-11-22T14:05:30Z | claude | Edit | write | tests/kit.test.mjs |
+| 2026-11-22T14:05:34Z | claude | Bash | shell | node --test tests/kit.test.mjs 2>&1 \| tail -8 |
+| 2026-11-22T14:06:03Z | claude | Bash | shell | npm test 2>&1 \| tail -6 |
+| 2026-11-22T14:06:06Z | claude | Bash | shell | git add tests/kit.test.mjs && git commit -q -m "test(kit): cover dynamic agent selection" && git log --oneline -5 |
+| 2026-11-22T14:06:10Z | claude | Bash | shell | grep -rn "Deferred technical debt\\|still open\\|accepted" specs/03*/60-conclusion.md specs/04*/60-conclusion.md \| head -30 |
+| 2026-11-22T14:06:14Z | claude | Bash | shell | for f in 036-brainstormer-agent 039-rules-promotion-threshold 040-init-updates-existing-kit; do echo "=== $f"; sed -n '/## Deferred technical debt/,/## Follow-ups/p' specs/$f/60-conclusion.md; done |
+| 2026-11-22T14:06:23Z | claude | Write | write | specs/041-dynamic-agent-selection/50-implementation.md |

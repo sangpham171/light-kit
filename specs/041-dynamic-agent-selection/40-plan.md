@@ -13,11 +13,11 @@ usage:
 
 # Plan
 
-- [ ] 1. Add the `light-agent-selection` skill — level: medium — files: `kit/skills/light-agent-selection/SKILL.md` — verify: `node --test tests/kit.test.mjs` (kit lints clean, the skill loads) and every required heading/rule grep matches — commit: `feat(kit): add the agent selection skill`
-- [ ] 2. Make the orchestrator apply it, and state the baseline rule globally — level: medium — files: `kit/agents/light-orchestrator.md`, `kit/instructions/core.md` — verify: `node --test tests/kit.test.mjs` and grep `light-agent-selection` in both generated files — commit: `feat(kit): let the orchestrator adapt the agent roster`
-- [ ] 3. Mark workflow agent lists as the baseline and add `## Agent plan` to the understanding template — level: easy — files: `kit/workflows/{direct,standard,full,bootstrap,standardize}.md`, `kit/templates/10-understanding.md` — verify: `node --test tests/kit.test.mjs`; each workflow carries the baseline sentence and lint still finds every named agent — commit: `docs(kit): mark workflow agents as a baseline`
-- [ ] 4. Separate agent choice from model choice in the routing skill and document the dynamic roster — level: easy — files: `kit/skills/light-model-routing/SKILL.md`, `docs/usage.md` — verify: `npm test`; grep `light-agent-selection` in the installed routing skill and the usage doc — commit: `docs(kit): document dynamic agent selection`
-- [ ] 5. Cover the wiring with a test — level: medium — files: `tests/kit.test.mjs` — verify: `node --test tests/kit.test.mjs` then `npm test` — commit: `test(kit): cover dynamic agent selection`
+- [x] 1. Add the `light-agent-selection` skill — level: medium — files: `kit/skills/light-agent-selection/SKILL.md` — verify: `node --test tests/kit.test.mjs` (kit lints clean, the skill loads) and every required heading/rule grep matches — commit: `feat(kit): add the agent selection skill`
+- [x] 2. Make the orchestrator apply it, and state the baseline rule globally — level: medium — files: `kit/agents/light-orchestrator.md`, `kit/instructions/core.md` — verify: `node --test tests/kit.test.mjs` and grep `light-agent-selection` in both generated files — commit: `feat(kit): let the orchestrator adapt the agent roster`
+- [x] 3. Mark workflow agent lists as the baseline and add `## Agent plan` to the understanding template — level: easy — files: `kit/workflows/{direct,standard,full,bootstrap,standardize}.md`, `kit/templates/10-understanding.md` — verify: `node --test tests/kit.test.mjs`; each workflow carries the baseline sentence and lint still finds every named agent — commit: `docs(kit): mark workflow agents as a baseline`
+- [x] 4. Separate agent choice from model choice in the routing skill and document the dynamic roster — level: easy — files: `kit/skills/light-model-routing/SKILL.md`, `docs/usage.md` — verify: `npm test`; grep `light-agent-selection` in the installed routing skill and the usage doc — commit: `docs(kit): document dynamic agent selection`
+- [x] 5. Cover the wiring with a test — level: medium — files: `tests/kit.test.mjs` — verify: `node --test tests/kit.test.mjs` then `npm test` — commit: `test(kit): cover dynamic agent selection`
 
 Each task = one verified, coherent commit.
 
