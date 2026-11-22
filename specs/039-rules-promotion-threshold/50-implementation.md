@@ -24,6 +24,8 @@ usage:
 
 - Task 5 docs(kit): document the configurable rule promotion threshold — `grep` found the setting in the learned-rules section.
 
+- Task 6 test(kit): cover the configurable promotion threshold — `node --test tests/kit.test.mjs` passed 24/24; `npm test` passed 183/183; the kit-source grep for `Violated 3 times`, `Count is 3 or more` and `reaches 3` returned nothing.
+
 Rules applied: `.light-kit/rules.md` holds no rules yet. `rules: no change`.
 
 ## Technical debt

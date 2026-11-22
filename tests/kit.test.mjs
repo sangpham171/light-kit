@@ -203,6 +203,22 @@ test('project rules: a seeded file, a skill, and a before/after loop at every ch
   assert.match(skill, /Never renumber or delete a row/);
   assert.match(skill, /only the user can demote or remove/);
   assert.match(read('.light-kit/rules.md'), /\| `pending` \|/);
+  // the promotion threshold is a per-project setting, defaulting to 3
+  assert.match(read('.light-kit/templates/project-profile.md'), /## Rules\nPromotion threshold: 3/);
+  assert.match(skill, /\| 0 to N-1 \| `pending` \|/);
+  assert.match(skill, /\| N or more \| `confirmed` \|/);
+  assert.match(read('.light-kit/rules.md'), /promotion threshold in `\.light-kit\/project-profile\.md` \(default 3\)/);
+  assert.match(read('CLAUDE.md'), /promotion threshold in `\.light-kit\/project-profile\.md` \(default 3\)/);
+  // no kit source states the threshold as a fixed 3
+  const kit = loadKit();
+  const sources = [
+    kit.core.body,
+    ...kit.agents.map((a) => a.body),
+    ...kit.skills.map((s) => s.body),
+    ...kit.workflows.map((w) => w.body),
+    ...kit.templates.map((t) => t.text),
+  ];
+  for (const text of sources) assert.doesNotMatch(text, /Violated 3 times|reaches 3\b|Count` is 3 or more/);
   assert.match(read('CLAUDE.md'), /Learn from repeated mistakes/);
   assert.match(read('CLAUDE.md'), /Project rules: `\.light-kit\/rules\.md`/);
   assert.match(read('.claude/skills/light-init/SKILL.md'), /create `\.light-kit\/rules\.md`/);
