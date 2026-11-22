@@ -8,16 +8,18 @@ Style, stack and workflow preferences belong in `.light-kit/project-profile.md`,
 
 | State | Meaning | Agent behaviour |
 |---|---|---|
-| `pending` | Seen once or twice. On probation. | Advisory: check it, mention it when it applies, but do not block work on it. |
+| `pending` | Violated 0–2 times, or added before any violation. On probation. | Advisory: check it, mention it when it applies, but do not block work on it. |
 | `confirmed` | Violated 3 times. Critical. | Mandatory: never break it. If it conflicts with the task, stop and ask the user. |
 
-`Count` is the number of tasks in which the rule was violated, not the number of instances inside a task. A rule added after an incident starts at `Count: 1` — the incident itself counts. A rule added before any violation starts at `0`. When a violation takes `Count` to 3, set `State` to `confirmed` in the same update.
+`Count` is the number of tasks in which the rule was violated, not the number of instances inside a task. A rule added after an incident starts at `Count: 1` — the incident itself counts. A rule added before any violation starts at `0`. When `Count` is 3 or more and `State` is `pending`, set `State` to `confirmed` in the same update.
 
 ## Rules
 
 | ID | State | Count | Rule | Prevents | Check before | Last violated | Evidence |
 |---|---|---|---|---|---|---|---|
 | _none yet_ | | | | | | | |
+
+Replace the `_none yet_` row when you add the first rule.
 
 ## Before a task
 
@@ -30,7 +32,7 @@ Style, stack and workflow preferences belong in `.light-kit/project-profile.md`,
 
 1. Check every rule that applied against the result and its verification.
 2. **Violated:** add 1 to `Count`, set `Last violated` to today, and add the evidence (request id, file, test or commit). One task counts once per rule, however many instances it had.
-3. **Reached 3:** set `State` to `confirmed` in the same edit and report the promotion.
+3. **Reached 3:** when `Count` is 3 or more, set `State` to `confirmed` in the same edit and report the promotion.
 4. **New repeatable error or bug:** add a row with a new `R-NNN` id, `pending`, `Count: 1`, today's date and the evidence. The incident is the first violation.
 5. **Nothing happened:** leave the file unchanged and write `rules: no change` in the task log.
 6. Never renumber or delete a row, and never rewrite a `confirmed` rule. If a rule is wrong or obsolete, propose the change to the user; only the user can demote or remove it.
@@ -47,4 +49,4 @@ Style, stack and workflow preferences belong in `.light-kit/project-profile.md`,
 
 Example row:
 
-| R-004 | pending | 1 | Run the full test suite before every commit. | A broken test reached a commit twice. | Before each `git commit`. | 2026-11-20 | `specs/036-example/50-implementation.md` |
+| R-001 | pending | 1 | Run the full test suite before every commit. | A broken test reached a commit twice. | Before each `git commit`. | 2026-11-20 | `specs/036-example/50-implementation.md` |

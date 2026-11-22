@@ -89,9 +89,11 @@ test('project knowledge is never overwritten by upgrades', () => {
   const d = mk('api/.git');
   asRoot(d, ['api']);
   writeFileSync(join(d, 'api/.light-kit/project-profile.md'), '# api profile\nlanguage X\n');
+  writeFileSync(join(d, 'api/.light-kit/rules.md'), '# api rules\n| R-001 | confirmed | 3 | Keep it. |\n');
   writeFileSync(join(d, '.light-kit/projects.md'), '# mine\n');
   asRoot(d, ['api']);
   assert.match(readFileSync(join(d, 'api/.light-kit/project-profile.md'), 'utf8'), /language X/);
+  assert.match(readFileSync(join(d, 'api/.light-kit/rules.md'), 'utf8'), /R-001/);
   assert.equal(readFileSync(join(d, '.light-kit/projects.md'), 'utf8'), '# mine\n');
 });
 

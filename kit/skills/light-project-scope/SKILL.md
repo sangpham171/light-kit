@@ -13,7 +13,7 @@ Read the registry `.light-kit/projects.md`. Decide from the request text, the pa
 
 ## 2. Load knowledge, nearest wins
 1. Workspace defaults: `.light-kit/project-profile.md` (commit policy, branch convention, cross-cutting rules).
-2. The project's own `<project>/.light-kit/project-profile.md` and `codebase-map.md`. These override the defaults.
+2. The project's own `<project>/.light-kit/project-profile.md`, `rules.md` and `codebase-map.md`. These override the defaults; `rules.md` is never shared between projects.
 3. Hook settings are layered the same way: `<project>/.light-kit/hooks.config.json` adds to the workspace one.
 
 Build, test, lint and run commands always come from the target project's profile and run **from that project's folder**. Apply one project's conventions only to that project.

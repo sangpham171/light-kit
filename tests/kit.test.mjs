@@ -195,22 +195,26 @@ test('project rules: a seeded file, a skill, and a before/after loop at every ch
   assert.match(template, /\| `pending` \|/);
   assert.match(template, /\| `confirmed` \|/);
   assert.match(template, /`Count` is the number of tasks/);
-  assert.match(template, /takes `Count` to 3/);
+  assert.match(template, /3 or more/);
   const skill = read('.claude/skills/light-rules/SKILL.md');
   assert.match(skill, /## Before a task/);
   assert.match(skill, /## After a task/);
-  assert.match(skill, /reaches 3/);
+  assert.match(skill, /3 or more/);
   assert.match(skill, /Never renumber or delete a row/);
+  assert.match(skill, /only the user can demote or remove/);
+  assert.match(read('.light-kit/rules.md'), /\| `pending` \|/);
   assert.match(read('CLAUDE.md'), /Learn from repeated mistakes/);
   assert.match(read('CLAUDE.md'), /Project rules: `\.light-kit\/rules\.md`/);
   assert.match(read('.claude/skills/light-init/SKILL.md'), /create `\.light-kit\/rules\.md`/);
   assert.match(read('.claude/skills/light-implement/SKILL.md'), /apply the `light-rules` skill/);
   assert.match(read('.claude/agents/light-orchestrator.md'), /apply the `light-rules` skill/);
   assert.match(read('.claude/skills/light-review-checklist/SKILL.md'), /`confirmed` rule in `\.light-kit\/rules\.md`/);
-  // the template is a seed: a project's own rules survive an upgrade
+  // the template and the project's own rules are seeds: both survive an upgrade
   writeFileSync(join(dir, '.light-kit/templates/rules.md'), '# Project rules\n\n| R-001 | confirmed | 3 | Keep this row. |\n');
+  writeFileSync(join(dir, '.light-kit/rules.md'), '# Project rules\n\n| R-002 | confirmed | 3 | Keep this project row. |\n');
   install(dir, ['claude']);
   assert.match(read('.light-kit/templates/rules.md'), /R-001/);
+  assert.match(read('.light-kit/rules.md'), /R-002/);
 });
 
 test('install into empty dir, then second run changes nothing', () => {
