@@ -57,3 +57,55 @@ stored. Safe to delete.
 | 2026-11-22T11:38:12Z | claude | Write | write | specs/037-project-rules/20-discovery.md |
 | 2026-11-22T11:38:16Z | claude | Write | write | specs/037-project-rules/40-plan.md |
 | 2026-11-22T11:38:20Z | claude | Bash | shell | git status --short && git add specs/037-project-rules specs/tool-log.md 2>/dev/null; git status --short |
+| 2026-11-22T11:38:25Z | claude | Bash | shell | git commit -m "docs(spec): plan request 037" -- specs/037-project-rules specs/tool-log.md && git log --oneline -1 |
+| 2026-11-22T11:38:30Z | claude | Write | write | kit/templates/rules.md |
+| 2026-11-22T11:38:33Z | claude | Bash | shell | grep -q "pending" kit/templates/rules.md && grep -q "confirmed" kit/templates/rules.md && grep -q "Count" kit/templates/rules.md && grep -q "R-NNN" kit/templates/rules.md && echo OK && git add kit/tem |
+| 2026-11-22T11:38:38Z | claude | Write | write | kit/skills/light-rules/SKILL.md |
+| 2026-11-22T11:38:40Z | claude | Edit | write | kit/skills/light-rules/SKILL.md |
+| 2026-11-22T11:38:44Z | claude | Bash | shell | node -e "import('./tools/build.mjs').then(m=>{const e=m.lint(m.loadKit()); console.log(e.length?e:'[]')})" |
+| 2026-11-22T11:38:47Z | claude | Bash | shell | git add kit/skills/light-rules/SKILL.md && git commit -m "feat(kit): add the light-rules skill" -- kit/skills/light-rules/SKILL.md |
+| 2026-11-22T11:38:53Z | claude | Edit | write | kit/instructions/core.md |
+| 2026-11-22T11:38:53Z | claude | Edit | write | kit/instructions/core.md |
+| 2026-11-22T11:38:54Z | claude | Edit | write | tools/build.mjs |
+| 2026-11-22T11:38:54Z | claude | Edit | write | kit/audit/rules.json |
+| 2026-11-22T11:38:56Z | claude | Read | read | tests/audit.test.mjs |
+| 2026-11-22T11:38:58Z | claude | Edit | write | tests/audit.test.mjs |
+| 2026-11-22T11:38:59Z | claude | Edit | write | tests/audit.test.mjs |
+| 2026-11-22T11:38:59Z | claude | Edit | write | tests/audit.test.mjs |
+| 2026-11-22T11:39:04Z | claude | Bash | shell | node --test tests/audit.test.mjs 2>&1 \| tail -20 |
+| 2026-11-22T11:39:08Z | claude | Bash | shell | node --test tests/audit.test.mjs 2>&1 \| grep -B2 -A 18 "^not ok" |
+| 2026-11-22T11:39:10Z | claude | Read | read | tests/audit.test.mjs |
+| 2026-11-22T11:39:11Z | claude | Edit | write | tests/audit.test.mjs |
+| 2026-11-22T11:39:16Z | claude | Bash | shell | node --test tests/audit.test.mjs 2>&1 \| tail -8 |
+| 2026-11-22T11:39:19Z | claude | Bash | shell | node --test tests/kit.test.mjs 2>&1 \| tail -8 |
+| 2026-11-22T11:39:22Z | claude | Bash | shell | git add kit/instructions/core.md tools/build.mjs kit/audit/rules.json tests/audit.test.mjs && git commit -m "feat(kit): load the project rules before every task" -- kit/instructions/core.md tools/buil |
+| 2026-11-22T11:39:25Z | claude | Read | read | kit/skills/light-init/SKILL.md |
+| 2026-11-22T11:39:25Z | claude | Bash | shell | sed -n '1,20p' kit/skills/light-implement/SKILL.md; echo "=== checklist ==="; cat kit/skills/light-review-checklist/SKILL.md |
+| 2026-11-22T11:39:28Z | claude | Edit | write | kit/skills/light-init/SKILL.md |
+| 2026-11-22T11:39:28Z | claude | Edit | write | kit/skills/light-init/SKILL.md |
+| 2026-11-22T11:39:29Z | claude | Edit | write | kit/skills/light-init/SKILL.md |
+| 2026-11-22T11:39:29Z | claude | Edit | write | kit/skills/light-implement/SKILL.md |
+| 2026-11-22T11:39:30Z | claude | Edit | write | kit/agents/light-orchestrator.md |
+| 2026-11-22T11:39:30Z | claude | Edit | write | kit/agents/light-orchestrator.md |
+| 2026-11-22T11:39:31Z | claude | Edit | write | kit/skills/light-review-checklist/SKILL.md |
+| 2026-11-22T11:39:53Z | claude | Bash | shell | npm test 2>&1 \| tail -10 |
+| 2026-11-22T11:39:56Z | claude | Bash | shell | git add kit/skills/light-init/SKILL.md kit/skills/light-implement/SKILL.md kit/agents/light-orchestrator.md kit/skills/light-review-checklist/SKILL.md && git commit -m "feat(kit): seed and enforce the |
+| 2026-11-22T11:40:02Z | claude | Read | read | tests/kit.test.mjs |
+| 2026-11-22T11:40:05Z | claude | Edit | write | tests/kit.test.mjs |
+| 2026-11-22T11:40:09Z | claude | Bash | shell | node --test tests/kit.test.mjs 2>&1 \| tail -10 |
+| 2026-11-22T11:40:13Z | claude | Bash | shell | git add tests/kit.test.mjs && git commit -m "test(kit): cover the project rules workflow" -- tests/kit.test.mjs |
+| 2026-11-22T11:40:17Z | claude | Bash | shell | sed -n '1,18p' docs/usage.md; echo "=== installation 48-75 ==="; sed -n '48,75p' docs/installation.md; echo "=== installation 88-100 ==="; sed -n '88,100p' docs/installation.md |
+| 2026-11-22T11:40:21Z | claude | Edit | write | docs/usage.md |
+| 2026-11-22T11:40:22Z | claude | Edit | write | docs/installation.md |
+| 2026-11-22T11:40:22Z | claude | Edit | write | docs/installation.md |
+| 2026-11-22T11:40:22Z | claude | Edit | write | docs/installation.md |
+| 2026-11-22T11:40:23Z | claude | Edit | write | docs/installation.md |
+| 2026-11-22T11:40:23Z | claude | Edit | write | .light-kit/codebase-map.md |
+| 2026-11-22T11:40:28Z | claude | Write | write | .light-kit/rules.md |
+| 2026-11-22T11:40:51Z | claude | Bash | shell | npm test 2>&1 \| tail -8 |
+| 2026-11-22T11:40:54Z | claude | Bash | shell | tmp=$(mktemp -d) && node tools/install.mjs "$tmp" --clients claude --dry-run 2>&1 \| grep -i "rules" \| head -10; rm -rf "$tmp" |
+| 2026-11-22T11:40:58Z | claude | Bash | shell | tmp=$(mktemp -d) && node tools/install.mjs "$tmp" --clients claude --dry-run 2>&1 \| head -20; rm -rf "$tmp" |
+| 2026-11-22T11:41:01Z | claude | Bash | shell | git add .light-kit/rules.md .light-kit/codebase-map.md docs/usage.md docs/installation.md && git commit -m "docs(kit): document the project rules" -- .light-kit/rules.md .light-kit/codebase-map.md doc |
+| 2026-11-22T11:41:08Z | claude | Write | write | specs/037-project-rules/50-implementation.md |
+| 2026-11-22T11:41:11Z | claude | Bash | shell | perl -0pi -e 's/^- \[ \] ([1-6]\.)/- [x] $1/gm' specs/037-project-rules/40-plan.md && grep -n "^- \[" specs/037-project-rules/40-plan.md |
+| 2026-11-22T11:41:11Z | claude | Edit | write | specs/037-project-rules/status.md |
