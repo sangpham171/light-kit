@@ -22,6 +22,9 @@
 ## Testing policy
 - Run the focused Node test file for a local change, then `npm test` when practical.
 
+## Rules
+Promotion threshold: 3   <!-- violations that promote a `pending` rule to `confirmed`; integer >= 1. Default 3. -->
+
 ## Output style
 Style: concise
 
