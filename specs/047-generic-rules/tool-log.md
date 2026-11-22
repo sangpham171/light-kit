@@ -38,3 +38,25 @@ stored. Safe to delete.
 | 2026-11-22T16:21:40Z | claude | Edit | write | specs/047-generic-rules/status.md |
 | 2026-11-22T16:21:43Z | claude | Edit | write | kit/templates/rules.md |
 | 2026-11-22T16:21:43Z | claude | Edit | write | kit/instructions/core.md |
+| 2026-11-22T16:21:48Z | claude | Bash | shell | git add specs/047-generic-rules specs/tool-log.md && git commit -q -m "docs(spec): plan request 047" && git add kit/templates/rules.md kit/instructions/core.md && git commit -q -m "docs(kit): require  |
+| 2026-11-22T16:21:51Z | claude | Edit | write | kit/skills/light-rules/SKILL.md |
+| 2026-11-22T16:21:51Z | claude | Edit | write | kit/skills/light-rules/SKILL.md |
+| 2026-11-22T16:21:55Z | claude | Bash | shell | grep -n "general failure mode" kit/skills/light-rules/SKILL.md && git add kit/skills/light-rules/SKILL.md && git commit -q -m "docs(kit): apply the rule-generality check in light-rules" && git log --o |
+| 2026-11-22T16:21:58Z | claude | Edit | write | .light-kit/rules.md |
+| 2026-11-22T16:22:00Z | claude | Edit | write | .light-kit/rules.md |
+| 2026-11-22T16:22:03Z | claude | Bash | shell | grep -n "R-004\\|R-005" .light-kit/rules.md && git add .light-kit/rules.md && git commit -q -m "docs(rules): record the rule-generality correction" && git log --oneline -1 |
+| 2026-11-22T16:22:06Z | claude | Edit | write | docs/usage.md |
+| 2026-11-22T16:22:06Z | claude | Edit | write | tests/kit.test.mjs |
+| 2026-11-22T16:22:38Z | claude | Bash | shell | npm test 2>&1 \| tail -25 |
+| 2026-11-22T16:22:41Z | claude | Bash | shell | git add docs/usage.md tests/kit.test.mjs && git commit -q -m "test(kit): cover the rule-generality guidance" && git log --oneline -1 |
+| 2026-11-22T16:22:45Z | claude | Bash | shell | npm run install-kit -- "$HOME" --level user --dry-run 2>&1 \| tail -20 |
+| 2026-11-22T16:22:48Z | claude | Bash | shell | npm run install-kit -- "$HOME" --level user 2>&1 \| tail -10 && diff kit/templates/rules.md ~/.light-kit/templates/rules.md && echo "template copy: identical" ; diff <(grep -v 'light-kit:generated' ~/ |
+| 2026-11-22T16:22:52Z | claude | Bash | shell | sed -n '/## Deferred technical debt/,/## Follow-ups/p' specs/046-usage-state-commit/60-conclusion.md; echo ---; grep -n "TD-" specs/046-usage-state-commit/50-implementation.md \| tail -10 |
+| 2026-11-22T16:22:58Z | claude | Write | write | specs/047-generic-rules/50-implementation.md |
+| 2026-11-22T16:23:00Z | claude | Write | write | specs/047-generic-rules/60-conclusion.md |
+| 2026-11-22T16:23:02Z | claude | Read | read | specs/047-generic-rules/40-plan.md |
+| 2026-11-22T16:23:04Z | claude | Edit | write | specs/047-generic-rules/40-plan.md |
+| 2026-11-22T16:23:05Z | claude | Bash | shell | grep -n "Range:" specs/046-usage-state-commit/60-conclusion.md && cat specs/046-usage-state-commit/status.md |
+| 2026-11-22T16:23:06Z | claude | Edit | write | specs/047-generic-rules/60-conclusion.md |
+| 2026-11-22T16:23:07Z | claude | Write | write | specs/047-generic-rules/status.md |
+| 2026-11-22T16:23:09Z | claude | Bash | shell | git status --short |
