@@ -135,3 +135,20 @@ stored. Safe to delete.
 | 2026-11-22T13:15:46Z | claude | Read | read | kit/templates/project-profile.md |
 | 2026-11-22T13:15:46Z | claude | Read | read | kit/skills/light-rules/SKILL.md |
 | 2026-11-22T13:15:46Z | claude | Read | read | kit/templates/rules.md |
+| 2026-11-22T13:15:50Z | claude | Read | read | kit/instructions/core.md |
+| 2026-11-22T13:15:50Z | claude | Read | read | docs/usage.md |
+| 2026-11-22T13:15:50Z | claude | Read | read | tests/kit.test.mjs |
+| 2026-11-22T13:16:02Z | claude | Read | read | .git/logs/HEAD |
+| 2026-11-22T13:16:02Z | claude | Read | read | specs/039-rules-promotion-threshold/status.md |
+| 2026-11-22T13:16:04Z | claude | Read | read | .git/logs/HEAD |
+| 2026-11-22T13:16:07Z | claude | Read | read | .git/logs/HEAD |
+| 2026-11-22T13:16:11Z | claude | Read | read | README.md |
+| 2026-11-22T13:16:18Z | claude | Read | read | kit/skills/light-init/SKILL.md |
+| 2026-11-22T13:16:19Z | claude | Read | read | tests/kit.test.mjs |
+| 2026-11-22T13:16:26Z | claude | Read | read | tests/kit.test.mjs |
+| 2026-11-22T13:16:26Z | claude | Read | read | tests/kit.test.mjs |
+| 2026-11-22T13:17:04Z | claude | Read | read | specs/039-rules-promotion-threshold/50-implementation.md |
+| 2026-11-22T13:17:04Z | claude | Bash | shell | cat ~/.claude/skills/light-review-cycle/SKILL.md |
+| 2026-11-22T13:17:08Z | claude | Edit | write | specs/039-rules-promotion-threshold/50-implementation.md |
+| 2026-11-22T13:17:13Z | claude | Read | read | specs/039-rules-promotion-threshold/50-implementation.md |
+| 2026-11-22T13:17:14Z | claude | Bash | shell | sed -n '15,30p' docs/usage.md && echo "===TEST===" && sed -n '205,230p' tests/kit.test.mjs |
