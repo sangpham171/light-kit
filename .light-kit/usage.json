@@ -140,6 +140,20 @@
       "cacheRead": 4837888,
       "cacheWrite": 0,
       "timeMs": 987152
+    },
+    "1c9812cc-4fc2-4373-a48d-b1bcf2b54416": {
+      "input": 116189,
+      "output": 111283,
+      "cacheRead": 19346176,
+      "cacheWrite": 0,
+      "timeMs": 2176671
+    },
+    "fbc93fbe-81a3-41e1-90c0-10399e04faa0": {
+      "input": 55392,
+      "output": 24362,
+      "cacheRead": 1263872,
+      "cacheWrite": 0,
+      "timeMs": 249804
     }
   },
   "requests": {
@@ -1131,6 +1145,182 @@
           "cacheRead": 0,
           "cacheWrite": 0,
           "timeMs": 0,
+          "timed": true
+        }
+      }
+    },
+    "043-rule-triggers": {
+      "steps": {
+        "00-request": {
+          "input": 66852,
+          "output": 20366,
+          "cacheRead": 1678080,
+          "cacheWrite": 0,
+          "timeMs": 287268,
+          "timed": true
+        },
+        "10-understanding": {
+          "input": 230,
+          "output": 1229,
+          "cacheRead": 84736,
+          "cacheWrite": 0,
+          "timeMs": 7194,
+          "timed": true
+        },
+        "40-plan": {
+          "input": 799,
+          "output": 1547,
+          "cacheRead": 447104,
+          "cacheWrite": 0,
+          "timeMs": 39391,
+          "timed": true
+        },
+        "50-implementation": {
+          "input": 20763,
+          "output": 28381,
+          "cacheRead": 4122624,
+          "cacheWrite": 0,
+          "timeMs": 531668,
+          "timed": true
+        },
+        "60-conclusion": {
+          "input": 1023,
+          "output": 3773,
+          "cacheRead": 536064,
+          "cacheWrite": 0,
+          "timeMs": 23783,
+          "timed": true
+        }
+      }
+    },
+    "044-multilingual-rules-reminder": {
+      "steps": {
+        "00-request": {
+          "input": 2681,
+          "output": 10095,
+          "cacheRead": 995584,
+          "cacheWrite": 0,
+          "timeMs": 257537,
+          "timed": true
+        },
+        "10-understanding": {
+          "input": 480,
+          "output": 1986,
+          "cacheRead": 300928,
+          "cacheWrite": 0,
+          "timeMs": 8516,
+          "timed": true
+        },
+        "40-plan": {
+          "input": 451,
+          "output": 1159,
+          "cacheRead": 329216,
+          "cacheWrite": 0,
+          "timeMs": 6930,
+          "timed": true
+        },
+        "50-implementation": {
+          "input": 8592,
+          "output": 13718,
+          "cacheRead": 3239040,
+          "cacheWrite": 0,
+          "timeMs": 279057,
+          "timed": true
+        },
+        "60-conclusion": {
+          "input": 1157,
+          "output": 2021,
+          "cacheRead": 699136,
+          "cacheWrite": 0,
+          "timeMs": 74995,
+          "timed": true
+        }
+      }
+    },
+    "045-universal-rules-reminder": {
+      "steps": {
+        "00-request": {
+          "input": 2061,
+          "output": 9357,
+          "cacheRead": 1086464,
+          "cacheWrite": 0,
+          "timeMs": 215667,
+          "timed": true
+        },
+        "10-understanding": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "timeMs": 159,
+          "timed": true
+        },
+        "40-plan": {
+          "input": 454,
+          "output": 2267,
+          "cacheRead": 402560,
+          "cacheWrite": 0,
+          "timeMs": 11581,
+          "timed": true
+        },
+        "50-implementation": {
+          "input": 9845,
+          "output": 13639,
+          "cacheRead": 4787584,
+          "cacheWrite": 0,
+          "timeMs": 390337,
+          "timed": true
+        },
+        "60-conclusion": {
+          "input": 801,
+          "output": 1745,
+          "cacheRead": 637056,
+          "cacheWrite": 0,
+          "timeMs": 42588,
+          "timed": true
+        }
+      }
+    },
+    "046-usage-state-commit": {
+      "steps": {
+        "00-request": {
+          "input": 53971,
+          "output": 20110,
+          "cacheRead": 810240,
+          "cacheWrite": 0,
+          "timeMs": 216142,
+          "timed": true
+        },
+        "10-understanding": {
+          "input": 199,
+          "output": 556,
+          "cacheRead": 73216,
+          "cacheWrite": 0,
+          "timeMs": 2155,
+          "timed": true
+        },
+        "40-plan": {
+          "input": 308,
+          "output": 1499,
+          "cacheRead": 73856,
+          "cacheWrite": 0,
+          "timeMs": 7088,
+          "timed": true
+        },
+        "50-implementation": {
+          "input": 914,
+          "output": 2197,
+          "cacheRead": 306560,
+          "cacheWrite": 0,
+          "timeMs": 22278,
+          "timed": true
+        },
+        "60-conclusion": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "timeMs": 2141,
           "timed": true
         }
       }
