@@ -32,6 +32,18 @@ const created = (dir, file, content) => {
   writeFileSync(join(dir, file), content);
   return run(dir, 'claude', 'post-tool', write(file, content));
 };
+// Make `dir` a git repository on a work branch, with everything installed so far committed.
+const workRepo = (dir, branch = 'work') => {
+  const g = (...args) => spawnSync('git', args, { cwd: dir, encoding: 'utf8' });
+  g('init', '-q');
+  g('symbolic-ref', 'HEAD', `refs/heads/${branch}`);
+  g('config', 'user.email', 'test@example.com');
+  g('config', 'user.name', 'Test');
+  g('config', 'commit.gpgsign', 'false');
+  g('add', '-A');
+  g('commit', '-q', '-m', 'init');
+  return g;
+};
 // A user-level install serving a project that never ran light-init (no .light-kit in the project).
 function userProject() {
   const home = mkdtempSync(join(tmpdir(), 'light-kit-user-'));
@@ -380,6 +392,56 @@ test('tool-log follows the working request, redacts commands and skips its own w
   const ownShared = project();
   run(ownShared, 'claude', 'post-tool', write('specs/tool-log.md', '# mine\n'));
   assert.equal(existsSync(join(ownShared, 'specs/tool-log.md')), false);
+});
+
+test('tool-log commits the uncommitted logs when the agent stops', () => {
+  const d = project();
+  const g = workRepo(d);
+  writeFileSync(join(d, 'note.txt'), 'not a log');
+  run(d, 'claude', 'post-tool', bash('npm test'));
+  assert.ok(existsSync(join(d, 'specs/tool-log.md')));
+  assert.equal(run(d, 'claude', 'stop', {}).code, 0);
+  assert.equal(g('status', '--porcelain', '--', 'specs').stdout.trim(), '');
+  assert.equal(g('log', '-1', '--format=%s').stdout.trim(), 'chore(spec): record tool-call logs');
+  assert.match(g('show', '--format=', '--name-only', 'HEAD').stdout, /specs\/tool-log\.md/);
+  assert.match(g('status', '--porcelain', '--', 'note.txt').stdout, /\?\? note\.txt/);
+});
+
+test('tool-log commits a request log on stop as well', () => {
+  const d = project(); withSpec(d);
+  const g = workRepo(d);
+  run(d, 'claude', 'post-tool', bash('npm test'));
+  assert.ok(existsSync(join(d, 'specs/001-x/tool-log.md')));
+  run(d, 'claude', 'stop', {});
+  assert.equal(g('status', '--porcelain').stdout.trim(), '');
+  assert.match(g('show', '--format=', '--name-only', 'HEAD').stdout, /specs\/001-x\/tool-log\.md/);
+});
+
+test('tool-log commits nothing on a protected branch, a detached HEAD, with commits off, or outside a repository', () => {
+  const main = project();
+  const gm = workRepo(main, 'main');
+  run(main, 'claude', 'post-tool', bash('ls'));
+  run(main, 'claude', 'stop', {});
+  assert.match(gm('status', '--porcelain', '-uall').stdout, /specs\/tool-log\.md/);
+  assert.equal(gm('log', '-1', '--format=%s').stdout.trim(), 'init');
+
+  const detached = project();
+  const gd = workRepo(detached);
+  gd('checkout', '-q', '--detach');
+  run(detached, 'claude', 'post-tool', bash('ls'));
+  run(detached, 'claude', 'stop', {});
+  assert.match(gd('status', '--porcelain', '-uall').stdout, /specs\/tool-log\.md/);
+
+  const off = project(); workRepo(off);
+  writeFileSync(join(off, '.light-kit/project-profile.md'), 'Mode: off\n');
+  run(off, 'claude', 'post-tool', bash('ls'));
+  run(off, 'claude', 'stop', {});
+  assert.match(spawnSync('git', ['-C', off, 'status', '--porcelain', '-uall'], { encoding: 'utf8' }).stdout, /specs\/tool-log\.md/);
+
+  const plain = project(); // no repository at all
+  run(plain, 'claude', 'post-tool', bash('ls'));
+  assert.equal(run(plain, 'claude', 'stop', {}).code, 0);
+  assert.ok(existsSync(join(plain, 'specs/tool-log.md')));
 });
 
 test('bad input and internal problems fail open', () => {
