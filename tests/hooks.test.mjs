@@ -224,9 +224,11 @@ test('a user defect report triggers the rules reminder', () => {
   assert.equal(run(d, 'claude', 'prompt', { prompt: 'la exportación no funciona' }).out, '');
   const es = project({ rules: { extraDefectPatterns: ['no funciona'] } });
   assert.match(JSON.parse(run(es, 'claude', 'prompt', { prompt: 'la exportación no funciona' }).out).hookSpecificOutput.additionalContext, /light-rules/);
-  // an invalid extra regex is dropped, not thrown
+  // an invalid extra regex is dropped, not thrown, and the built-in patterns still work
   const bad = project({ rules: { extraDefectPatterns: ['('] } });
-  assert.equal(run(bad, 'claude', 'prompt', { prompt: 'add an export button' }).out, '');
+  const badRun = run(bad, 'claude', 'prompt', { prompt: 'the export fails' });
+  assert.match(JSON.parse(badRun.out).hookSpecificOutput.additionalContext, /light-rules/);
+  assert.doesNotMatch(badRun.err, /errored/);
   const off = project({ hooks: { 'rules-reminder': 'off' } });
   assert.equal(run(off, 'claude', 'prompt', { prompt: 'the export still does not work' }).out, '');
   const none = project();
