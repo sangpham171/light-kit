@@ -108,7 +108,7 @@ const PARALLEL_NOTE = {
 
 // Core instructions + pointers to the shared folder; goes in a marked block of the client's instruction file.
 export function instructionBlock(kit, client, shared = SHARED_DIR) {
-  return `${START}\n${kit.core.body.trimEnd()}\n\n## Kit files\nWorkflows: \`${shared}/workflows/\` · Artifact templates: \`${shared}/templates/\` · Init profiles: \`${shared}/profiles/\` · Project profile: \`${SHARED_DIR}/project-profile.md\`${PARALLEL_NOTE[client]}${END}\n`;
+  return `${START}\n${kit.core.body.trimEnd()}\n\n## Kit files\nWorkflows: \`${shared}/workflows/\` · Artifact templates: \`${shared}/templates/\` · Init profiles: \`${shared}/profiles/\` · Project profile: \`${SHARED_DIR}/project-profile.md\` · Project rules: \`${SHARED_DIR}/rules.md\`${PARALLEL_NOTE[client]}${END}\n`;
 }
 
 const agentList = (kit) => kit.agents.map((a) => `- **${a.meta.name}** — ${a.meta.description}`).join('\n');
