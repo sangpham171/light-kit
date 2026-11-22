@@ -33,6 +33,7 @@ Record it in the same request or exchange, with the report and the earlier reque
 |---|---|---|---|---|---|---|---|
 | R-001 | pending | 1 | Check each earlier request's open debt against the change and state in `50-implementation.md` and `60-conclusion.md` whether it is resolved or still open. | 039 TD-1 was labelled "not introduced" while it stayed open for `.light-kit/rules.md`, and the conclusion read as if it were closed. | Before writing the implementation log and the conclusion. | 2026-11-22 | `specs/040-init-updates-existing-kit/50-implementation.md`, review F-1.1 |
 | R-002 | pending | 1 | Sanitize every nested row when reading a best-effort state file, not only the top-level shape; a malformed value must be dropped or restart the file empty, never throw. | A parseable state file with a non-object request row made the new hook error on every agent or skill call instead of restarting empty. | Before writing a reader for hook state under `.light-kit/`. | 2026-11-22 | `specs/042-agent-skill-usage/50-implementation.md`, review F-1.1 |
+| R-003 | pending | 1 | Do not rely on an English-only heuristic for user input: make the pattern list configurable and cover the project's own language. | The `rules-reminder` hook matched only English, so a Vietnamese defect report passed silently. | Before adding a text heuristic that reads the user's prompt. | 2026-11-22 | `specs/044-multilingual-rules-reminder/00-request.md`, user report |
 
 ## Before a task
 
