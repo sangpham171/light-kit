@@ -69,6 +69,17 @@ test('applies the declared level of a finished request above the baseline', () =
   assert.deepEqual(stateOf(root).applied, { 52: '0.2.0' });
 });
 
+test('rewrites only the version value and keeps the rest of package.json as it was', () => {
+  const root = fixture({ specs: [{ number: 52, bump: 'patch' }] });
+  writeFileSync(join(root, 'package.json'),
+    '{\n  "name": "light-kit",\n  "version": "0.1.0",\n  "scripts": { "test": "node --test" }\n}\n');
+  runVersionBump(root);
+  const text = readFileSync(join(root, 'package.json'), 'utf8');
+  assert.match(text, /"version": "0\.1\.1"/);
+  assert.match(text, /"scripts": \{ "test": "node --test" \}/);
+  assert.equal(text.endsWith('\n'), true);
+});
+
 test('ignores requests at or below the baseline and unfinished requests', () => {
   const root = fixture({ specs: [{ number: 51, bump: 'major' }, { number: 52, state: 'in-progress', bump: 'major' }] });
   const result = runVersionBump(root);
