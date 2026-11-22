@@ -58,3 +58,10 @@ stored. Safe to delete.
 | 2026-11-22T16:41:01Z | claude | Bash | shell | npm run install-kit -- "$HOME" --level user 2>&1 \| grep written && S="$HOME/.light-kit/hooks/record-usage.mjs" && node "$S" agent light-orchestrator --request 049-usage-record-script && node "$S" age |
 | 2026-11-22T16:41:10Z | claude | Write | write | specs/049-usage-record-script/50-implementation.md |
 | 2026-11-22T16:41:13Z | claude | Write | write | specs/049-usage-record-script/60-conclusion.md |
+| 2026-11-22T16:41:16Z | claude | Bash | shell | sed -i '' 's/^- \[ \] /- [x] /' specs/049-usage-record-script/40-plan.md && grep -c "^- \[x\]" specs/049-usage-record-script/40-plan.md && printf 'request: 049-usage-record-script\nworkflow: direct\np |
+| 2026-11-22T16:41:20Z | claude | Read | read | specs/049-usage-record-script/status.md |
+| 2026-11-22T16:41:22Z | claude | Edit | write | specs/049-usage-record-script/status.md |
+| 2026-11-22T16:41:32Z | claude | Bash | shell | sed -i '' '1s/^/---\n/' specs/047-generic-rules/status.md specs/048-usage-history/status.md && head -3 specs/047-generic-rules/status.md && echo === && head -3 specs/048-usage-history/status.md |
+| 2026-11-22T16:41:36Z | claude | Edit | write | .light-kit/rules.md |
+| 2026-11-22T16:41:39Z | claude | Bash | shell | node -e ' import("./kit/hooks/lib/specs.mjs").then(({listRequests})=>{ const rs=listRequests(process.cwd()).filter(r=>["047-generic-rules","048-usage-history","049-usage-record-script"].includes(r.nam |
+| 2026-11-22T16:41:42Z | claude | Edit | write | specs/049-usage-record-script/50-implementation.md |
