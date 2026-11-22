@@ -22,6 +22,12 @@
 ## Testing policy
 - Run the focused Node test file for a local change, then `npm test` when practical.
 
+## Version bumps (this repository only)
+- Each request declares `version_bump: patch | minor | major` in `specs/<NNN-slug>/status.md`; missing or invalid means `patch`.
+- `patch`: fix, docs, chore or refactor with no new capability. `minor`: new capability, backward compatible. `major`: breaking change to generated files, CLI, hook behaviour or config format.
+- `tools/version-bump.mjs` (Stop hook, registered only in this repository) applies the bump when a request reaches `state: done`, records it in `.light-kit/version-bump.json`, and commits `package.json` plus that state file as `chore(release): vX.Y.Z` unless the branch is protected. It is not part of the shared kit.
+- Requests 001–051 are the baseline at version `0.1.0`; only requests from 052 bump.
+
 ## Rules
 Promotion threshold: 3   <!-- violations that promote a `pending` rule to `confirmed`; integer >= 1. Default 3. -->
 
