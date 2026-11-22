@@ -8,6 +8,8 @@ purpose: structure
 
 Spend strong models where this request is hard and cheap ones where it is not. Nothing is fixed in advance: agents and workflow steps carry no tier. You rate the work, per request.
 
+Choose the roster and the model separately: `light-agent-selection` decides who runs each step, this skill decides on which model. When the roster changes, rate the new or repeated step at the moment it is added.
+
 ## 1. The tier-to-model table
 Read `.light-kit/models.json`. When several exist (user, workspace, project), the nearest to the project wins per key; empty values never override. For each tier, use the section of the client you run in (`claude`, `codex`, `copilot`, `cursor`) if it names a model, else the top-level `easy` / `medium` / `hard`. An empty tier means the client's current model: no override, nothing to report.
 
@@ -37,6 +39,7 @@ The pre-triage `light-brainstormer` call is rated like the understand step and r
 
 - **Plan tasks:** the tech-lead rates each task (`level:` in `40-plan.md`). You may raise a task's level when you read it; never lower one the tech-lead set.
 - **Re-rate when facts change:** clarification shows more ambiguity, a design turns out simple, a task escalates. Update the Routing line and carry on. You may lower a step rating you made yourself.
+- **Follow the agent plan:** when the orchestrator adds or repeats a step (`light-agent-selection`), rate it when it is added; when a step is dropped, mark its Routing line as skipped. Never leave a line for a step that did not run looking as if it did.
 - **Fixes:** the tier of the task being fixed, or higher.
 
 ## 4. Invoking
