@@ -9,3 +9,4 @@ stored. Safe to delete.
 |---|---|---|---|---|
 | 2026-11-22T19:27:26Z | claude | Bash | shell | node kit/hooks/record-usage.mjs agent light-orchestrator --root . --request 051-agent-skill-usage-per-spec && npm run backfill-usage 2>&1 \| tail -1 && tail -6 specs/051-agent-skill-usage-per-spec/age |
 | 2026-11-22T19:27:29Z | claude | Bash | shell | git status --short |
+| 2026-11-22T19:27:34Z | claude | Bash | shell | git add .light-kit/rules.md && git commit -q -m "chore(rules): record request 051 review lessons" && git add -A && git commit -q -m "docs(spec): conclude request 051" && git log --oneline -4 && git st |
