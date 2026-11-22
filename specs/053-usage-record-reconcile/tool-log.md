@@ -146,3 +146,6 @@ stored. Safe to delete.
 | 2026-11-22T21:19:22Z | claude | Bash | shell | npm test 2>&1 \| tail -12 |
 | 2026-11-22T21:19:29Z | claude | Edit | write | specs/053-usage-record-reconcile/status.md |
 | 2026-11-22T21:19:31Z | claude | Bash | shell | git status --short |
+| 2026-11-22T21:19:35Z | claude | Bash | shell | git add kit/hooks/checks/agent-skill-usage.mjs kit/hooks/README.md docs/safety-hooks.md tests/agent-skill-usage.test.mjs specs/053-usage-record-reconcile/50-implementation.md specs/053-usage-record-re |
+| 2026-11-22T21:19:44Z | claude | Write | write | specs/053-usage-record-reconcile/60-conclusion.md |
+| 2026-11-22T21:19:47Z | claude | Edit | write | specs/053-usage-record-reconcile/status.md |

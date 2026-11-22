@@ -3,11 +3,19 @@
   "requests": {
     "053-usage-record-reconcile": {
       "first": "2026-11-22T21:13:14.836Z",
-      "last": "2026-11-22T21:13:14.836Z",
+      "last": "2026-11-22T21:19:51.546Z",
       "agents": {
-        "light-reviewer": 1
+        "light-reviewer": 1,
+        "light-orchestrator": 2,
+        "light-tech-lead": 2,
+        "light-developer": 1,
+        "light-tech-writer": 1
       },
-      "skills": {}
+      "skills": {
+        "light-commit": 1,
+        "light-review-cycle": 1,
+        "light-tech-debt": 1
+      }
     }
   }
 }
