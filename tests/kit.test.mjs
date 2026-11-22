@@ -297,6 +297,9 @@ test('project rules: a seeded file, a skill, and a before/after loop at every ch
   assert.doesNotMatch(read('.light-kit/hooks.config.json'), /extraDefectPatterns/);
   assert.doesNotMatch(read('.light-kit/templates/project-hooks.config.json'), /extraDefectPatterns/);
   assert.doesNotMatch(read('.light-kit/hooks/README.md'), /extraDefectPatterns/);
+  for (const f of loadKit().hooks) assert.doesNotMatch(f.text, /extraDefectPatterns/, f.rel);
+  assert.doesNotMatch(readFileSync('docs/safety-hooks.md', 'utf8'), /extraDefectPatterns/);
+  assert.doesNotMatch(read('.claude/skills/light-hooks-config/SKILL.md'), /extraDefectPatterns/);
   // the templates are kit copies, so a reinstall refreshes them; the project's own documents survive
   writeFileSync(join(dir, '.light-kit/templates/rules.md'), '# Project rules\n\n| R-001 | confirmed | 3 | Keep this template row. |\n');
   writeFileSync(join(dir, '.light-kit/rules.md'), '# Project rules\n\n| R-002 | confirmed | 3 | Keep this project row. |\n');
