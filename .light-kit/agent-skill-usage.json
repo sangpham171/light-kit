@@ -4,15 +4,54 @@
     "call_00_kYkZaVwcZsnqZlsvADBR0362",
     "call_00_nYKRHSg81abJ9RpO5Gy78882",
     "call_00_PlLo7btkY18As8X6QtwP4849",
-    "call_00_ttpdkRz6G8xti7gJJqNq3903"
+    "call_00_ttpdkRz6G8xti7gJJqNq3903",
+    "call_00_ufcZ6P1Y2E9JyeXsr9Sk6068",
+    "call_00_85FxLjRxhbhYoLe87x6e7683",
+    "call_01_xlmLv1IcbVhf3zW7fdyH2288",
+    "call_00_ET_VgTBDx57PEA6rqHUN4oL8039",
+    "call_00_ET_uqDBXaWyMJy8f5nH4gqk9841",
+    "call_00_Kskqh9kkGTYDH9TbfSL01562",
+    "call_00_GyiAs7RTehXdbuVZQrtx4905",
+    "call_00_qOWRycxQXq1XezHZCp6y6665",
+    "call_00_bBarULP5ohaen137rs6U7297",
+    "call_00_0Rx0ANguMS9S1iCQP3re4709",
+    "call_00_j6Ur5y5u6klkjtK5jqkS2007",
+    "call_00_XcOv96GVIzSLluWOD3gt1969",
+    "call_00_f7tADHY8PclcOyu5IqSO2329",
+    "call_01_d6IDw4lGFl6djbsLrZic2341",
+    "call_02_EmLeEyeb9OUBIBkyLcyf0907",
+    "call_00_8d0z0ush19qu7HRf467A7672",
+    "call_00_FfFpp8X7ta4lnknaSAIt9016",
+    "call_01_QvjHsN1pK5AJhb2GC8lg6719",
+    "call_00_GK1sYGK7s0bkcCHcjgCd9314",
+    "call_01_LeoLJnV50qfUk84IeOST7222",
+    "call_00_ET_VCjDFMlWOdl7BKOX0j3E3654",
+    "call_01_ET_0gy8eH3guWfGgUMvdUOd5404",
+    "call_00_96tB89fhEa5Da76E98IA0163",
+    "call_00_dKk0wwBVIZ3f6e2f5l7n7656",
+    "call_01_jO5JlFFyirnba3SYAwxr2035",
+    "call_00_h7YKL7AwCnt2BxGd3Jhh1597",
+    "call_01_3i3VDbK8qG1Dd5dIe2Ax5128",
+    "call_00_958PdAOlSlXjcjldPbEV1374",
+    "call_00_7nPTYb1PSxHPh4ebJnyq7900",
+    "call_00_ET_qMM36VzvmF2QNuVqwVmh0251",
+    "call_00_V9CEJHN4KzJXbWVWITwJ6018",
+    "call_00_SLwIMatOA7mCrcqOURWu7861",
+    "call_01_TYKIB1r2pPOYU4do91zn0630",
+    "call_00_dyF4RmluZlqIEZjisbMy0123",
+    "call_01_3oVrOiKRWTakDCyIvmqA7188"
   ],
   "requests": {
     "(no request)": {
       "first": "2026-11-22T14:56:26.370Z",
-      "last": "2026-11-22T14:56:26.370Z",
-      "agents": {},
+      "last": "2026-11-22T13:10:54.914Z",
+      "agents": {
+        "light-reviewer": 2,
+        "light-tester": 1
+      },
       "skills": {
-        "light-hooks-config": 1
+        "light-hooks-config": 1,
+        "light-request": 4
       }
     },
     "043-rule-triggers": {
@@ -34,6 +73,138 @@
     "045-universal-rules-reminder": {
       "first": "2026-11-22T15:29:15.178Z",
       "last": "2026-11-22T15:29:15.178Z",
+      "agents": {
+        "light-reviewer": 1
+      },
+      "skills": {}
+    },
+    "005-readme-install-details": {
+      "first": "2026-10-26T19:47:23.866Z",
+      "last": "2026-10-26T19:47:23.866Z",
+      "agents": {
+        "light-reviewer": 1
+      },
+      "skills": {}
+    },
+    "006-token-usage-unknown": {
+      "first": "2026-10-26T20:12:07.339Z",
+      "last": "2026-10-26T20:12:09.229Z",
+      "agents": {
+        "light-reviewer": 1,
+        "light-tester": 1
+      },
+      "skills": {}
+    },
+    "010-token-usage-format": {
+      "first": "2026-10-26T21:11:30.690Z",
+      "last": "2026-10-26T21:11:30.690Z",
+      "agents": {
+        "light-reviewer": 1
+      },
+      "skills": {}
+    },
+    "011-cache-token-usage": {
+      "first": "2026-10-26T21:31:10.050Z",
+      "last": "2026-10-26T21:31:10.050Z",
+      "agents": {
+        "light-reviewer": 1
+      },
+      "skills": {}
+    },
+    "012-cache-usage-templates": {
+      "first": "2026-10-26T21:43:22.940Z",
+      "last": "2026-10-26T21:43:22.940Z",
+      "agents": {
+        "light-reviewer": 1
+      },
+      "skills": {}
+    },
+    "032-token-usage-rewrite": {
+      "first": "2026-11-09T12:37:41.699Z",
+      "last": "2026-11-09T12:52:02.063Z",
+      "agents": {
+        "light-tech-lead": 1,
+        "light-developer": 2,
+        "light-reviewer": 1
+      },
+      "skills": {}
+    },
+    "034-brainstorm-skill": {
+      "first": "2026-11-15T21:39:06.370Z",
+      "last": "2026-11-15T21:39:07.634Z",
+      "agents": {
+        "light-reviewer": 1,
+        "light-tester": 1
+      },
+      "skills": {}
+    },
+    "035-brainstorm-output-file": {
+      "first": "2026-11-18T13:50:10.472Z",
+      "last": "2026-11-18T13:50:11.847Z",
+      "agents": {
+        "light-reviewer": 1,
+        "light-tester": 1
+      },
+      "skills": {}
+    },
+    "036-brainstormer-agent": {
+      "first": "2026-11-22T10:50:46.673Z",
+      "last": "2026-11-22T10:59:06.554Z",
+      "agents": {
+        "light-reviewer": 1,
+        "light-tester": 1,
+        "light-tech-writer": 1
+      },
+      "skills": {}
+    },
+    "037-project-rules": {
+      "first": "2026-11-22T11:41:18.761Z",
+      "last": "2026-11-22T11:41:20.425Z",
+      "agents": {
+        "light-reviewer": 1,
+        "light-tester": 1
+      },
+      "skills": {}
+    },
+    "038-tool-log-stop-commit": {
+      "first": "2026-11-22T13:04:51.120Z",
+      "last": "2026-11-22T13:04:52.215Z",
+      "agents": {
+        "light-reviewer": 1,
+        "light-tester": 1
+      },
+      "skills": {}
+    },
+    "039-rules-promotion-threshold": {
+      "first": "2026-11-22T13:12:01.271Z",
+      "last": "2026-11-22T13:15:41.950Z",
+      "agents": {
+        "light-tech-lead": 1,
+        "light-developer": 1,
+        "light-reviewer": 1
+      },
+      "skills": {}
+    },
+    "040-init-updates-existing-kit": {
+      "first": "2026-11-22T13:42:03.865Z",
+      "last": "2026-11-22T13:42:05.250Z",
+      "agents": {
+        "light-reviewer": 1,
+        "light-tester": 1
+      },
+      "skills": {}
+    },
+    "041-dynamic-agent-selection": {
+      "first": "2026-11-22T14:06:33.970Z",
+      "last": "2026-11-22T14:06:33.970Z",
+      "agents": {
+        "light-reviewer": 1
+      },
+      "skills": {}
+    },
+    "042-agent-skill-usage": {
+      "first": "2026-11-22T14:45:42.140Z",
+      "last": "2026-11-22T14:45:42.140Z",
       "agents": {
         "light-reviewer": 1
       },
