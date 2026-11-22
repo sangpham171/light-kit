@@ -25,6 +25,8 @@ const agentCall = (name, id) => ({ tool_name: 'Agent', tool_input: { subagent_ty
 const skillCall = (name, id) => ({ tool_name: 'Skill', tool_input: { skill: name }, tool_use_id: id });
 const statsOf = (dir) => JSON.parse(readFileSync(join(dir, '.light-kit/agent-skill-usage.json'), 'utf8'));
 const tableOf = (dir) => readFileSync(join(dir, '.light-kit/agent-skill-usage.md'), 'utf8');
+const requestStatsOf = (dir, name) => JSON.parse(readFileSync(join(dir, 'specs', name, 'agent-skill-usage.json'), 'utf8'));
+const requestTableOf = (dir, name) => readFileSync(join(dir, 'specs', name, 'agent-skill-usage.md'), 'utf8');
 
 test('counts agent and skill calls of the active request in JSON and in the table', () => {
   const d = project(); withSpec(d);
@@ -42,6 +44,43 @@ test('counts agent and skill calls of the active request in JSON and in the tabl
   assert.match(table, /^\| Request \| A: light-developer \| S: light-triage \|$/m);
   assert.match(table, /^\| 001-x \| 2 \| 1 \|$/m);
   assert.match(table, /^\| \*\*All requests\*\* \| 2 \| 1 \|$/m);
+
+  // The request folder carries the same counts, limited to that request.
+  const own = requestStatsOf(d, '001-x');
+  assert.deepEqual(Object.keys(own.requests), ['001-x']);
+  assert.deepEqual(own.requests['001-x'].agents, { 'light-developer': 2 });
+  assert.deepEqual(own.requests['001-x'].skills, { 'light-triage': 1 });
+  const ownTable = requestTableOf(d, '001-x');
+  assert.match(ownTable, /^\| 001-x \| 2 \| 1 \|$/m);
+  assert.doesNotMatch(ownTable, /002-y/);
+});
+
+test('each request folder keeps its own usage, untouched by another request', () => {
+  const d = project(); withSpec(d, '001-x');
+  run(d, agentCall('light-developer', 'a1'));
+  writeFileSync(join(d, 'specs/001-x/status.md'), '---\nstep: conclude\nstate: done\n---\n');
+  withSpec(d, '002-y');
+  run(d, skillCall('light-triage', 's1'));
+
+  const first = requestStatsOf(d, '001-x');
+  assert.deepEqual(Object.keys(first.requests), ['001-x']);
+  assert.deepEqual(first.requests['001-x'].agents, { 'light-developer': 1 });
+  assert.deepEqual(first.requests['001-x'].skills, {});
+  const second = requestStatsOf(d, '002-y');
+  assert.deepEqual(Object.keys(second.requests), ['002-y']);
+  assert.deepEqual(second.requests['002-y'].skills, { 'light-triage': 1 });
+  assert.deepEqual(second.requests['002-y'].agents, {});
+  assert.doesNotMatch(requestTableOf(d, '001-x'), /light-triage/);
+  assert.doesNotMatch(requestTableOf(d, '002-y'), /light-developer/);
+});
+
+test('a corrupt per-request file is replaced by the aggregate view instead of failing', () => {
+  const d = project(); withSpec(d);
+  writeFileSync(join(d, 'specs/001-x/agent-skill-usage.json'), 'not json');
+  const r = run(d, agentCall('light-developer', 'a1'));
+  assert.equal(r.status, 0);
+  assert.doesNotMatch(r.stderr, /agent-skill-usage errored/);
+  assert.deepEqual(requestStatsOf(d, '001-x').requests['001-x'].agents, { 'light-developer': 1 });
 });
 
 test('a re-delivered event id is counted once', () => {
@@ -57,6 +96,8 @@ test('a call made before a request exists is reported under "(no request)"', () 
   run(d, skillCall('light-triage', 's1'));
   assert.deepEqual(statsOf(d).requests['(no request)'].skills, { 'light-triage': 1 });
   assert.match(tableOf(d), /^\| \(no request\) \| 1 \|$/m);
+  assert.equal(existsSync(join(d, 'specs', '(no request)')), false);
+  assert.equal(existsSync(join(d, 'specs/agent-skill-usage.json')), false);
 });
 
 test('tool-name aliases and the input shape both identify a call', () => {
@@ -115,6 +156,7 @@ test('the hook can be switched off', () => {
   const d = project({ hooks: { 'agent-skill-usage': 'off' } }); withSpec(d);
   run(d, agentCall('light-developer', 'a1'));
   assert.equal(existsSync(join(d, '.light-kit/agent-skill-usage.json')), false);
+  assert.equal(existsSync(join(d, 'specs/001-x/agent-skill-usage.json')), false);
 });
 
 test('the table keeps a column for every used name and shows a zero where a request has none', () => {
