@@ -8,6 +8,20 @@ purpose: compensation
 
 Goal: stop the same error or bug from happening again. This file is memory for failures, not for style or stack conventions — those belong in `.light-kit/project-profile.md`.
 
+## When rules change
+
+Update the file at the moment a failure appears, in the same request or exchange. A review is one trigger, not the only one:
+
+- the user reports a bug, a regression, or that something still does not work after an earlier request or change;
+- a test, build, lint, format or manual verification fails;
+- a review, tester or security finding exposes a mistake;
+- the user corrects the agent's work, rejects an output or says it is wrong;
+- implementation or discovery shows the same error that happened before;
+- a new request is caused by a defect in earlier work;
+- a `confirmed` rule cannot be followed.
+
+For a user-reported defect, record the rule before or while fixing it: point the evidence at the user's report and the earlier request. Do not wait for a review that may never come.
+
 ## Before a task
 
 A task is a request, one task in `40-plan.md`, or any standalone change the user asked for.
@@ -20,6 +34,8 @@ A task is a request, one task in `40-plan.md`, or any standalone change the user
 
 ## After a task
 
+Run this at the end of every task, and immediately after any trigger above.
+
 1. Check the result and its verification against every rule that applied.
 2. For a violation, add 1 to `Count`, set `Last violated` to today, and add concise evidence: request id, file, test or commit. One task counts once per rule.
 3. If `Count` reaches the promotion threshold in `.light-kit/project-profile.md` (default 3), set `State` to `confirmed` in the same edit and report the promotion in one line.
@@ -31,6 +47,7 @@ A task is a request, one task in `40-plan.md`, or any standalone change the user
 ## Reviews and delegation
 
 - A reviewer reports a violated rule as a finding; the orchestrator or developer records it after the task.
+- A review is a safety net, not the only trigger: a user-reported bug, a failed check or a correction records a rule on the spot.
 - A `confirmed` rule that blocks the task is a blocking question, not a warning in a report.
 
 ## Promotion at a glance
