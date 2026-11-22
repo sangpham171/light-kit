@@ -5,7 +5,7 @@ Automatic guardrails that run inside your AI client. One script (`run.mjs`) serv
 ## What they do
 | Hook | Event | Default | Purpose |
 |---|---|---|---|
-| `protect-sensitive-files` | before a tool runs | block | No reading or editing files that hold secrets (including via shell commands). Templates and the kit's own detector source are allowed. |
+| `protect-sensitive-files` | before a tool runs | block | No reading or editing files that hold secrets (including via shell commands). Templates, the kit's own detector source and the kit- and client-managed folders (`.claude`, `.copilot`, `.light-kit`, `specs`) are allowed. |
 | `block-secrets-in-writes` | before a file is written | block | Reject content that contains secrets (keys, credentials in URLs, token assignments, long random tokens that are not a path or an identifier). |
 | `redact-prompt-secrets` | prompt submitted | block | Stop secrets from being sent to the model. |
 | `guard-dangerous-commands` | before a shell command | block | Mass deletion, force push, hard reset, piping downloads into a shell, destructive database statements, environment dumps, printing secret variables, skipping verification. |
@@ -43,7 +43,7 @@ Edit `.light-kit/hooks.config.json` (the `light-init` skill does this for you, u
 | Key | Purpose |
 |---|---|
 | `hooks.<name>` | `block`, `warn` or `off` |
-| `sensitive.extraFiles` / `sensitive.allow` | globs for more sensitive files / safe templates |
+| `sensitive.extraFiles` / `sensitive.allow` | globs for more sensitive files / safe templates (`.claude`, `.copilot`, `.light-kit` and `specs` are already exempt) |
 | `sensitive.extraEnvKeywords` | words that mark an environment variable as secret |
 | `secrets.extraPatterns` | extra regexes for your own credential formats |
 | `commands.extraDeny` / `commands.allow` | regexes for extra blocked commands / exceptions |
