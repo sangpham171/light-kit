@@ -7,83 +7,90 @@ runs:
     thinking: unknown
     level: medium
 usage:
-  tokens: 8,992 input · 4,461,568 cache read · 0 cache write · 30,068 output · 4,500,628 total
-  time: 4m 43s
+  tokens: 21,279 input · 9,346,688 cache read · 0 cache write · 51,594 output · 9,419,561 total
+  time: 10m 27s
 ---
 
-# Implementation
+# Implementation log
 
-## Task 1 — Shared `runs:` parser
+## Progress
 
-- `kit/hooks/lib/runs.mjs` (new): `headerOf` and `runsOf` return one object per `runs:` entry
-  (`agent`, `part`, `model`, `thinking`, `level`, raw `block`), stopping at the `usage:` block so a
-  conclusion's `- step:` rows are not runs.
-- `kit/hooks/checks/artifact-header.mjs` now uses it; behavior unchanged.
-- Verified: `node --test tests/hooks.test.mjs` — 76 pass.
+- Task 1 — `0406c89` — `kit/hooks/lib/runs.mjs` (new): `headerOf` and `runsOf` return one object per
+  `runs:` entry (`agent`, `part`, `model`, `thinking`, `level`, raw `block`), stopping at `usage:` so
+  a conclusion's `- step:` rows are not runs; `artifact-header.mjs` uses it.
+- Task 2 — `0406c89` — `usage-stats.mjs`: `reconcileAgents` raises each agent's count to the number of
+  header runs, never lowers it, and repairs a malformed row (R-002); JSON version and shape unchanged.
+- Task 3 — `0406c89` — `agent-skill-usage.mjs`: prompt-named attribution, installed skill-file reads,
+  post-tool header reconciliation, stop reconciliation of tracked/active requests, best-effort writes,
+  real-path home dedupe (R-007); the off switch stays in `run.mjs` (R-010).
+- Task 4 — `0406c89` — `tests/agent-skill-usage.test.mjs`: 16 new tests for acceptance 1–6.
+- Task 5 — `0406c89` — `kit/hooks/README.md`, `kit/instructions/core.md`, `docs/safety-hooks.md`
+  describe the new sources and the remaining manual gap.
+- Task 6 — `c5cddaf6` (ai-it-team) — reconciled request 095: added `light-developer: 1` and two more
+  `light-orchestrator` runs (1 → 3); both state pairs updated.
+- Review turn 1 — see `## Review rounds`; findings F-1.1 to F-1.6 and F-1.8 fixed in the fix commit.
 
-## Task 2 — `reconcileAgents`
+## Technical debt
 
-- `kit/hooks/lib/usage-stats.mjs`: raises each agent's count to the number of `runs:` entries the
-  request's artifacts credit. Counts never fall, so a call or manual record already counted is left
-  alone; a malformed row is repaired before use (R-002). Version and JSON shape unchanged.
+- TD-1 `usage-stats.mjs` / `reconcileAgents` — the floor is per agent, so a call-recorded run that
+  leaves no artifact and a header-recorded run of the same agent collapse to one count — exact
+  matching needs a per-run identity that neither the tool call nor the header carries — status: open,
+  follow-up when a consumer needs exact counts; documented in `kit/hooks/README.md` and
+  `docs/safety-hooks.md`.
+- TD-2 `~/.light-kit` — the installed user-level hook stays on the old behavior until the kit is
+  reinstalled (`npm run install-kit -- ~`); the repository's own hook and tests already run the new
+  code — status: deferred (install step, outside the repository).
+- TD-3 `docs/safety-hooks.md` — the agent/skill paragraph still described the pre-change behavior —
+  status: resolved (review F-1.1, fix commit).
+- TD-4 `agent-skill-usage.mjs` — a failed write in one project home could abort the stop loop and
+  surface as a hook error — status: resolved (review F-1.8, fix commit).
 
-## Task 3 — Hook
+## Decisions and deviations
 
-- `kit/hooks/checks/agent-skill-usage.mjs`:
-  - `namedRequest` reads `specs/<slug>` from an `Agent`/`Skill` input and prefers the active request
-    named most often; `currentRequest` is only the fallback. This would have put 095's reviewer call
-    under 095, not 083.
-  - `skillRead` counts a read of an installed `.{claude,github,copilot,agents}/skills/light-*/SKILL.md`;
-    the kit source layout is ignored.
-  - `requestOfFile` reconciles the request whose `NN-*.md` artifact was just written, so a role the
-    session performed itself is counted from the header it signed.
-  - Events are now `post-tool` and `stop`. On stop, every request already tracked or still active in
-    each project home is reconciled; untracked finished requests are skipped so old history is not
-    invented (R-006). Project homes are deduped by real path (R-007).
-  - The off switch still comes from `run.mjs`; no new writer bypasses it (R-010).
-
-## Task 4 — Tests
-
-- `tests/agent-skill-usage.test.mjs`: 10 new tests — header-only count, no double count with a tool
-  call, no double count with a manual record, two header runs, prompt attribution against a more
-  recently touched request, installed skill read, kit source ignored, headerless artifact writes
-  nothing, stop reconciliation of tracked/active but not finished, and stop under the off switch.
-- Each fixture can produce the forbidden state: e.g. the attribution test would land on `001-x`
-  under the old fallback (R-009).
-- Verified: `node --test tests/agent-skill-usage.test.mjs tests/record-usage.test.mjs` — 32 pass.
-
-## Task 5 — Docs
-
-- `kit/hooks/README.md`: hook row and reference paragraph now describe header reconciliation, prompt
-  attribution, skill reads and stop reconciliation; the manual command covers only uses with no other
-  record.
-- `kit/instructions/core.md`: same rule in the installed instructions.
-
-## Task 6 — Reported row repaired
-
-- Ran the new reconciliation over `ai-it-team/specs/095-…`. It added 3 uses the state was missing:
-  `light-developer: 1` and two more `light-orchestrator` runs (1 → 3, matching the three artifacts
-  that credit it).
-- Committed in ai-it-team as `c5cddaf6 chore(spec): record the runs request 095 headers credit`.
-- The installed user-level hook in `~/.light-kit` is not updated by this repo change; it picks the
-  behavior up after the next kit install (`npm run install-kit -- ~` or the same install the user ran).
-
-## Deviations
-
-- The stop loop filters on `understood` (a `10-understanding.md`) rather than `requested`
-  (`00-request.md`). Reason: the hook's own working-request rule treats an understood folder as a
-  request, and old folders can miss `00-request.md`; requiring it skipped tracked requests.
-- No discovery/design of a separate backfill script: reconciliation is the backfill, and it is limited
-  to tracked or active requests by design.
+- The stop loop accepts a tracked request even without `10-understanding.md`, and an untracked one
+  only when it is active by the hook's own predicate (`understood`, not `done`, has `status.md`).
+  Reason: a tracked request must not lose a run because an artifact was removed; an inactive leftover
+  must not gain a row (R-006).
+- Attribution prefers the most frequently named active request; a project that contains the working
+  folder wins a tie, then the first root (scope), so two workspace projects sharing a slug cannot
+  cross-write.
+- No separate backfill script: reconciliation is the backfill and is limited to tracked or active
+  requests.
+- F-1.7 declined: the `status.md` filter in `workingRequest` is not new; it is identical in
+  `48b1c16:kit/hooks/checks/agent-skill-usage.mjs`, so the fallback behavior did not change.
 
 ## Verification
 
-- `node --test tests/agent-skill-usage.test.mjs tests/record-usage.test.mjs` — 32 pass.
+- `node --test tests/agent-skill-usage.test.mjs tests/record-usage.test.mjs` — 38 pass.
 - `node --test tests/hooks.test.mjs tests/kit.test.mjs` — 102 pass.
-- `npm test` — 253 pass, 0 fail.
+- `npm test` — 253 pass, 0 fail before the review fixes; rerun after them is in the conclusion.
 
-## Rules
+## Review rounds
 
-- R-002, R-004, R-006, R-007, R-009, R-010 applied.
-- R-011 added (pending, Count 1) with the 095 report as evidence.
-- No confirmed rule was broken.
+Round 1 of 1:
+
+- F-1.1 [should-fix] `docs/safety-hooks.md:14` — stale pre-change paragraph, no header/attribution/stop
+  text, backfill attribution conflated with the hook — rewrote the paragraph to match
+  `kit/hooks/README.md` and split the backfill sentence — status: fixed.
+- F-1.2 [should-fix] `agent-skill-usage.mjs` stop gate — `understood` ran before `tracked`, so a
+  tracked request without understanding was skipped while a statusless untracked folder gained a row —
+  tracked first, active reuses the working predicate — status: fixed.
+- F-1.3 [should-fix] `namedRequest` keyed only by slug — same slug in two workspace projects collided,
+  the later root won — score by name count plus containment of the working folder, first root on a
+  tie — status: fixed.
+- F-1.4 [should-fix] per-agent floor can undercount a call-run without an artifact plus a header run of
+  the same agent — documented as TD-1 in the README and `docs/safety-hooks.md`; an exact fix needs a
+  per-run identity — status: deferred (TD-1).
+- F-1.5 [should-fix] `50-implementation.md` lacked the template sections — added Progress, Technical
+  debt, Decisions and deviations, Verification, Review rounds — status: fixed.
+- F-1.6 [should-fix] missing coverage for nested project homes, a statusless untracked folder,
+  two-spec naming, a named done request, a shared slug, and a tracked request without understanding —
+  six tests added, each able to fail (R-009) — status: fixed.
+- F-1.7 [nit] fallback behavior changed — declined: the base hook already filtered on `status.md`
+  (`git show 48b1c16:kit/hooks/checks/agent-skill-usage.mjs`), so no change was made.
+- F-1.8 [nit] unguarded multi-home writes and an inaccurate "parsing stops" comment — each home and
+  each post-tool write is wrapped, and the comment now says the header is parsed from one read; the
+  docs note that the first stop may reconcile several requests — status: fixed.
+
+Verdict: changes requested → every should-fix addressed; F-1.4 deferred as documented debt and F-1.7
+declined with evidence.

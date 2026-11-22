@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, utimesSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { install } from '../tools/install.mjs';
@@ -342,4 +342,69 @@ test('the stop reconciliation is switched off with the rest of the hook', () => 
   artifact(d, '001-x', '50-implementation.md', ['light-developer']);
   stop(d);
   assert.equal(existsSync(join(d, '.light-kit/agent-skill-usage.json')), false);
+});
+
+test('stop reconciles a nested project on its own stats file', () => {
+  const d = project();
+  const proj = join(d, 'proj');
+  mkdirSync(join(proj, '.light-kit'), { recursive: true });
+  withSpec(proj, '001-x');
+  artifact(proj, '001-x', '30-design.md', ['light-architect']);
+
+  assert.equal(stop(d).status, 0);
+  assert.deepEqual(JSON.parse(readFileSync(join(proj, '.light-kit/agent-skill-usage.json'), 'utf8')).requests['001-x'].agents, { 'light-architect': 1 });
+  assert.equal(existsSync(join(d, '.light-kit/agent-skill-usage.json')), false);
+  assert.equal(existsSync(join(proj, 'specs/001-x/agent-skill-usage.json')), true);
+});
+
+test('stop leaves an untracked folder with no status file alone', () => {
+  const d = project();
+  mkdirSync(join(d, 'specs/001-leftover'), { recursive: true });
+  writeFileSync(join(d, 'specs/001-leftover/10-understanding.md'), '# u');
+  artifact(d, '001-leftover', '50-implementation.md', ['light-developer']);
+
+  assert.equal(stop(d).status, 0);
+  assert.equal(existsSync(join(d, '.light-kit/agent-skill-usage.json')), false);
+});
+
+test('stop reconciles a tracked request even when its understanding file is gone', () => {
+  const d = project(); withSpec(d);
+  run(d, agentCall('light-reviewer', 'r1'));
+  artifact(d, '001-x', '50-implementation.md', ['light-developer']);
+  rmSync(join(d, 'specs/001-x/10-understanding.md'));
+
+  assert.equal(stop(d).status, 0);
+  assert.deepEqual(statsOf(d).requests['001-x'].agents, { 'light-reviewer': 1, 'light-developer': 1 });
+});
+
+test('the most frequently named request wins when a prompt names two', () => {
+  const d = project(); withSpec(d, '001-x'); withSpec(d, '002-y');
+  const later = new Date(Date.now() + 5000);
+  utimesSync(join(d, 'specs/001-x'), later, later); // the old fallback would pick 001-x
+
+  run(d, agentCall('light-reviewer', 'r1', 'Read specs/001-x for context, then review specs/002-y. Re-check specs/002-y.'));
+  const stats = statsOf(d);
+  assert.deepEqual(stats.requests['002-y'].agents, { 'light-reviewer': 1 });
+  assert.equal(stats.requests['001-x'], undefined);
+});
+
+test('a done request named in a prompt does not capture the call', () => {
+  const d = project(); withSpec(d, '001-x'); withSpec(d, '002-done');
+  writeFileSync(join(d, 'specs/002-done/status.md'), '---\nstep: conclude\nstate: done\n---\n');
+
+  run(d, agentCall('light-reviewer', 'r1', 'Review request specs/002-done.'));
+  assert.deepEqual(statsOf(d).requests['001-x'].agents, { 'light-reviewer': 1 });
+  assert.equal(statsOf(d).requests['002-done'], undefined);
+});
+
+test('the project that contains the working folder wins a shared slug', () => {
+  const d = project();
+  withSpec(d, '001-x');
+  const proj = join(d, 'proj');
+  mkdirSync(join(proj, '.light-kit'), { recursive: true });
+  withSpec(proj, '001-x');
+
+  run(d, agentCall('light-reviewer', 'r1', 'Review request specs/001-x.'));
+  assert.deepEqual(statsOf(d).requests['001-x'].agents, { 'light-reviewer': 1 });
+  assert.equal(existsSync(join(proj, '.light-kit/agent-skill-usage.json')), false);
 });

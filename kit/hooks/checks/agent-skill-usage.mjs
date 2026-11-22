@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { activeRequests, currentRequest, listProjectDirs, listRequests } from '../lib/specs.mjs';
 import { runsOf } from '../lib/runs.mjs';
 import { JSON_FILE, MD_FILE, NO_REQUEST, callOf, readStats, reconcileAgents, recordCall, renderTable, saveRequestStats, saveStats, saveText } from '../lib/usage-stats.mjs';
@@ -44,21 +44,33 @@ const roots = (ctx) => {
   });
 };
 
+const within = (home, path) => {
+  const rel = relative(home, path);
+  return rel === '' || (!rel.startsWith('..') && !isAbsolute(rel));
+};
+
 // A request the call itself names: agent and skill prompts usually write `specs/<NNN-slug>`. Only an
 // active request qualifies, and the most frequently named one wins, so a passing reference cannot
-// capture the call when the session is working on another request.
+// capture the call when the session is working on another request. Two workspace projects can share
+// a slug, so the project that contains the working folder wins a tie, then the first root (scope).
 const namedRequest = (ctx, input) => {
   const text = ['prompt', 'description', 'args'].map((k) => input?.[k]).filter((v) => typeof v === 'string').join('\n');
   if (!text) return null;
-  const active = new Map(activeRequests(...roots(ctx)).map((r) => [r.name, { home: r.home, name: r.name }]));
-  if (!active.size) return null;
+  const active = activeRequests(...roots(ctx));
+  if (!active.length) return null;
   const counts = new Map();
-  for (const match of text.matchAll(SPEC_REF)) counts.set(match[1], (counts.get(match[1]) || 0) + 1);
+  // A sentence-ending period is not part of the slug.
+  for (const match of text.matchAll(SPEC_REF)) {
+    const name = match[1].replace(/[.-]+$/, '');
+    if (name) counts.set(name, (counts.get(name) || 0) + 1);
+  }
   let best = null;
-  let most = 0;
-  for (const [name, count] of counts) {
-    const request = active.get(name);
-    if (request && count > most) { best = request; most = count; }
+  let score = 0;
+  for (const request of active) {
+    const count = counts.get(request.name);
+    if (!count) continue;
+    const ranked = count * 2 + (within(request.home, ctx.cwd) ? 1 : 0);
+    if (ranked > score) { best = { home: request.home, name: request.name }; score = ranked; }
   }
   return best;
 };
@@ -96,7 +108,7 @@ const artifactFiles = (home, name) => {
   try { return readdirSync(join(home, 'specs', name)).filter((f) => /^\d\d-[^/]+\.md$/.test(f)); } catch { return []; }
 };
 
-// Only the header is needed, so a large artifact is read once and parsed to its first `usage:` line.
+// Parse only the header; the file is read once and `runsOf` stops at its first `usage:` line.
 const runsIn = (home, name) => artifactFiles(home, name).flatMap((file) => {
   try { return runsOf(readFileSync(join(home, 'specs', name, file), 'utf8')); } catch { return []; }
 });
@@ -113,11 +125,13 @@ const reconcile = (ctx, request, at) => {
   if (!dir) return false;
   const runs = runsIn(request.home, request.name);
   if (!runs.length) return false;
-  const stats = readStats(join(dir, JSON_FILE));
-  if (!reconcileAgents(stats, request.name, runs, at)) return false;
-  writeStats(dir, stats);
-  saveRequestStats(join(request.home, 'specs', request.name), stats, request.name);
-  return true;
+  try {
+    const stats = readStats(join(dir, JSON_FILE));
+    if (!reconcileAgents(stats, request.name, runs, at)) return false;
+    writeStats(dir, stats);
+    saveRequestStats(join(request.home, 'specs', request.name), stats, request.name);
+    return true;
+  } catch { return false; } // best-effort: a failed write must never reach the client
 };
 
 // On stop, catch what no tool event reached: a header written by a client or subagent whose calls the
@@ -127,17 +141,20 @@ const reconcileAll = (ctx, at) => {
   for (const home of roots(ctx)) {
     const dir = join(home, '.light-kit');
     if (!existsSync(dir)) continue;
-    const stats = readStats(join(dir, JSON_FILE));
-    const changed = [];
-    for (const request of listRequests(home)) {
-      if (!request.understood) continue;
-      const tracked = Object.prototype.hasOwnProperty.call(stats.requests, request.name);
-      if (!tracked && request.state === 'done') continue;
-      if (reconcileAgents(stats, request.name, runsIn(home, request.name), at)) changed.push(request.name);
-    }
-    if (!changed.length) continue;
-    writeStats(dir, stats);
-    for (const name of changed) saveRequestStats(join(home, 'specs', name), stats, name);
+    try {
+      const stats = readStats(join(dir, JSON_FILE));
+      const changed = [];
+      for (const request of listRequests(home)) {
+        const tracked = Object.prototype.hasOwnProperty.call(stats.requests, request.name);
+        const active = request.understood && request.state !== 'done'
+          && existsSync(join(home, 'specs', request.name, 'status.md'));
+        if (!tracked && !active) continue;
+        if (reconcileAgents(stats, request.name, runsIn(home, request.name), at)) changed.push(request.name);
+      }
+      if (!changed.length) continue;
+      writeStats(dir, stats);
+      for (const name of changed) saveRequestStats(join(home, 'specs', name), stats, name);
+    } catch { /* one unreadable or unwritable home must not stop the others */ }
   }
 };
 
@@ -156,7 +173,7 @@ export default {
         const stats = readStats(join(dir, JSON_FILE));
         const id = ctx.payload?.tool_use_id ?? ctx.payload?.toolUseId ?? '';
         if (recordCall(stats, { ...call, request: request?.name ?? NO_REQUEST, at, id })) {
-          writeStats(dir, stats);
+          try { writeStats(dir, stats); } catch { /* best-effort: never reach the client */ }
           if (request) saveRequestStats(join(request.home, 'specs', request.name), stats, request.name);
         }
       }
