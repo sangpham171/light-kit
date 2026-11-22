@@ -88,3 +88,5 @@ stored. Safe to delete.
 | 2026-11-22T15:23:19Z | claude | Edit | write | specs/044-multilingual-rules-reminder/40-plan.md |
 | 2026-11-22T15:30:06Z | claude | Read | read | specs/044-multilingual-rules-reminder/50-implementation.md |
 | 2026-11-22T15:30:07Z | claude | Read | read | specs/044-multilingual-rules-reminder/60-conclusion.md |
+| 2026-11-22T19:21:55Z | claude | Read | read | specs/044-multilingual-rules-reminder/agent-skill-usage.json |
+| 2026-11-22T19:21:55Z | claude | Read | read | specs/044-multilingual-rules-reminder/agent-skill-usage.md |
