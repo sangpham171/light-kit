@@ -17,4 +17,5 @@ steps:
 4. implement — agent: light-developer — skill: light-tech-debt — writes: 50-implementation.md
 5. verify-and-review (parallel) — agents: light-tester, light-reviewer — writes: notes in 50-implementation.md
 6. fix — agent: light-developer — skill: light-review-cycle — writes: 50-implementation.md
-7. conclude — agent: light-tech-writer — writes: 60-conclusion.md
+7. rules — agent: light-orchestrator — skill: light-rules — writes: `.light-kit/rules.md` when a rule changes
+8. conclude — agent: light-tech-writer — writes: 60-conclusion.md

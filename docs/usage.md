@@ -9,7 +9,7 @@
 `.light-kit/project-profile.md` is yours: kit upgrades never overwrite or rewrite it, an update only adds sections and settings it lacks.
 
 ## Learned rules
-Each project also gets `.light-kit/rules.md` (seeded by a project or workspace install; `light-init` creates it when a project is enabled later), a short table of rules learned from errors and bugs that already happened. A rule starts `pending` and is only a warning; every task in which it is violated adds one to its `Count`; once `Count` reaches the promotion threshold in `.light-kit/project-profile.md` (default 3) it becomes `confirmed`, a critical rule that agents must not break. Set that threshold with `Promotion threshold: <integer >= 1>` under `## Rules` in the profile; a missing, non-numeric or lower-than-1 value falls back to 3. Existing profiles get the line from `light-init`, which adds missing sections and settings in place and never rewrites what is there. Agents read the file before a task and update it after one, adding a row for each new repeatable failure. Only you can remove or demote a confirmed rule. Style and stack preferences belong in the project profile, not here. The file is yours: kit upgrades never overwrite or rewrite it, and soft uninstall keeps it. Because confirmed rules bind agents, review changes to this file like any other instruction.
+Each project also gets `.light-kit/rules.md` (seeded by a project or workspace install; `light-init` creates it when a project is enabled later), a short table of rules learned from errors and bugs that already happened. A rule starts `pending` and is only a warning; every task in which it is violated adds one to its `Count`; once `Count` reaches the promotion threshold in `.light-kit/project-profile.md` (default 3) it becomes `confirmed`, a critical rule that agents must not break. Set that threshold with `Promotion threshold: <integer >= 1>` under `## Rules` in the profile; a missing, non-numeric or lower-than-1 value falls back to 3. Existing profiles get the line from `light-init`, which adds missing sections and settings in place and never rewrites what is there. Agents read the file before a task and update it after one, adding a row for each new repeatable failure; a user-reported bug, a regression, a failed check or a correction is a trigger too, not only a review finding. Only you can remove or demote a confirmed rule. Style and stack preferences belong in the project profile, not here. The file is yours: kit upgrades never overwrite or rewrite it, and soft uninstall keeps it. Because confirmed rules bind agents, review changes to this file like any other instruction.
 
 ## Brainstorming an idea
 Before asking for a request, `light-brainstorm` explores an idea in several independent directions: actors and affected people, the journey and lifecycle, alternatives, solution shape, scale and cost, failure and misuse, second-order effects, and precedent. It pushes each direction with inversion, an assumption inventory, constraint shifts and analogies, then lists the cases the user did not mention and ranks them by impact and uncertainty.
@@ -23,9 +23,9 @@ When you ask for a request and it is vague, novel or high-impact, the orchestrat
 
 | Workflow | When | Steps |
 |---|---|---|
-| `direct` | easy, clear, low risk | understand → compact plan → implement → review → conclude, no questions |
-| `standard` | medium | + discovery, plan; tester and reviewer in parallel |
-| `full` | complex, ambiguous or risky | clarify → discover → design → plan → implement → tester/reviewer/security in parallel → conclude |
+| `direct` | easy, clear, low risk | understand → compact plan → implement → review → rules → conclude, no questions |
+| `standard` | medium | + discovery, plan; tester and reviewer in parallel; rules before conclude |
+| `full` | complex, ambiguous or risky | clarify → discover → design → plan → implement → tester/reviewer/security in parallel → rules → conclude |
 
 Override triage with `--workflow`. The `bootstrap` workflow (new projects, started by `light-bootstrap` rather than triage) runs vision → architecture → plan → skeleton → review.
 
