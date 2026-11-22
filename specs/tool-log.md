@@ -23,3 +23,5 @@ stored. Safe to delete.
 | 2026-11-22T19:29:46Z | claude | Bash | shell | cat kit/hooks/README.md \| head -160 |
 | 2026-11-22T19:29:46Z | claude | Bash | shell | grep -rn "version" tools/*.mjs kit/hooks/*.mjs kit/hooks/checks/*.mjs kit/hooks/lib/*.mjs \| head -40; echo "=== installer ==="; sed -n '1,160p' tools/install.mjs |
 | 2026-11-22T19:29:47Z | claude | Bash | shell | ls ~/.light-kit/hooks && diff -rq kit/hooks ~/.light-kit/hooks \| head -30; echo "=== state ==="; ls -la ~/.light-kit/state |
+| 2026-11-22T19:31:55Z | claude | Bash | shell | cat specs/051-agent-skill-usage-per-spec/status.md && echo "=== template ===" && cat ~/.light-kit/templates/status.md 2>/dev/null \|\| cat kit/templates/status.md 2>/dev/null; echo "=== 00 request hea |
+| 2026-11-22T19:31:56Z | claude | Bash | shell | sed -n '1,200p' kit/skills/light-triage/SKILL.md 2>/dev/null \|\| find kit -name SKILL.md -path '*triage*' -exec sed -n '1,200p' {} \; |
