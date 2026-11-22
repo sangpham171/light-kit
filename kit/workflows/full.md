@@ -8,6 +8,8 @@ purpose: structure
 
 Use when triage scores 7+, or ambiguity or risk is 2.
 
+The agents named in each step are the baseline; the orchestrator may add, skip, split, repeat or reorder them as the request unfolds (`light-agent-selection`).
+
 steps:
 1. understand — agent: light-orchestrator — writes: 10-understanding.md
 2. clarify (parallel) — agents: light-product-owner, light-business-analyst — writes: 10-understanding.md (product and requirements sections)

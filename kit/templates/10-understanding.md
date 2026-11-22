@@ -30,3 +30,6 @@ Why: _
 
 ## Routing
 <!-- one line per workflow step: `step: easy|medium|hard — reason` (see the `light-model-routing` skill) -->
+
+## Agent plan
+<!-- Baseline from the chosen workflow: one line per step, `<step>: <agents> — <why>`. Then one line per change: `<step>: + light-x — <reason> (after <event>)` or `<step>: - light-y — <reason>` (see the `light-agent-selection` skill). -->

@@ -8,6 +8,8 @@ purpose: structure
 
 Use when triage scores 0–2 with no ambiguity.
 
+The agents named in each step are the baseline; the orchestrator may add, skip, split, repeat or reorder them as the request unfolds (`light-agent-selection`).
+
 steps:
 1. understand — agent: light-orchestrator — writes: 10-understanding.md (short, with triage)
    - The whole exchange is the request: when it followed a discussion or plan-mode session, capture it first (see the `light-conversation-capture` skill).
