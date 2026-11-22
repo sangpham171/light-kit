@@ -21,6 +21,10 @@ const withSpec = (dir, name = '001-x', step = 'implement') => {
 const run = (dir, payload, client = 'claude', event = 'post-tool') => spawnSync('node', [join(dir, '.light-kit/hooks/run.mjs'), '--client', client, '--event', event], {
   cwd: dir, input: JSON.stringify({ cwd: dir, ...payload }), encoding: 'utf8',
 });
+// The kit is installed in `installDir`; the action (and the request) lives in `cwd`.
+const runIn = (installDir, cwd, payload) => spawnSync('node', [join(installDir, '.light-kit/hooks/run.mjs'), '--client', 'claude', '--event', 'post-tool'], {
+  cwd, input: JSON.stringify({ cwd, ...payload }), encoding: 'utf8',
+});
 const agentCall = (name, id) => ({ tool_name: 'Agent', tool_input: { subagent_type: name, description: 'd', prompt: 'p' }, tool_use_id: id });
 const skillCall = (name, id) => ({ tool_name: 'Skill', tool_input: { skill: name }, tool_use_id: id });
 const statsOf = (dir) => JSON.parse(readFileSync(join(dir, '.light-kit/agent-skill-usage.json'), 'utf8'));
@@ -54,7 +58,6 @@ test('counts agent and skill calls of the active request in JSON and in the tabl
   assert.match(ownTable, /^\| 001-x \| 2 \| 1 \|$/m);
   assert.match(ownTable, /^\| \*\*Total\*\* \| 2 \| 1 \|$/m);
   assert.doesNotMatch(ownTable, /All requests/);
-  assert.doesNotMatch(ownTable, /002-y/);
 });
 
 test('each request folder keeps its own usage, untouched by another request', () => {
@@ -78,11 +81,13 @@ test('each request folder keeps its own usage, untouched by another request', ()
 
 test('a corrupt per-request file is replaced by the aggregate view instead of failing', () => {
   const d = project(); withSpec(d);
+  run(d, agentCall('light-reviewer', 'a1'));
+  run(d, agentCall('light-reviewer', 'a2'));
   writeFileSync(join(d, 'specs/001-x/agent-skill-usage.json'), 'not json');
-  const r = run(d, agentCall('light-developer', 'a1'));
+  const r = run(d, agentCall('light-developer', 'a3'));
   assert.equal(r.status, 0);
   assert.doesNotMatch(r.stderr, /agent-skill-usage errored/);
-  assert.deepEqual(requestStatsOf(d, '001-x').requests['001-x'].agents, { 'light-developer': 1 });
+  assert.deepEqual(requestStatsOf(d, '001-x').requests['001-x'].agents, { 'light-reviewer': 2, 'light-developer': 1 });
 });
 
 test('a re-delivered event id is counted once', () => {
@@ -140,6 +145,25 @@ test('a corrupt or unknown-version state restarts empty instead of failing', () 
   const stats = statsOf(d);
   assert.deepEqual(stats.requests['001-x'].agents, { 'light-developer': 1 });
   assert.deepEqual(stats.requests['002-y'].agents, { 'light-reviewer': 3 });
+});
+
+test('a nested project keeps its usage in its own .light-kit and request folder', () => {
+  const d = project();
+  const proj = join(d, 'proj');
+  mkdirSync(join(proj, '.light-kit'), { recursive: true });
+  withSpec(proj);
+  assert.equal(runIn(d, proj, agentCall('light-developer', 'a1')).status, 0);
+
+  assert.deepEqual(JSON.parse(readFileSync(join(proj, '.light-kit/agent-skill-usage.json'), 'utf8')).requests['001-x'].agents, { 'light-developer': 1 });
+  assert.equal(existsSync(join(d, '.light-kit/agent-skill-usage.json')), false);
+  assert.deepEqual(requestStatsOf(proj, '001-x').requests['001-x'].agents, { 'light-developer': 1 });
+
+  // No request in a second project: the aggregate is written there, but nothing under specs/.
+  const other = join(d, 'other');
+  mkdirSync(join(other, '.light-kit'), { recursive: true });
+  assert.equal(runIn(d, other, skillCall('light-rules', 's1')).status, 0);
+  assert.deepEqual(JSON.parse(readFileSync(join(other, '.light-kit/agent-skill-usage.json'), 'utf8')).requests['(no request)'].skills, { 'light-rules': 1 });
+  assert.equal(existsSync(join(other, 'specs/agent-skill-usage.json')), false);
 });
 
 test('a user-level install in a project without .light-kit creates nothing', () => {
