@@ -22,6 +22,8 @@ usage:
 
 - Task 4 docs(kit): point rule promotion at the profile threshold — `grep` found the phrase in core rule 15 and the project-knowledge bullet; `node --test tests/kit.test.mjs` passed 24/24.
 
+- Task 5 docs(kit): document the configurable rule promotion threshold — `grep` found the setting in the learned-rules section.
+
 Rules applied: `.light-kit/rules.md` holds no rules yet. `rules: no change`.
 
 ## Technical debt
