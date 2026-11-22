@@ -57,10 +57,12 @@ Run this at the end of every task, and immediately after any trigger above.
 ## Writing a rule
 
 - One failure mode per rule.
+- Write the general failure mode, not the incident: the rule must apply wherever the same class of mistake can recur — any file, feature, command or step, not only where it first happened.
+- If a rule only makes sense for the one case that produced it, widen it to the class of case it belongs to. The specific incident belongs in `Prevents` and `Evidence`.
 - Say what to do, not what went wrong: `Check the response status before parsing the body`, not `be careful with APIs`.
 - `Prevents` names the error or bug the rule stops.
 - `Check before` says when the rule applies: a file, a command, a step or a moment.
-- Keep it specific enough to check. A vague rule is not added.
+- Keep it specific enough to check: name the class of case precisely. A vague rule is not added.
 - Use the next free `R-NNN`; never reuse an id.
 
 Example row:
