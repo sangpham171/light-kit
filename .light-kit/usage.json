@@ -112,6 +112,13 @@
       "cacheRead": 5908608,
       "cacheWrite": 0,
       "timeMs": 811286
+    },
+    "dac69cb6-e74a-47bb-a98f-260896096ec0": {
+      "input": 45511,
+      "output": 9576,
+      "cacheRead": 565248,
+      "cacheWrite": 0,
+      "timeMs": 98586
     }
   },
   "requests": {
@@ -911,6 +918,26 @@
           "cacheRead": 245632,
           "cacheWrite": 0,
           "timeMs": 7776,
+          "timed": true
+        }
+      }
+    },
+    "039-rules-promotion-threshold": {
+      "steps": {
+        "00-request": {
+          "input": 43176,
+          "output": 7850,
+          "cacheRead": 465280,
+          "cacheWrite": 0,
+          "timeMs": 88177,
+          "timed": true
+        },
+        "10-understanding": {
+          "input": 2335,
+          "output": 1726,
+          "cacheRead": 99968,
+          "cacheWrite": 0,
+          "timeMs": 10409,
           "timed": true
         }
       }
