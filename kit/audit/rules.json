@@ -14,6 +14,7 @@
   "Rules: Sign your artifacts": "structure",
   "Rules: Commit at every checkpoint": "preference",
   "Rules: A request is the whole conversation": "structure",
+  "Rules: Learn from repeated mistakes": "compensation",
   "Communication (saves tokens)": "preference",
   "Roles": "structure",
   "Agents": "structure",
