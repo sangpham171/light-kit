@@ -26,7 +26,7 @@ Do not re-open the roster after every tool call. At a step boundary or a changed
 | Reorder remaining steps | a dependency allows it | security review before the second implementation pass |
 
 ## 3. What you must not change
-- **Mandatory steps:** keep the steps the chosen workflow defines as required: a written `40-plan.md` before code, `implement`, the `review`/`fix` loop and `conclude`, plus `understand` when the workflow has one (`standardize` uses its assessment instead). `direct` keeps no discovery or design; when the work needs more, escalate the workflow (as `direct` already does) instead of quietly adding its steps.
+- **Mandatory steps:** keep the steps the chosen workflow defines as required: a written `40-plan.md` before code, `implement`, the `review`/`fix` loop, the `rules` recording before `conclude`, and `conclude`, plus `understand` when the workflow has one (`standardize` uses its assessment instead). `direct` keeps no discovery or design; when the work needs more, escalate the workflow (as `direct` already does) instead of quietly adding its steps.
 - **The specialists the work needs:** `light-reviewer` always runs; where the workflow has a `light-tester`, never drop it when the change alters behavior; add `light-security-reviewer` whenever the change touches auth, personal data, money, migrations, public interfaces or new dependencies. Risk adds these, never removes them.
 - **Anyone the request names:** an agent the user asked for, one a `confirmed` rule in `.light-kit/rules.md` requires, or one a plan task names stays until the user agrees to drop it.
 - **Who calls agents:** the main session running the request. A subagent cannot re-delegate.
