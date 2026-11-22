@@ -12,6 +12,8 @@ Before asking for a request, `light-brainstorm` explores an idea in several inde
 
 It writes no code and commits to no scope. It returns a compact idea map: framing, directions, unmentioned cases, distinct options with trade-offs, assumptions with the cheapest way to verify them, and decision-changing questions with proposed defaults. The map is always written to `brainstorms/<YYYY-MM-DD>-<slug>.md` — one file per idea, owned by you and never touched by kit upgrades or uninstall — and the reply gives the path and the few decisions that need you. Brainstorming the same idea again appends a round to that file. When a request is active, its `00-request.md` gets one line pointing at the file; the map is not copied into `specs/`.
 
+When you ask for a request and it is vague, novel or high-impact, the orchestrator does not plan it straight away: it invokes the `light-brainstormer` agent after recording the request and before understanding and triage. The agent covers every use case — not only the ones you named — and returns the map, the cases it could not settle and the decisions that need you, which the orchestrator carries into the understanding, the triage and the plan. A precise, familiar request skips it.
+
 ## How a request flows
 `light-request` (with what you want) creates `specs/NNN-slug/` and triages the request:
 
@@ -58,7 +60,7 @@ For Copilot, the `sessionId` the hook payload provides selects one of two record
 The count is best-effort: usage written to a separate subagent transcript is not seen, the last edit to an artifact is not included, and the overall time adds the steps that expose it. A `0` cache read is what the client recorded, not a fault in the kit: a BYOK provider reached over an OpenAI-compatible endpoint can report `cacheReadTokens: 0` on every call, even when the model caches the prompt, because the provider never returns the cached-token detail Copilot stores (compare with a Copilot-hosted model in the same client, which does report cache reads). A state file written by an older counting version (responses counted twice, or input folding in cache reads) is restarted on first run, while totals already written in `specs/` keep their numbers.
 
 ## Agents
-light-orchestrator, light-product-owner, light-business-analyst, light-ux-designer, light-architect, light-tech-lead, light-developer, light-tester, light-reviewer, light-security-reviewer, light-tech-writer. Any agent or command can be invoked manually.
+light-orchestrator, light-brainstormer, light-product-owner, light-business-analyst, light-ux-designer, light-architect, light-tech-lead, light-developer, light-tester, light-reviewer, light-security-reviewer, light-tech-writer. Any agent or command can be invoked manually.
 
 ## Names
 Everything your AI client lists is prefixed `light-`, so it never clashes with other frameworks: agents (`light-developer`), skills (`light-commit`) and Cursor rules. The commands are skills too (`light-init`, `light-request`, `light-bootstrap`, `light-standardize`, `light-triage`, `light-brainstorm`, `light-plan`, `light-implement`, `light-review`, `light-status`, `light-audit`), so every client reads them from the same standard skill folder and none needs a client-specific prompt file. The kit's own folder is `.light-kit`, and its hooks and workflows live inside it. Your project's request folders stay `specs/`. When you upgrade, the installer removes the obsolete generated files of the earlier names (only files carrying the light-kit marker; your own files are never touched).
