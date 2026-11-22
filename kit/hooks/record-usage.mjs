@@ -12,11 +12,9 @@
 import { existsSync, mkdirSync, realpathSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { NO_REQUEST, readStats, recordCall, renderTable, saveStats, saveText } from './lib/usage-stats.mjs';
+import { JSON_FILE, MD_FILE, NO_REQUEST, readStats, recordCall, renderTable, saveRequestStats, saveStats, saveText } from './lib/usage-stats.mjs';
 import { activeRequests, currentRequest } from './lib/specs.mjs';
 
-const JSON_FILE = 'agent-skill-usage.json';
-const MD_FILE = 'agent-skill-usage.md';
 const KINDS = new Set(['agent', 'skill']);
 
 const cleanName = (value) => String(value ?? '').replace(/\s+/g, ' ').trim().slice(0, 80);
@@ -48,11 +46,15 @@ export function recordUsage({ kind, name, root = projectRoot(), request, id = ''
   if (!existsSync(dir)) throw new Error(`${project} has no .light-kit folder`);
 
   let owner = NO_REQUEST;
+  let requestDir = '';
   if (request) {
     if (!existsSync(join(project, 'specs', request))) throw new Error(`no specs/${request} folder in ${project}`);
     owner = request;
+    requestDir = join(project, 'specs', request);
   } else {
-    owner = workingRequest(project)?.name ?? NO_REQUEST;
+    const working = workingRequest(project);
+    owner = working?.name ?? NO_REQUEST;
+    requestDir = working ? join(project, 'specs', working.name) : '';
   }
 
   const file = join(dir, JSON_FILE);
@@ -63,6 +65,7 @@ export function recordUsage({ kind, name, root = projectRoot(), request, id = ''
     mkdirSync(dir, { recursive: true });
     saveStats(file, stats);
     saveText(join(dir, MD_FILE), renderTable(stats));
+    if (requestDir) saveRequestStats(requestDir, stats, owner);
   }
   const total = Number(stats.requests[owner]?.[type === 'agent' ? 'agents' : 'skills']?.[used]) || before;
   return { added, kind: type, name: used, request: owner, total, file };
