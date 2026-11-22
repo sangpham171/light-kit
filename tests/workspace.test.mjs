@@ -240,6 +240,7 @@ test('user level: shared kit paths point at ~/.light-kit, project knowledge stay
   const h = home(); userInstall(h, ['claude']);
   const init = readFileSync(join(h, '.claude/skills/light-init/SKILL.md'), 'utf8');
   assert.match(init, /~\/\.light-kit\/templates\/project-profile\.md/);
+  assert.match(init, /~\/\.light-kit\/init\/merge\.mjs/);
   assert.doesNotMatch(init, /[^~/]\.light-kit\/templates/);
   assert.match(init, /not enabled yet/);
   const block = readFileSync(join(h, '.claude/CLAUDE.md'), 'utf8');
@@ -248,7 +249,9 @@ test('user level: shared kit paths point at ~/.light-kit, project knowledge stay
   assert.match(readFileSync(join(h, '.claude/agents/light-orchestrator.md'), 'utf8'), /\.light-kit\/projects\.md/);
   // the same kit installed at project level keeps plain relative paths
   const p = mk(); install(p, ['claude']);
-  assert.doesNotMatch(readFileSync(join(p, '.claude/skills/light-init/SKILL.md'), 'utf8'), /~\/\.light-kit/);
+  const projectInit = readFileSync(join(p, '.claude/skills/light-init/SKILL.md'), 'utf8');
+  assert.doesNotMatch(projectInit, /~\/\.light-kit/);
+  assert.match(projectInit, /node \.light-kit\/init\/merge\.mjs/);
 });
 
 test('user level: hooks run from $HOME, existing user settings are kept, re-run is a no-op', () => {
