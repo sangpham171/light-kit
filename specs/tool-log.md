@@ -9,3 +9,4 @@ stored. Safe to delete.
 |---|---|---|---|---|
 | 2026-11-22T14:11:15Z | claude | Bash | shell | sed -i '' 's/^step: review$/step: conclude/; s/^state: in-progress$/state: done/' specs/041-dynamic-agent-selection/status.md && git add specs/041-dynamic-agent-selection && git commit -q -m "docs(spe |
 | 2026-11-22T14:11:19Z | claude | Bash | shell | git add .light-kit/usage.json && git commit -q -m "chore(kit): record local usage state" && git log --oneline -10 && git status --porcelain |
+| 2026-11-22T14:11:23Z | claude | Bash | shell | head -8 specs/tool-log.md && git add specs/tool-log.md && git commit -q -m "chore(spec): record tool-call logs" && git status --porcelain && git log --oneline -1 |
