@@ -217,6 +217,16 @@ test('a user defect report triggers the rules reminder', () => {
   assert.match(JSON.parse(run(d, 'claude', 'prompt', { prompt: 'it crashes when I open it' }).out).hookSpecificOutput.additionalContext, /light-rules/);
   assert.equal(run(d, 'claude', 'prompt', { prompt: 'add an export button' }).out, '');
   assert.equal(run(d, 'claude', 'prompt', { prompt: 'add a bug tracker' }).out, '');
+  // a built-in Vietnamese starter set
+  assert.match(JSON.parse(run(d, 'claude', 'prompt', { prompt: 'xuất dữ liệu vẫn không hoạt động' }).out).hookSpecificOutput.additionalContext, /light-rules/);
+  assert.equal(run(d, 'claude', 'prompt', { prompt: 'thêm nút xuất' }).out, '');
+  // another language comes from the project config
+  assert.equal(run(d, 'claude', 'prompt', { prompt: 'la exportación no funciona' }).out, '');
+  const es = project({ rules: { extraDefectPatterns: ['no funciona'] } });
+  assert.match(JSON.parse(run(es, 'claude', 'prompt', { prompt: 'la exportación no funciona' }).out).hookSpecificOutput.additionalContext, /light-rules/);
+  // an invalid extra regex is dropped, not thrown
+  const bad = project({ rules: { extraDefectPatterns: ['('] } });
+  assert.equal(run(bad, 'claude', 'prompt', { prompt: 'add an export button' }).out, '');
   const off = project({ hooks: { 'rules-reminder': 'off' } });
   assert.equal(run(off, 'claude', 'prompt', { prompt: 'the export still does not work' }).out, '');
   const none = project();

@@ -293,7 +293,10 @@ test('project rules: a seeded file, a skill, and a before/after loop at every ch
   assert.match(read('.claude/skills/light-review-checklist/SKILL.md'), /user-reported bug/);
   for (const w of ['direct', 'standard', 'full', 'bootstrap', 'standardize']) assert.match(read(`.light-kit/workflows/${w}.md`), /skill: light-rules/, w);
   assert.match(read('.light-kit/hooks.config.json'), /"rules-reminder": "warn"/);
+  assert.match(read('.light-kit/hooks.config.json'), /"extraDefectPatterns": \[\]/);
+  assert.match(read('.light-kit/templates/project-hooks.config.json'), /"extraDefectPatterns": \[\]/);
   assert.match(read('.light-kit/hooks/README.md'), /`rules-reminder`/);
+  assert.match(read('.light-kit/hooks/README.md'), /rules\.extraDefectPatterns/);
   // the templates are kit copies, so a reinstall refreshes them; the project's own documents survive
   writeFileSync(join(dir, '.light-kit/templates/rules.md'), '# Project rules\n\n| R-001 | confirmed | 3 | Keep this template row. |\n');
   writeFileSync(join(dir, '.light-kit/rules.md'), '# Project rules\n\n| R-002 | confirmed | 3 | Keep this project row. |\n');
