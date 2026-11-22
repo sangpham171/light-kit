@@ -158,7 +158,7 @@ export const CLIENT_NAMES = Object.keys(CLIENTS);
 export const HOOK_MARK = '.light-kit/hooks/run.mjs';
 const EVENTS = ['pre-tool', 'post-tool', 'prompt', 'session-start', 'stop'];
 const TOOL_MATCH = {
-  claude: { pre: 'Bash|Read|Write|Edit|MultiEdit|NotebookEdit', post: 'Bash|Read|Write|Edit|MultiEdit|NotebookEdit' },
+  claude: { pre: 'Bash|Read|Write|Edit|MultiEdit|NotebookEdit', post: 'Bash|Read|Write|Edit|MultiEdit|NotebookEdit|Task|Agent|Skill' },
   codex: { pre: 'Bash|apply_patch|Edit|Write', post: 'Bash|apply_patch|Edit|Write' },
   cursor: { pre: 'Shell|Read|Write|Delete', post: 'Shell|Read|Write' },
 };
