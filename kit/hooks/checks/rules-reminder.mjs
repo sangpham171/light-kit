@@ -5,12 +5,16 @@ import { join } from 'node:path';
 // ("add a retry when the request fails") can match too; the message below is advisory and
 // tells the agent to judge whether an earlier change is actually broken.
 const DEFECT = [
-  /\b(?:bug|bugs|regression|regressions)\b/i,
+  /\bbugs?\b(?!\s+(?:tracker|bount(?:y|ies)|labels?|status))/i,
+  /\b(?:regression|regressions)\b/i,
   /\b(?:still|now)\s+(?:not|isn'?t|doesn'?t|didn'?t|won'?t)\b/i,
   /\b(?:doesn'?t|does not|didn'?t|did not|isn'?t|is not|won'?t|will not)\s+(?:work|working|be fixed|fix|pass|load|run|show)\b/i,
   /\b(?:no longer|not)\s+work(?:s|ing)?\b/i,
   /\b(?:broken|broke)\b/i,
   /\b(?:is|are|was|were)\s+wrong\b/i,
+  /\b(?:fails?|failed|failing)\b/i,
+  /\bcrash(?:es|ed|ing)?\b/i,
+  /\b(?:returns?|returned|throws?|threw|shows?|showed)\s+(?:an?\s+)?(?:error|exception)\b/i,
   /\b(?:test|tests|build|lint|check|checks|verification)\b.{0,30}\b(?:fail|fails|failed|failing|error|errors)\b/i,
   /\b(?:fail|fails|failed|failing)\b.{0,30}\b(?:test|tests|build|lint|check|checks|verification)\b/i,
 ];
