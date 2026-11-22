@@ -1,14 +1,19 @@
 import { appendFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
+import { loadConfig } from '../lib/config.mjs';
+import { commitPaths, currentBranch, inRepo, isProtectedBranch, uncommittedPaths } from '../lib/git.mjs';
 import { redact } from '../lib/secrets.mjs';
-import { activeRequests, currentRequest } from '../lib/specs.mjs';
+import { activeRequests, currentRequest, listProjectDirs } from '../lib/specs.mjs';
 
 // One append-only Markdown log per project: `specs/tool-log.md` collects the calls made before a
 // request folder exists, then moves into `specs/<NNN-slug>/tool-log.md` on the call that creates the
-// folder. From then on the request folder holds the whole trail. Silent by design: it writes a file
-// and never changes the agent's exit code. Tool output is never stored, shell commands are redacted,
-// and a call that writes a log itself adds no row.
+// folder. From then on the request folder holds the whole trail. On stop, whatever log is still
+// uncommitted is committed, so the log never lingers in the working tree. Silent by design: it writes
+// or commits and never changes the agent's exit code. Tool output is never stored, shell commands are
+// redacted, and a call that writes a log itself adds no row.
 const FILE = 'tool-log.md';
+const COMMIT_MESSAGE = 'chore(spec): record tool-call logs';
+const LOG_PATH = /(^|\/)specs\/(?:[^/]+\/)?tool-log\.md$/;
 const HEADER = [
   '# Tool call log',
   '',
@@ -68,10 +73,29 @@ const moveShared = (from, to) => {
   rmSync(from);
 };
 
+const commitsDisabled = (dir) => {
+  try { return /^Mode:\s*off\b/im.test(readFileSync(join(dir, '.light-kit', 'project-profile.md'), 'utf8')); } catch { return false; }
+};
+
+// On stop, commit the tool logs still uncommitted in the project and in each workspace project.
+// Only log paths are committed; a failure stays silent so the agent is never blocked.
+const commitLogs = (ctx, cfg) => {
+  for (const dir of new Set([ctx.root, ...listProjectDirs(ctx.root)])) {
+    if (!inRepo(dir) || commitsDisabled(dir)) continue;
+    const branch = currentBranch(dir);
+    if (!branch) continue; // no commit yet, or a detached HEAD
+    const dirCfg = dir === ctx.root ? cfg : loadConfig(ctx.layersFor(dir));
+    if (isProtectedBranch(dir, branch, dirCfg.protectedBranches)) continue;
+    const logs = uncommittedPaths(dir).filter((p) => LOG_PATH.test(p));
+    if (logs.length) commitPaths(dir, logs, COMMIT_MESSAGE);
+  }
+};
+
 export default {
   id: 'tool-log',
-  events: ['post-tool'],
+  events: ['post-tool', 'stop'],
   run(ctx, cfg) {
+    if (ctx.event === 'stop') { commitLogs(ctx, cfg); return null; }
     const written = ctx.files.map((f) => folderOf(ctx, f)).find(Boolean);
     // A statusless folder is a leftover, not a request being worked on: it must not capture the shared log.
     const active = currentRequest(activeRequests(ctx.scope, ctx.root).filter(hasStatus));
