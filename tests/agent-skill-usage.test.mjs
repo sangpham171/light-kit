@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { install } from '../tools/install.mjs';
 import { CLIENT_NAMES } from '../tools/build.mjs';
 
@@ -25,8 +25,20 @@ const run = (dir, payload, client = 'claude', event = 'post-tool') => spawnSync(
 const runIn = (installDir, cwd, payload) => spawnSync('node', [join(installDir, '.light-kit/hooks/run.mjs'), '--client', 'claude', '--event', 'post-tool'], {
   cwd, input: JSON.stringify({ cwd, ...payload }), encoding: 'utf8',
 });
-const agentCall = (name, id) => ({ tool_name: 'Agent', tool_input: { subagent_type: name, description: 'd', prompt: 'p' }, tool_use_id: id });
+const agentCall = (name, id, prompt = 'p') => ({ tool_name: 'Agent', tool_input: { subagent_type: name, description: 'd', prompt }, tool_use_id: id });
 const skillCall = (name, id) => ({ tool_name: 'Skill', tool_input: { skill: name }, tool_use_id: id });
+const writeCall = (file) => ({ tool_name: 'Write', tool_input: { file_path: file, content: 'x' } });
+const stop = (dir) => spawnSync('node', [join(dir, '.light-kit/hooks/run.mjs'), '--client', 'claude', '--event', 'stop'], {
+  cwd: dir, input: JSON.stringify({ cwd: dir }), encoding: 'utf8',
+});
+const artifact = (dir, request, file, agents) => {
+  const runs = agents
+    .map((agent) => `  - agent: ${agent}\n    part: work\n    model: m\n    thinking: unknown\n    level: medium`)
+    .join('\n');
+  const path = join(dir, 'specs', request, file);
+  writeFileSync(path, `---\nstep: ${file.slice(0, 2)}-${file.slice(3, -3)}\nruns:\n${runs}\nusage:\n  tokens: unknown\n  time: unknown\n---\n\n# Work\n`);
+  return path;
+};
 const statsOf = (dir) => JSON.parse(readFileSync(join(dir, '.light-kit/agent-skill-usage.json'), 'utf8'));
 const tableOf = (dir) => readFileSync(join(dir, '.light-kit/agent-skill-usage.md'), 'utf8');
 const requestStatsOf = (dir, name) => JSON.parse(readFileSync(join(dir, 'specs', name, 'agent-skill-usage.json'), 'utf8'));
@@ -219,7 +231,7 @@ test('an install ships the record command and tells the agent to use it', () => 
   assert.ok(existsSync(join(d, '.light-kit/hooks/record-usage.mjs')));
   const instructions = readFileSync(join(d, 'CLAUDE.md'), 'utf8');
   assert.match(instructions, /hooks\/record-usage\.mjs <agent\|skill> <name>/);
-  assert.match(instructions, /do not run it after a tool call the hook already counted/);
+  assert.match(instructions, /do not run it for a use the hook already derived/);
   // the installed copy runs as installed: generation must not break its first line
   const call = spawnSync('node', [join(d, '.light-kit/hooks/record-usage.mjs'), 'skill', 'light-rules'], { cwd: d, encoding: 'utf8' });
   assert.equal(call.status, 0, call.stderr);
@@ -231,4 +243,103 @@ test('the generated Claude hooks watch the agent and skill tools', () => {
   const settings = JSON.parse(readFileSync(join(d, '.claude/settings.json'), 'utf8'));
   const post = settings.hooks.PostToolUse.flatMap((entry) => (entry.matcher ? entry.matcher.split('|') : []));
   for (const tool of ['Task', 'Agent', 'Skill']) assert.ok(post.includes(tool), tool);
+});
+
+test('an agent credited by an artifact header is counted even when no tool call ran', () => {
+  const d = project(); withSpec(d);
+  const file = artifact(d, '001-x', '50-implementation.md', ['light-developer']);
+  const r = run(d, writeCall(file));
+  assert.equal(r.status, 0);
+  assert.deepEqual(statsOf(d).requests['001-x'].agents, { 'light-developer': 1 });
+  assert.deepEqual(requestStatsOf(d, '001-x').requests['001-x'].agents, { 'light-developer': 1 });
+  assert.match(requestTableOf(d, '001-x'), /A: light-developer/);
+});
+
+test('a header run already counted by an Agent call is not counted twice', () => {
+  const d = project(); withSpec(d);
+  run(d, agentCall('light-developer', 'a1'));
+  const file = artifact(d, '001-x', '50-implementation.md', ['light-developer']);
+  run(d, writeCall(file));
+  assert.equal(statsOf(d).requests['001-x'].agents['light-developer'], 1);
+});
+
+test('a manual record and the matching header count once', () => {
+  const d = project(); withSpec(d);
+  spawnSync('node', [join(d, '.light-kit/hooks/record-usage.mjs'), 'agent', 'light-developer', '--request', '001-x'], { cwd: d });
+  const file = artifact(d, '001-x', '50-implementation.md', ['light-developer']);
+  run(d, writeCall(file));
+  assert.equal(statsOf(d).requests['001-x'].agents['light-developer'], 1);
+});
+
+test('one count per header run, including repeated agents', () => {
+  const d = project(); withSpec(d);
+  const file = artifact(d, '001-x', '50-implementation.md', ['light-developer', 'light-developer']);
+  run(d, writeCall(file));
+  assert.equal(statsOf(d).requests['001-x'].agents['light-developer'], 2);
+});
+
+test('a call is attributed to the request its prompt names, not the most recently touched one', () => {
+  const d = project(); withSpec(d, '001-x'); withSpec(d, '002-y');
+  const later = new Date(Date.now() + 5000);
+  utimesSync(join(d, 'specs/001-x'), later, later); // the old fallback would pick 001-x
+  run(d, agentCall('light-reviewer', 'r1', 'Review request specs/002-y (standard workflow).'));
+  const stats = statsOf(d);
+  assert.deepEqual(stats.requests['002-y'].agents, { 'light-reviewer': 1 });
+  assert.equal(stats.requests['001-x'], undefined);
+});
+
+test('reading an installed skill file counts as a skill use', () => {
+  const d = project(); withSpec(d);
+  const file = join(d, '.claude/skills/light-commit/SKILL.md');
+  mkdirSync(dirname(file), { recursive: true });
+  writeFileSync(file, '# skill\n');
+  run(d, { tool_name: 'Read', tool_input: { file_path: file }, tool_use_id: 'read-1' });
+  assert.deepEqual(statsOf(d).requests['001-x'].skills, { 'light-commit': 1 });
+});
+
+test('the kit source layout is not an installed skill file', () => {
+  const d = project(); withSpec(d);
+  const file = join(d, 'kit/skills/light-commit/SKILL.md');
+  mkdirSync(dirname(file), { recursive: true });
+  writeFileSync(file, '# source\n');
+  run(d, { tool_name: 'Read', tool_input: { file_path: file }, tool_use_id: 'read-2' });
+  assert.equal(existsSync(join(d, '.light-kit/agent-skill-usage.json')), false);
+});
+
+test('an artifact with no runs header writes no statistics', () => {
+  const d = project(); withSpec(d);
+  const file = join(d, 'specs/001-x/50-implementation.md');
+  writeFileSync(file, '---\nstep: 50-implementation\n---\n\n# Work\n');
+  run(d, writeCall(file));
+  assert.equal(existsSync(join(d, '.light-kit/agent-skill-usage.json')), false);
+});
+
+test('stop reconciles tracked and active requests but does not invent history for finished ones', () => {
+  const d = project();
+  withSpec(d, '002-tracked');
+  run(d, agentCall('light-reviewer', 'r1'));
+  artifact(d, '002-tracked', '50-implementation.md', ['light-developer']);
+  writeFileSync(join(d, 'specs/002-tracked/status.md'), '---\nstep: conclude\nstate: done\n---\n');
+
+  withSpec(d, '001-active');
+  artifact(d, '001-active', '30-design.md', ['light-architect']);
+
+  withSpec(d, '003-done');
+  artifact(d, '003-done', '50-implementation.md', ['light-tester']);
+  writeFileSync(join(d, 'specs/003-done/status.md'), '---\nstep: conclude\nstate: done\n---\n');
+
+  assert.equal(stop(d).status, 0);
+  const stats = statsOf(d);
+  assert.deepEqual(stats.requests['002-tracked'].agents, { 'light-reviewer': 1, 'light-developer': 1 });
+  assert.deepEqual(stats.requests['001-active'].agents, { 'light-architect': 1 });
+  assert.equal(stats.requests['003-done'], undefined);
+  assert.deepEqual(requestStatsOf(d, '002-tracked').requests['002-tracked'].agents, { 'light-reviewer': 1, 'light-developer': 1 });
+  assert.deepEqual(requestStatsOf(d, '001-active').requests['001-active'].agents, { 'light-architect': 1 });
+});
+
+test('the stop reconciliation is switched off with the rest of the hook', () => {
+  const d = project({ hooks: { 'agent-skill-usage': 'off' } }); withSpec(d);
+  artifact(d, '001-x', '50-implementation.md', ['light-developer']);
+  stop(d);
+  assert.equal(existsSync(join(d, '.light-kit/agent-skill-usage.json')), false);
 });

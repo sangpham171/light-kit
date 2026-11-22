@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { headerOf, runsOf } from '../lib/runs.mjs';
 
 // Documents the kit's agents write must start with a `step:` line and a `runs:` header (see the templates).
 const ARTIFACT = [/(^|\/)specs\/[^/]+\/\d\d-[^/]+\.md$/, /(^|\/)\.light-kit\/(codebase-map|assessment|standardization-backlog)\.md$/, /(^|\/)\.light-kit\/audits\/[^/]+\.md$/];
@@ -35,20 +36,20 @@ export default {
       const abs = f.startsWith('/') ? f : `${ctx.cwd}/${f}`;
       let text = '';
       try { text = readFileSync(abs, 'utf8'); } catch { continue; }
-      const header = text.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? '';
+      const header = headerOf(text);
       // One block-sequence entry per run; its fields may share the `- ` line or follow on indented lines.
       // Stop at the usage block: its `- step:` rows are not runs.
-      const entries = header.split(/\nusage:/)[0].split(/\n(?=\s*- )/).filter((b) => /^\s*- /.test(b) && /\bagent:/.test(b));
-      const complete = (b) => /\bagent:\s*\S/.test(b) && /\bmodel:\s*\S/.test(b) && /\bthinking:\s*\S/.test(b);
-      const hasPart = (b) => /\bpart:\s*\S/.test(b);
+      const entries = runsOf(text);
+      const complete = (r) => r.agent && r.model && r.thinking;
+      const hasPart = (r) => r.part;
       // The step sits at the top of the header; headers written before it moved there carry it on each run.
-      const step = /^step:\s*\S/m.test(header) || entries.some((b) => /^\s*(?:-\s+)?step:\s*\S/m.test(b));
+      const step = /^step:\s*\S/m.test(header) || entries.some((r) => /^\s*(?:-\s+)?step:\s*\S/m.test(r.block));
       const ok = step && /^runs:/m.test(header) && entries.some(complete);
       if (!ok) return { message: `${rel} must start with a \`step:\` line and a \`runs:\` header listing each agent run (agent | part | model | thinking | level), as in the templates. Add your entry; write \`unknown\` for what you cannot tell.` };
 
       if (!REQUEST_ARTIFACT.test(rel)) continue;
-      const agents = [...new Set(entries.map((b) => b.match(/\bagent:\s*(\S+)/)?.[1]).filter(Boolean))];
-      const missingPart = entries.filter((b) => !hasPart(b)).length;
+      const agents = [...new Set(entries.map((r) => r.agent).filter(Boolean))];
+      const missingPart = entries.filter((r) => !hasPart(r)).length;
       const workflow = workflowOf(abs);
       const owners = workflow
         ? workflowSteps(ctx, workflow).filter((s) => s.writes.includes(rel.split('/').pop()))
