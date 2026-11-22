@@ -132,6 +132,35 @@ test('brainstorming diverges across directions before it converges, and never im
   }
 });
 
+test('the orchestrator runs the brainstormer agent for uncertain requests', () => {
+  const dir = tmp();
+  install(dir, ['claude']);
+  const read = (p) => readFileSync(join(dir, p), 'utf8');
+  const kit = loadKit();
+  for (const c of CLIENT_NAMES) assert.ok(build(kit, [c]).some((f) => f.path.includes('light-brainstormer')), c);
+  assert.ok(kit.agents.some((a) => a.meta.name === 'light-brainstormer'));
+  const agent = read('.claude/agents/light-brainstormer.md');
+  assert.match(agent, /light-brainstorm/);
+  assert.match(agent, /Cover \*\*all\*\* use cases/);
+  assert.match(agent, /brainstorms\/<YYYY-MM-DD>-<slug>\.md/);
+  assert.match(agent, /Pre-planning: do not edit code/);
+  assert.match(agent, /Return to the orchestrator/);
+  const orch = read('.claude/agents/light-orchestrator.md');
+  assert.match(orch, /light-brainstormer/);
+  assert.match(orch, /vague, novel or high-impact/);
+  assert.match(orch, /before `10-understanding\.md` and triage/);
+  assert.match(orch, /Skip it for a precise, familiar request/);
+  const request = read('.claude/skills/light-request/SKILL.md');
+  assert.match(request, /invoke the `light-brainstormer` agent/);
+  assert.match(request, /vague, novel or high-impact/);
+  assert.match(read('.claude/skills/light-triage/SKILL.md'), /invokes `light-brainstormer`/);
+  assert.match(read('CLAUDE.md'), /light-orchestrator, light-brainstormer/);
+  const usage = readFileSync(new URL('../docs/usage.md', import.meta.url), 'utf8');
+  assert.match(usage, /light-orchestrator, light-brainstormer/);
+  assert.match(usage, /invokes the `light-brainstormer` agent/);
+  assert.match(readFileSync(new URL('../README.md', import.meta.url), 'utf8'), /the `light-brainstormer` agent/);
+});
+
 test('the plan is written before code, even for direct requests', () => {
   const dir = tmp();
   install(dir, ['claude']);
