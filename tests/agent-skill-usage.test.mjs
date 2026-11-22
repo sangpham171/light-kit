@@ -52,6 +52,8 @@ test('counts agent and skill calls of the active request in JSON and in the tabl
   assert.deepEqual(own.requests['001-x'].skills, { 'light-triage': 1 });
   const ownTable = requestTableOf(d, '001-x');
   assert.match(ownTable, /^\| 001-x \| 2 \| 1 \|$/m);
+  assert.match(ownTable, /^\| \*\*Total\*\* \| 2 \| 1 \|$/m);
+  assert.doesNotMatch(ownTable, /All requests/);
   assert.doesNotMatch(ownTable, /002-y/);
 });
 
