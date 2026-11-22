@@ -5,8 +5,8 @@ base_branch: feat/035-brainstorm-output-file
 base_commit: 1d2b702c9acb625ce92dc0eea5b3f287d5c1ff70
 work_branch: feat/036-brainstormer-agent
 review_turns: 1
-review_round: 0
-step: verify-and-review
+review_round: 1
+step: conclude
 state: in-progress
 ---
 
