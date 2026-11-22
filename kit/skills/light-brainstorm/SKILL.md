@@ -1,6 +1,6 @@
 ---
 name: light-brainstorm
-description: Explore an idea in several independent directions before it becomes a request — surfaces options, edge cases, risks and cases the user did not mention. Use when the user asks to brainstorm, think through an idea or explore options, or when a request is vague, novel or high-impact.
+description: Explore an idea in several independent directions before it becomes a request — surfaces options, edge cases, risks and cases the user did not mention. This is the method the light-brainstormer agent applies; use it when the user asks to brainstorm or think through an idea.
 purpose: compensation
 ---
 

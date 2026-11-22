@@ -25,13 +25,15 @@ Right after triage, rate **every step of the chosen workflow for this request** 
 
 | Step kind | What drives its difficulty |
 |---|---|
-| understand, clarify, discover | ambiguity, novelty, scope |
+| understand, brainstorm, clarify, discover | ambiguity, novelty, scope |
 | design, architecture, vision, plan | scope, novelty, impact, risk |
 | implement, fix | the plan task's own level; when the plan gives none, the difficulty of the work itself |
 | review, security, verification | risk and scope; never below the strongest tier used for the code under review |
 | conclude, documentation | easy, unless the change is large or cross-cutting |
 
 A driving score of 2 points to hard, 1 to medium, all 0 to easy.
+
+The pre-triage `light-brainstormer` call is rated like the understand step and recorded as `brainstorm` in the Routing section, even though it runs before triage.
 
 - **Plan tasks:** the tech-lead rates each task (`level:` in `40-plan.md`). You may raise a task's level when you read it; never lower one the tech-lead set.
 - **Re-rate when facts change:** clarification shows more ambiguity, a design turns out simple, a task escalates. Update the Routing line and carry on. You may lower a step rating you made yourself.
