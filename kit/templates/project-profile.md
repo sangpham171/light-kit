@@ -7,6 +7,8 @@
 ## Conventions (structure, naming, style, commit and branch rules)
 ## Constraints (compliance, performance, hosting, team rules)
 ## Testing policy
+## Rules
+Promotion threshold: 3   <!-- violations that promote a `pending` rule to `confirmed`; integer >= 1. Default 3. -->
 ## Output style
 Style: concise        <!-- concise (default) or normal: concise = no chit-chat, only necessary output, to save tokens -->
 ## Review cycle
