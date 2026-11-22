@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "requests": {
+    "005-readme-install-details": {
+      "first": "2026-10-26T19:47:23.866Z",
+      "last": "2026-10-26T19:47:23.866Z",
+      "agents": {
+        "light-reviewer": 1
+      },
+      "skills": {}
+    }
+  }
+}

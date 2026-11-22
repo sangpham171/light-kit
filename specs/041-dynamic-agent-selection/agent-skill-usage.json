@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "requests": {
+    "041-dynamic-agent-selection": {
+      "first": "2026-11-22T14:06:33.970Z",
+      "last": "2026-11-22T14:06:33.970Z",
+      "agents": {
+        "light-reviewer": 1
+      },
+      "skills": {}
+    }
+  }
+}

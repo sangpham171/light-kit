@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "requests": {
+    "040-init-updates-existing-kit": {
+      "first": "2026-11-22T13:42:03.865Z",
+      "last": "2026-11-22T13:42:05.250Z",
+      "agents": {
+        "light-reviewer": 1,
+        "light-tester": 1
+      },
+      "skills": {}
+    }
+  }
+}

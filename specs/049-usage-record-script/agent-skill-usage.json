@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "requests": {
+    "049-usage-record-script": {
+      "first": "2026-11-22T16:41:00.951Z",
+      "last": "2026-11-22T16:41:01.162Z",
+      "agents": {
+        "light-orchestrator": 2,
+        "light-tech-lead": 1,
+        "light-developer": 1,
+        "light-tech-writer": 1
+      },
+      "skills": {}
+    }
+  }
+}

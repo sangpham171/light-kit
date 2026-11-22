@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "requests": {
+    "050-sensitive-allow-kit-folders": {
+      "first": "2026-11-22T16:56:15.135Z",
+      "last": "2026-11-22T16:56:15.192Z",
+      "agents": {
+        "light-orchestrator": 1
+      },
+      "skills": {
+        "light-request-branch": 1
+      }
+    }
+  }
+}
