@@ -19,6 +19,7 @@ import { fileURLToPath } from 'node:url';
 const LEVELS = ['patch', 'minor', 'major'];
 const PROTECTED = ['main', 'master', 'trunk', 'develop', 'production'];
 const VERSION = /^(\d+)\.(\d+)\.(\d+)$/;
+const VERSION_LINE = /^([ \t]*"version"[ \t]*:[ \t]*")[^"]*(")/m;
 const STATE_FILE = join('.light-kit', 'version-bump.json');
 const STATE_VERSION = 1;
 
@@ -33,6 +34,14 @@ export function bumpVersion(version, level) {
   if (level === 'major') return `${major + 1}.0.0`;
   if (level === 'minor') return `${major}.${minor + 1}.0`;
   return `${major}.${minor}.${patch + 1}`;
+}
+
+// Replace only the version value so the rest of the file keeps its formatting. Null when the text
+// has no version line or the result would not parse.
+export function withVersion(text, version) {
+  if (!VERSION_LINE.test(text)) return null;
+  const next = text.replace(VERSION_LINE, `$1${version}$2`);
+  try { return JSON.parse(next).version === version ? next : null; } catch { return null; }
 }
 
 // Front matter of a status file, or {} when the file is missing or has no opening delimiter.
@@ -117,8 +126,8 @@ function commitPaths(root, paths, message) {
 // Apply every pending bump. `apply: false` computes the result without writing (dry run).
 export function runVersionBump(root, { apply = true, log = () => {} } = {}) {
   const pkgFile = join(root, 'package.json');
-  let pkg;
-  try { pkg = JSON.parse(readFileSync(pkgFile, 'utf8')); } catch { return { changed: false, reason: 'no package.json' }; }
+  let raw, pkg;
+  try { raw = readFileSync(pkgFile, 'utf8'); pkg = JSON.parse(raw); } catch { return { changed: false, reason: 'no package.json' }; }
   if (!isObject(pkg) || pkg.name !== 'light-kit') return { changed: false, reason: 'not this project' };
 
   const specs = collect(root);
@@ -150,7 +159,9 @@ export function runVersionBump(root, { apply = true, log = () => {} } = {}) {
   }
 
   if (apply) {
-    writeFileSync(pkgFile, JSON.stringify({ ...pkg, version }, null, 2) + '\n');
+    const nextText = withVersion(raw, version);
+    if (!nextText) return { changed: false, reason: 'could not rewrite the version line', state };
+    writeFileSync(pkgFile, nextText);
     writeState(stateFile, state);
     if (state.commit) commitPaths(root, ['package.json', STATE_FILE], `chore(release): v${version}`);
   }
