@@ -87,7 +87,7 @@ export function saveRequestStats(requestDir, stats, request) {
   const view = { version: VERSION, requests: { [request]: row } };
   try {
     saveStats(join(requestDir, JSON_FILE), view);
-    saveText(join(requestDir, MD_FILE), renderTable(view));
+    saveText(join(requestDir, MD_FILE), renderTable(view, { request }));
     return true;
   } catch {
     return false;
@@ -128,22 +128,34 @@ const TABLE_HEAD = [
   '',
 ].join('\n');
 
+// A request folder's copy is derived from the project-wide file, not the truth, and its single row
+// gets a `Total` footer instead of the aggregate's `All requests`.
+const requestHead = (request) => [
+  '# Agent and skill usage',
+  '',
+  `How often each agent (\`A:\`) and skill (\`S:\`) ran for ${request}. Written by the light-kit`,
+  '`agent-skill-usage` hook from `.light-kit/agent-skill-usage.json`, which is the source of truth.',
+  'Safe to delete.',
+  '',
+].join('\n');
+
 // The table the request asks for: one row per request, the last row the total over all requests.
 // A call made before any request was active is reported as `(no request)`, not dropped.
-export function renderTable(stats) {
+export function renderTable(stats, { request = '' } = {}) {
+  const head = request ? requestHead(request) : TABLE_HEAD;
   const agents = namesOf(stats.requests, 'agents');
   const skills = namesOf(stats.requests, 'skills');
-  if (!agents.length && !skills.length) return `${TABLE_HEAD}No agent or skill calls recorded yet.\n`;
+  if (!agents.length && !skills.length) return `${head}No agent or skill calls recorded yet.\n`;
   const header = `| Request | ${[...agents.map((n) => `A: ${cell(n)}`), ...skills.map((n) => `S: ${cell(n)}`)].join(' | ')} |`;
   const rule = `|---|${Array(agents.length + skills.length).fill('---:').join('|')}|`;
   const order = Object.keys(stats.requests).filter((r) => r !== NO_REQUEST).sort((a, b) => a.localeCompare(b));
   if (NO_REQUEST in stats.requests) order.push(NO_REQUEST);
-  const body = order.map((request) => {
-    const row = stats.requests[request] ?? {};
+  const body = order.map((name) => {
+    const row = stats.requests[name] ?? {};
     const values = [...agents.map((n) => count(row, 'agents', n)), ...skills.map((n) => count(row, 'skills', n))];
-    return `| ${cell(request)} | ${values.join(' | ')} |`;
+    return `| ${cell(name)} | ${values.join(' | ')} |`;
   });
   const sum = (field, name) => Object.values(stats.requests).reduce((total, row) => total + count(row, field, name), 0);
   const totals = [...agents.map((n) => sum('agents', n)), ...skills.map((n) => sum('skills', n))];
-  return [TABLE_HEAD, header, rule, ...body, `| **All requests** | ${totals.join(' | ')} |`, ''].join('\n');
+  return [head, header, rule, ...body, `| ${request ? '**Total**' : '**All requests**'} | ${totals.join(' | ')} |`, ''].join('\n');
 }
