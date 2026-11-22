@@ -13,12 +13,12 @@ usage:
 
 # Plan
 
-- [ ] 1. Add the trigger list to `kit/skills/light-rules/SKILL.md` and `kit/templates/rules.md`, and update core rule 15 in `kit/instructions/core.md` — level: easy — files: those three — verify: `node --test tests/kit.test.mjs` — commit: `docs(kit): record rules at every failure trigger`
-- [ ] 2. Wire the same triggers into `kit/agents/light-orchestrator.md`, `kit/skills/light-request/SKILL.md`, `kit/skills/light-implement/SKILL.md`, `kit/agents/light-tester.md` and `kit/skills/light-review-checklist/SKILL.md` — level: easy — files: those five — verify: `node --test tests/kit.test.mjs` — commit: `docs(kit): wire rule triggers into request and implementation`
-- [ ] 3. Add a `rules` step before `conclude` in `kit/workflows/{direct,standard,full}.md` and update the flow table in `docs/usage.md` — level: easy — files: those four — verify: `node --test tests/kit.test.mjs` — commit: `docs(workflows): record rules before every conclusion`
-- [ ] 4. Add `kit/hooks/checks/rules-reminder.mjs`, register it in `checks/index.mjs`, add its `warn` default in `lib/config.mjs` and `kit/hooks/hooks.config.json` — level: medium — files: those four — verify: `node --test tests/hooks.test.mjs` — commit: `feat(hooks): remind the agent when a user reports a defect`
-- [ ] 5. Add hook tests and extend the rules test in `tests/hooks.test.mjs` and `tests/kit.test.mjs` — level: medium — files: those two — verify: `node --test tests/hooks.test.mjs tests/kit.test.mjs` — commit: `test(hooks): cover the rules reminder`
-- [ ] 6. Document the hook in `kit/hooks/README.md` and `docs/safety-hooks.md` — level: easy — files: those two — verify: read-back — commit: `docs(hooks): document the rules reminder`
+- [x] 1. Add the trigger list to `kit/skills/light-rules/SKILL.md` and `kit/templates/rules.md`, and update core rule 15 in `kit/instructions/core.md` — level: easy — files: those three — verify: `node --test tests/kit.test.mjs` — commit: `docs(kit): record rules at every failure trigger`
+- [x] 2. Wire the same triggers into `kit/agents/light-orchestrator.md`, `kit/skills/light-request/SKILL.md`, `kit/skills/light-implement/SKILL.md`, `kit/agents/light-tester.md` and `kit/skills/light-review-checklist/SKILL.md` — level: easy — files: those five — verify: `node --test tests/kit.test.mjs` — commit: `docs(kit): wire rule triggers into request and implementation`
+- [x] 3. Add a `rules` step before `conclude` in `kit/workflows/{direct,standard,full}.md` and update the flow table in `docs/usage.md` — level: easy — files: those four — verify: `node --test tests/kit.test.mjs` — commit: `docs(workflows): record rules before every conclusion`
+- [x] 4. Add `kit/hooks/checks/rules-reminder.mjs`, register it in `checks/index.mjs`, add its `warn` default in `lib/config.mjs` and `kit/hooks/hooks.config.json` — level: medium — files: those four — verify: `node --test tests/hooks.test.mjs` — commit: `feat(hooks): remind the agent when a user reports a defect`
+- [x] 5. Add hook tests and extend the rules test in `tests/hooks.test.mjs` and `tests/kit.test.mjs` — level: medium — files: those two — verify: `node --test tests/hooks.test.mjs tests/kit.test.mjs` — commit: `test(hooks): cover the rules reminder`
+- [x] 6. Document the hook in `kit/hooks/README.md` and `docs/safety-hooks.md` — level: easy — files: those two — verify: read-back — commit: `docs(hooks): document the rules reminder`
 - [ ] 7. Run `npm test`, then review and conclude — level: medium — files: `50-implementation.md`, `60-conclusion.md` — verify: `npm test` — commit: `docs(spec): record request 043`
 
 ## Risks
