@@ -9,3 +9,4 @@ stored. Safe to delete.
 |---|---|---|---|---|
 | 2026-11-22T13:47:30Z | claude | Bash | shell | npm test 2>&1 \| tail -7 |
 | 2026-11-22T13:47:33Z | claude | Bash | shell | git add specs/040-init-updates-existing-kit .light-kit/rules.md && git commit -q -m "docs(spec): conclude request 040" && git status --short && git log --oneline -7 |
+| 2026-11-22T13:47:37Z | claude | Bash | shell | git add .light-kit/usage.json specs/039-rules-promotion-threshold/tool-log.md specs/tool-log.md && git commit -q -m "chore(spec): record tool-call logs" && git status --short && git log --oneline -3 |
