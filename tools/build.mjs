@@ -7,6 +7,13 @@ import { fileURLToPath } from 'node:url';
 
 export const KIT_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'kit');
 export const GENERATED = '<!-- light-kit:generated -->';
+// Generated scripts carry the marker so a reinstall may replace them. A shebang must stay the first
+// line, so the marker follows it instead of preceding it.
+export const marked = (text) => {
+  if (!String(text).startsWith('#!')) return `// light-kit:generated\n${text}`;
+  const end = text.indexOf('\n');
+  return end === -1 ? `${text}\n// light-kit:generated\n` : `${text.slice(0, end + 1)}// light-kit:generated\n${text.slice(end + 1)}`;
+};
 export const isManaged = (text) => text.includes('light-kit:generated');
 export const START = '<!-- light-kit:start -->';
 export const END = '<!-- light-kit:end -->';
@@ -334,12 +341,12 @@ export function build(kitIn, clients, { hooks = true, level = 'project', project
     for (const h of kit.hooks) {
       if (h.rel === 'hooks.config.json') files.push({ path: `${SHARED_DIR}/hooks.config.json`, content: h.text, seed: true }); // seed: never overwritten
       else if (h.rel.endsWith('.md')) files.push({ path: `${SHARED_DIR}/hooks/${h.rel}`, content: `${GENERATED}\n\n${h.text.trimEnd()}\n` });
-      else files.push({ path: `${SHARED_DIR}/hooks/${h.rel}`, content: `// light-kit:generated\n${h.text}` });
+      else files.push({ path: `${SHARED_DIR}/hooks/${h.rel}`, content: marked(h.text) });
     }
     for (const c of clients) files.push(hookRegistration(c, level));
   }
-  files.push({ path: `${SHARED_DIR}/audit/audit.mjs`, content: `// light-kit:generated\n${kit.audit.find((f) => f.rel === 'audit.mjs').text}` });
-  for (const f of kit.init) files.push({ path: `${SHARED_DIR}/init/${f.rel}`, content: `// light-kit:generated\n${f.text}` });
+  files.push({ path: `${SHARED_DIR}/audit/audit.mjs`, content: marked(kit.audit.find((f) => f.rel === 'audit.mjs').text) });
+  for (const f of kit.init) files.push({ path: `${SHARED_DIR}/init/${f.rel}`, content: marked(f.text) });
   files.push({ path: `${SHARED_DIR}/audit/manifest.json`, content: JSON.stringify(auditManifest(kit, files, clients, level), null, 2) + '\n', overwrite: true });
   return files;
 }
