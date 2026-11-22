@@ -9,3 +9,8 @@ rest of the request's calls are appended. When the agent stops, the hook commits
 uncommitted (`chore(spec): record tool-call logs`), leaving other work in progress alone. It is
 generated, safe to delete, and can be switched off with `hooks.tool-log: "off"` in
 `.light-kit/hooks.config.json`.
+
+`agent-skill-usage.json` and `.md` in a request folder count how often each agent and skill ran for
+that request. The project-wide aggregate in `.light-kit/agent-skill-usage.json` stays the source of
+truth; the request folder's pair is rendered from it and holds only that request's row. It is
+generated, safe to delete, and can be switched off with `hooks.agent-skill-usage: "off"`.

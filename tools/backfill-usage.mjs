@@ -6,8 +6,9 @@
 // `~/.claude/projects`), keeps each `Agent`/`Task`/`Skill` tool call whose `cwd` is inside the
 // project, attributes it to the `specs/<slug>` it names when that folder exists (else
 // `(no request)`), and merges it into `.light-kit/agent-skill-usage.json` and `.md` through the
-// same reader and counter the hook uses. A call already counted — live or by an earlier import —
-// is skipped, so the command is safe to run again.
+// same reader and counter the hook uses, then refreshes each request's own `agent-skill-usage.*`.
+// A call already counted — live or by an earlier import — is skipped, so the command is safe to run
+// again; a repeat run also recreates a per-request file that was deleted.
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, resolve, sep } from 'node:path';
