@@ -39,7 +39,8 @@
     "call_00_SLwIMatOA7mCrcqOURWu7861",
     "call_01_TYKIB1r2pPOYU4do91zn0630",
     "call_00_dyF4RmluZlqIEZjisbMy0123",
-    "call_01_3oVrOiKRWTakDCyIvmqA7188"
+    "call_01_3oVrOiKRWTakDCyIvmqA7188",
+    "call_00_ET_jeD9t5V9FNfDt0fCdL6q3052"
   ],
   "requests": {
     "(no request)": {
@@ -230,6 +231,15 @@
       "skills": {
         "light-request-branch": 1
       }
+    },
+    "051-agent-skill-usage-per-spec": {
+      "first": "2026-11-22T19:20:52.927Z",
+      "last": "2026-11-22T19:27:22.888Z",
+      "agents": {
+        "light-reviewer": 1,
+        "light-orchestrator": 2
+      },
+      "skills": {}
     }
   }
 }

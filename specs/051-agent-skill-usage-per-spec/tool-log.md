@@ -91,3 +91,54 @@ stored. Safe to delete.
 | 2026-11-22T19:21:25Z | claude | Read | read | kit/hooks/checks/tool-log.mjs |
 | 2026-11-22T19:21:25Z | claude | Read | read | docs/safety-hooks.md |
 | 2026-11-22T19:21:27Z | claude | Bash | shell | npm test 2>&1 \| tail -8 |
+| 2026-11-22T19:21:42Z | claude | Read | read | kit/hooks/README.md |
+| 2026-11-22T19:21:42Z | claude | Read | read | specs/README.md |
+| 2026-11-22T19:21:57Z | claude | Read | read | .light-kit/agent-skill-usage.json |
+| 2026-11-22T19:21:57Z | claude | Read | read | package.json |
+| 2026-11-22T19:22:37Z | claude | Read | read | /Users/light/.claude/settings.json |
+| 2026-11-22T19:22:38Z | claude | Read | read | .light-kit/project-profile.md |
+| 2026-11-22T19:22:49Z | claude | Read | read | kit/instructions/core.md |
+| 2026-11-22T19:23:00Z | claude | Read | read | /Users/light/.light-kit/hooks/checks/agent-skill-usage.mjs |
+| 2026-11-22T19:23:00Z | claude | Read | read | /Users/light/.light-kit/hooks/lib/usage-stats.mjs |
+| 2026-11-22T19:23:17Z | claude | Read | read | .gitignore |
+| 2026-11-22T19:23:42Z | claude | Read | read | specs/051-agent-skill-usage-per-spec/status.md |
+| 2026-11-22T19:23:43Z | claude | Read | read | /Users/light/.light-kit/hooks/record-usage.mjs |
+| 2026-11-22T19:24:46Z | claude | Read | read | kit/hooks/lib/config.mjs |
+| 2026-11-22T19:24:46Z | claude | Bash | shell | sed -n '1,80p' kit/hooks/lib/normalize.mjs |
+| 2026-11-22T19:25:02Z | claude | Edit | write | kit/hooks/record-usage.mjs |
+| 2026-11-22T19:25:02Z | claude | Edit | write | kit/hooks/record-usage.mjs |
+| 2026-11-22T19:25:02Z | claude | Edit | write | kit/hooks/record-usage.mjs |
+| 2026-11-22T19:25:03Z | claude | Edit | write | kit/hooks/record-usage.mjs |
+| 2026-11-22T19:25:06Z | claude | Edit | write | tools/backfill-usage.mjs |
+| 2026-11-22T19:25:07Z | claude | Edit | write | tools/backfill-usage.mjs |
+| 2026-11-22T19:25:07Z | claude | Edit | write | tools/backfill-usage.mjs |
+| 2026-11-22T19:25:08Z | claude | Edit | write | tools/backfill-usage.mjs |
+| 2026-11-22T19:25:12Z | claude | Edit | write | tests/agent-skill-usage.test.mjs |
+| 2026-11-22T19:25:13Z | claude | Edit | write | tests/agent-skill-usage.test.mjs |
+| 2026-11-22T19:25:13Z | claude | Edit | write | tests/agent-skill-usage.test.mjs |
+| 2026-11-22T19:25:16Z | claude | Edit | write | tests/agent-skill-usage.test.mjs |
+| 2026-11-22T19:25:18Z | claude | Edit | write | tests/agent-skill-usage.test.mjs |
+| 2026-11-22T19:25:22Z | claude | Edit | write | tests/record-usage.test.mjs |
+| 2026-11-22T19:25:22Z | claude | Edit | write | tests/backfill-usage.test.mjs |
+| 2026-11-22T19:25:23Z | claude | Edit | write | tests/backfill-usage.test.mjs |
+| 2026-11-22T19:25:27Z | claude | Bash | shell | grep -n "backfill" docs/safety-hooks.md kit/hooks/README.md .light-kit/codebase-map.md \| cut -c1-300 |
+| 2026-11-22T19:25:29Z | claude | Edit | write | docs/safety-hooks.md |
+| 2026-11-22T19:25:29Z | claude | Edit | write | .light-kit/codebase-map.md |
+| 2026-11-22T19:25:30Z | claude | Edit | write | kit/hooks/README.md |
+| 2026-11-22T19:25:32Z | claude | Edit | write | kit/hooks/README.md |
+| 2026-11-22T19:25:36Z | claude | Bash | shell | node --test tests/agent-skill-usage.test.mjs tests/record-usage.test.mjs tests/backfill-usage.test.mjs 2>&1 \| tail -10 |
+| 2026-11-22T19:25:43Z | claude | Bash | shell | node --test tests/agent-skill-usage.test.mjs tests/record-usage.test.mjs tests/backfill-usage.test.mjs 2>&1 \| grep -B2 -A 18 "not ok" |
+| 2026-11-22T19:25:45Z | claude | Bash | shell | sed -n '150,172p' tests/agent-skill-usage.test.mjs |
+| 2026-11-22T19:25:48Z | claude | Edit | write | tests/agent-skill-usage.test.mjs |
+| 2026-11-22T19:25:53Z | claude | Bash | shell | node --test tests/agent-skill-usage.test.mjs tests/record-usage.test.mjs tests/backfill-usage.test.mjs 2>&1 \| tail -8 |
+| 2026-11-22T19:26:01Z | claude | Bash | shell | cat specs/049-usage-record-script/agent-skill-usage.md && grep -n '"051-agent-skill-usage-per-spec"' -A 4 .light-kit/agent-skill-usage.json |
+| 2026-11-22T19:26:10Z | claude | Bash | shell | node kit/hooks/record-usage.mjs agent light-orchestrator --root . && npm run backfill-usage 2>&1 \| tail -1 && ls specs/051-agent-skill-usage-per-spec/agent-skill-usage.* && cat specs/051-agent-skill- |
+| 2026-11-22T19:26:42Z | claude | Bash | shell | npm test 2>&1 \| tail -8 |
+| 2026-11-22T19:26:49Z | claude | Bash | shell | git add kit/hooks/record-usage.mjs tools/backfill-usage.mjs && git commit -q -m "fix(hooks): honor the usage switch and compare real paths at the CLI entry" && git add tests/agent-skill-usage.test.mjs |
+| 2026-11-22T19:26:51Z | claude | Read | read | specs/051-agent-skill-usage-per-spec/50-implementation.md |
+| 2026-11-22T19:26:58Z | claude | Edit | write | specs/051-agent-skill-usage-per-spec/50-implementation.md |
+| 2026-11-22T19:27:04Z | claude | Edit | write | .light-kit/rules.md |
+| 2026-11-22T19:27:07Z | claude | Bash | shell | cat specs/050-sensitive-allow-kit-folders/60-conclusion.md |
+| 2026-11-22T19:27:12Z | claude | Bash | shell | grep -n "TD-\\|Deferred\\|open" specs/042-agent-skill-usage/60-conclusion.md specs/048-usage-history/60-conclusion.md specs/049-usage-record-script/60-conclusion.md \| cut -c1-260 |
+| 2026-11-22T19:27:18Z | claude | Write | write | specs/051-agent-skill-usage-per-spec/60-conclusion.md |
+| 2026-11-22T19:27:18Z | claude | Edit | write | specs/051-agent-skill-usage-per-spec/status.md |

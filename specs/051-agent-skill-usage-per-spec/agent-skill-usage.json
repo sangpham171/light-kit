@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "requests": {
+    "051-agent-skill-usage-per-spec": {
+      "first": "2026-11-22T19:20:52.927Z",
+      "last": "2026-11-22T19:27:22.888Z",
+      "agents": {
+        "light-reviewer": 1,
+        "light-orchestrator": 2
+      },
+      "skills": {}
+    }
+  }
+}

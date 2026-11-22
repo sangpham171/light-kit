@@ -168,6 +168,13 @@
       "cacheRead": 1332736,
       "cacheWrite": 0,
       "timeMs": 342992
+    },
+    "2843d9fd-2577-4887-a107-47c129ed5c96": {
+      "input": 77087,
+      "output": 53561,
+      "cacheRead": 5698176,
+      "cacheWrite": 0,
+      "timeMs": 683022
     }
   },
   "requests": {
@@ -1511,6 +1518,50 @@
           "cacheRead": 0,
           "cacheWrite": 0,
           "timeMs": 3553,
+          "timed": true
+        }
+      }
+    },
+    "051-agent-skill-usage-per-spec": {
+      "steps": {
+        "00-request": {
+          "input": 48240,
+          "output": 6830,
+          "cacheRead": 421888,
+          "cacheWrite": 0,
+          "timeMs": 91282,
+          "timed": true
+        },
+        "10-understanding": {
+          "input": 440,
+          "output": 2044,
+          "cacheRead": 109312,
+          "cacheWrite": 0,
+          "timeMs": 9181,
+          "timed": true
+        },
+        "40-plan": {
+          "input": 148,
+          "output": 1942,
+          "cacheRead": 56704,
+          "cacheWrite": 0,
+          "timeMs": 9680,
+          "timed": true
+        },
+        "50-implementation": {
+          "input": 25276,
+          "output": 40501,
+          "cacheRead": 4749440,
+          "cacheWrite": 0,
+          "timeMs": 552973,
+          "timed": true
+        },
+        "60-conclusion": {
+          "input": 2983,
+          "output": 2244,
+          "cacheRead": 360832,
+          "cacheWrite": 0,
+          "timeMs": 19906,
           "timed": true
         }
       }
