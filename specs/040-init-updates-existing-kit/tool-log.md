@@ -49,3 +49,81 @@ stored. Safe to delete.
 | 2026-11-22T13:36:47Z | claude | Bash | shell | grep -n "templates\\|seed: true\\|overwrite: true\\|const files = \[\]" tools/build.mjs \| sed -n 1,30p; echo ---; grep -n "seed\\|overwrite\\|report.written" tools/install.mjs \| head -20; echo ---;  |
 | 2026-11-22T13:36:55Z | claude | Write | write | specs/040-init-updates-existing-kit/20-discovery.md |
 | 2026-11-22T13:37:07Z | claude | Write | write | specs/040-init-updates-existing-kit/40-plan.md |
+| 2026-11-22T13:37:10Z | claude | Bash | shell | git add specs/040-init-updates-existing-kit && git commit -q -m "docs(spec): record plan for request 040" && git log --oneline -1 |
+| 2026-11-22T13:37:31Z | claude | Write | write | kit/init/merge.mjs |
+| 2026-11-22T13:37:38Z | claude | Edit | write | kit/init/merge.mjs |
+| 2026-11-22T13:37:39Z | claude | Edit | write | kit/init/merge.mjs |
+| 2026-11-22T13:37:42Z | claude | Bash | shell | node -e " import('./kit/init/merge.mjs').then(async m => { const a = m.mergeMarkdown('# P\n\n## A\nkeep me\n', '# P\n\n## A\n## B\nnew\n'); console.log(JSON.stringify(a)); const b = m.mergeMarkdown('# |
+| 2026-11-22T13:37:45Z | claude | Bash | shell | node -e " import('./kit/init/merge.mjs').then(async m => { console.log(JSON.stringify(m.mergeMarkdown('# P\n\n## Rules\nfoo\n\n## Z\nz\n', '# P\n\n## Rules\nPromotion threshold: 3 <!-- x -->\nStyle: c |
+| 2026-11-22T13:37:49Z | claude | Bash | shell | node -e "import('./kit/init/merge.mjs').then(m => console.log(typeof m.mergeProject))" && git add kit/init/merge.mjs && git commit -q -m "feat(kit): add the init merge script" && git log --oneline -1 |
+| 2026-11-22T13:37:53Z | claude | Edit | write | tools/build.mjs |
+| 2026-11-22T13:37:53Z | claude | Edit | write | tools/build.mjs |
+| 2026-11-22T13:37:54Z | claude | Edit | write | tools/build.mjs |
+| 2026-11-22T13:37:57Z | claude | Bash | shell | node -e "import('./tools/build.mjs').then(async ({loadKit,build}) => { const f = build(loadKit(), ['claude']); console.log(f.filter(x => x.path.includes('/init/') \|\| x.path.includes('/templates/')). |
+| 2026-11-22T13:38:00Z | claude | Bash | shell | node --test tests/kit.test.mjs 2>&1 \| tail -30 |
+| 2026-11-22T13:38:04Z | claude | Bash | shell | node -e " import('./tools/install.mjs').then(async ({install}) => { const {mkdtempSync, writeFileSync, readFileSync} = await import('node:fs'); const {tmpdir} = await import('node:os'); const {join} = |
+| 2026-11-22T13:38:09Z | claude | Bash | shell | git add tools/build.mjs && git commit -q -m "feat(kit): generate the init merge script and refresh templates" && git log --oneline -1 |
+| 2026-11-22T13:38:19Z | claude | Edit | write | tests/kit.test.mjs |
+| 2026-11-22T13:38:24Z | claude | Write | write | tests/init.test.mjs |
+| 2026-11-22T13:38:28Z | claude | Edit | write | tests/init.test.mjs |
+| 2026-11-22T13:38:31Z | claude | Bash | shell | node --test tests/init.test.mjs 2>&1 \| tail -40 |
+| 2026-11-22T13:38:33Z | claude | Bash | shell | node --test tests/init.test.mjs 2>&1 \| grep -B2 -A18 "not ok" |
+| 2026-11-22T13:38:38Z | claude | Edit | write | kit/init/merge.mjs |
+| 2026-11-22T13:38:39Z | claude | Edit | write | kit/templates/project-hooks.config.json |
+| 2026-11-22T13:38:41Z | claude | Bash | shell | node --test tests/init.test.mjs 2>&1 \| tail -12 |
+| 2026-11-22T13:38:44Z | claude | Bash | shell | node --test tests/init.test.mjs 2>&1 \| grep -A15 "not ok" |
+| 2026-11-22T13:38:48Z | claude | Bash | shell | D=$(mktemp -d); node tools/install.mjs "$D" --clients claude >/dev/null; printf '# Project profile\n\n## Languages and frameworks\n- Go\n' > "$D/.light-kit/project-profile.md"; node "$D/.light-kit/ini |
+| 2026-11-22T13:38:51Z | claude | Bash | shell | grep -n "process.argv\[1\]\\|fileURLToPath(import.meta.url)" kit/audit/audit.mjs kit/hooks/run.mjs tools/*.mjs \| tail -10 |
+| 2026-11-22T13:38:53Z | claude | Edit | write | kit/init/merge.mjs |
+| 2026-11-22T13:38:54Z | claude | Edit | write | kit/init/merge.mjs |
+| 2026-11-22T13:38:56Z | claude | Bash | shell | node --test tests/init.test.mjs 2>&1 \| tail -10 |
+| 2026-11-22T13:39:28Z | claude | Bash | shell | node --test tests/kit.test.mjs 2>&1 \| tail -8 && npm test 2>&1 \| tail -12 |
+| 2026-11-22T13:39:31Z | claude | Bash | shell | git add tests/kit.test.mjs tests/init.test.mjs kit/templates/project-hooks.config.json kit/init/merge.mjs && git commit -q -m "test(kit): cover updating an existing light-kit folder" && git log --onel |
+| 2026-11-22T13:39:35Z | claude | Read | read | kit/skills/light-init/SKILL.md |
+| 2026-11-22T13:39:37Z | claude | Edit | write | kit/skills/light-init/SKILL.md |
+| 2026-11-22T13:39:38Z | claude | Edit | write | kit/skills/light-init/SKILL.md |
+| 2026-11-22T13:39:39Z | claude | Edit | write | kit/skills/light-init/SKILL.md |
+| 2026-11-22T13:39:42Z | claude | Edit | write | kit/skills/light-init/SKILL.md |
+| 2026-11-22T13:39:46Z | claude | Bash | shell | grep -n "merge.mjs\\|Existing install\\|existing install\\|never rewrite" kit/skills/light-init/SKILL.md; node --test tests/kit.test.mjs 2>&1 \| tail -6 |
+| 2026-11-22T13:39:49Z | claude | Bash | shell | git add kit/skills/light-init/SKILL.md && git commit -q -m "docs(kit): update existing documents on light-init" && git log --oneline -1 |
+| 2026-11-22T13:39:51Z | claude | Read | read | docs/usage.md |
+| 2026-11-22T13:39:52Z | claude | Read | read | docs/installation.md |
+| 2026-11-22T13:39:55Z | claude | Edit | write | docs/usage.md |
+| 2026-11-22T13:39:55Z | claude | Edit | write | docs/usage.md |
+| 2026-11-22T13:39:57Z | claude | Read | read | docs/installation.md |
+| 2026-11-22T13:39:59Z | claude | Edit | write | docs/installation.md |
+| 2026-11-22T13:40:03Z | claude | Bash | shell | grep -n "in place\\|merge.mjs\\|refreshed" docs/usage.md docs/installation.md; node --test tests/kit.test.mjs 2>&1 \| tail -5 |
+| 2026-11-22T13:40:33Z | claude | Bash | shell | git add docs/usage.md docs/installation.md && git commit -q -m "docs(kit): document the in-place kit update" && npm test 2>&1 \| tail -8 |
+| 2026-11-22T13:41:04Z | claude | Bash | shell | npm test 2>&1 \| grep -B3 -A20 "not ok" |
+| 2026-11-22T13:41:06Z | claude | Bash | shell | sed -n 225,275p tests/workspace.test.mjs |
+| 2026-11-22T13:41:12Z | claude | Edit | write | kit/skills/light-init/SKILL.md |
+| 2026-11-22T13:41:13Z | claude | Edit | write | tools/build.mjs |
+| 2026-11-22T13:41:48Z | claude | Bash | shell | node --test tests/workspace.test.mjs 2>&1 \| tail -6; npm test 2>&1 \| tail -8 |
+| 2026-11-22T13:41:51Z | claude | Bash | shell | git add kit/skills/light-init/SKILL.md tools/build.mjs && git commit -q -m "fix(kit): resolve the init merge path at user level" && git log --oneline -1 |
+| 2026-11-22T13:41:59Z | claude | Write | write | specs/040-init-updates-existing-kit/50-implementation.md |
+| 2026-11-22T13:42:06Z | claude | Read | read | specs/040-init-updates-existing-kit/00-request.md |
+| 2026-11-22T13:42:06Z | claude | Read | read | specs/040-init-updates-existing-kit/10-understanding.md |
+| 2026-11-22T13:42:07Z | claude | Read | read | specs/040-init-updates-existing-kit/20-discovery.md |
+| 2026-11-22T13:42:07Z | claude | Read | read | specs/040-init-updates-existing-kit/40-plan.md |
+| 2026-11-22T13:42:07Z | claude | Bash | shell | git status --short && ls specs/040-init-updates-existing-kit/ |
+| 2026-11-22T13:42:07Z | claude | Read | read | specs/040-init-updates-existing-kit/10-understanding.md |
+| 2026-11-22T13:42:07Z | claude | Read | read | specs/040-init-updates-existing-kit/40-plan.md |
+| 2026-11-22T13:42:08Z | claude | Write | write | specs/040-init-updates-existing-kit/status.md |
+| 2026-11-22T13:42:08Z | claude | Read | read | specs/040-init-updates-existing-kit/50-implementation.md |
+| 2026-11-22T13:42:08Z | claude | Read | read | kit/skills/light-review-checklist/SKILL.md |
+| 2026-11-22T13:42:08Z | claude | Read | read | kit/skills/light-review-cycle/SKILL.md |
+| 2026-11-22T13:42:09Z | claude | Bash | shell | node --test tests/init.test.mjs 2>&1 \| tail -40 |
+| 2026-11-22T13:42:10Z | claude | Read | read | kit/init/merge.mjs |
+| 2026-11-22T13:42:11Z | claude | Read | read | tools/build.mjs |
+| 2026-11-22T13:42:11Z | claude | Bash | shell | node --test tests/kit.test.mjs 2>&1 \| tail -40 |
+| 2026-11-22T13:42:17Z | claude | Bash | shell | grep -rn "light-kit/{audit,templates}\\|light-kit/{workflows\\|light-kit/audit\\|audit/templates\\|{workflows,templates,profiles" docs README.md kit/instructions/core.md \| head -20 |
+| 2026-11-22T13:42:19Z | claude | Read | read | docs/installation.md |
+| 2026-11-22T13:42:20Z | claude | Read | read | kit/templates/rules.md |
+| 2026-11-22T13:42:20Z | claude | Read | read | kit/templates/project-profile.md |
+| 2026-11-22T13:42:20Z | claude | Read | read | kit/templates/project-hooks.config.json |
+| 2026-11-22T13:42:20Z | claude | Read | read | kit/templates/models.json |
+| 2026-11-22T13:42:20Z | claude | Read | read | kit/templates/projects.md |
+| 2026-11-22T13:42:22Z | claude | Edit | write | docs/installation.md |
+| 2026-11-22T13:42:22Z | claude | Edit | write | docs/installation.md |
+| 2026-11-22T13:42:22Z | claude | Read | read | kit/hooks/lib/config.mjs |
+| 2026-11-22T13:42:24Z | claude | Bash | shell | git status --short |
