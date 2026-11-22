@@ -34,6 +34,7 @@ Users install the generated files into a project or at user level, then work thr
 - `tools/build.mjs` translates shared `kit/` sources into client-specific files.
 - `tools/install.mjs` and `tools/uninstall.mjs` manage generated files at user, workspace or project level.
 - `tools/backfill-usage.mjs` imports agent and skill calls from Claude Code session records into `.light-kit/agent-skill-usage.json`/`.md` and refreshes each request's own pair under `specs/<slug>/`; `npm run backfill-usage` runs it.
+- `tools/version-bump.mjs` (this repository only) applies each finished request's `version_bump` to `package.json` on the Stop event; state in `.light-kit/version-bump.json`. Not part of the shared kit.
 - `kit/hooks/run.mjs` normalizes client events, loads configured checks and emits client-compatible responses.
 - `kit/hooks/record-usage.mjs` records one agent or skill use the hook cannot see; installed as `.light-kit/hooks/record-usage.mjs`.
 - `kit/hooks/checks/` contains individual checks; shared parsing and usage logic live in `kit/hooks/lib/`.
@@ -43,6 +44,7 @@ Users install the generated files into a project or at user level, then work thr
 - Project and hook settings are JSON files; requests are Markdown files under `specs/`.
 - Project rules live in `.light-kit/rules.md` (pending/confirmed, counted violations), seeded once from `kit/templates/rules.md`.
 - Hook state is local JSON under `.light-kit/`; Copilot and Claude usage sources are client-owned local JSONL files.
+- `.light-kit/version-bump.json` records which requests were applied to `package.json` and the bump baseline.
 - No project database or migration framework is present.
 
 ## Tooling
