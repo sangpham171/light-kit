@@ -7,7 +7,7 @@ work_branch: feat/036-brainstormer-agent
 review_turns: 1
 review_round: 1
 step: conclude
-state: in-progress
+state: done
 ---
 
 Blockers / pending questions:
