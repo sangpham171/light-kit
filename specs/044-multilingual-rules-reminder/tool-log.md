@@ -86,3 +86,5 @@ stored. Safe to delete.
 | 2026-11-22T15:23:17Z | claude | Write | write | specs/044-multilingual-rules-reminder/60-conclusion.md |
 | 2026-11-22T15:23:19Z | claude | Edit | write | specs/044-multilingual-rules-reminder/status.md |
 | 2026-11-22T15:23:19Z | claude | Edit | write | specs/044-multilingual-rules-reminder/40-plan.md |
+| 2026-11-22T15:30:06Z | claude | Read | read | specs/044-multilingual-rules-reminder/50-implementation.md |
+| 2026-11-22T15:30:07Z | claude | Read | read | specs/044-multilingual-rules-reminder/60-conclusion.md |
