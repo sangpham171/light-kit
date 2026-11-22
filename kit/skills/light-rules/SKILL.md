@@ -39,10 +39,17 @@ Run this at the end of every task, and immediately after any trigger above.
 1. Check the result and its verification against every rule that applied.
 2. For a violation, add 1 to `Count`, set `Last violated` to today, and add concise evidence: request id, file, test or commit. One task counts once per rule.
 3. If `Count` reaches the promotion threshold in `.light-kit/project-profile.md` (default 3), set `State` to `confirmed` in the same edit and report the promotion in one line.
-4. If a new error or bug happened and no rule covers it, add a `pending` row at `Count: 1` with the evidence. The incident is the first violation. A rule added before any incident starts at `Count: 0`.
+4. If a new error or bug happened and no rule covers it, add a `pending` row at `Count: 1` with the evidence. The incident is the first violation. A rule added before any incident starts at `Count: 0`. Write the general failure mode, not the incident (see **Writing a rule**).
 5. If nothing was violated and nothing new happened, leave the file unchanged and record `rules: no change` in the task log (usually `50-implementation.md`).
 6. Never renumber or delete a row, and never rewrite a `confirmed` rule. Propose a correction to the user; only the user can demote or remove one.
 7. If the user approves an exception, record it in `Evidence` as `exception approved YYYY-MM-DD: <reason>`; it is not a violation.
+
+## Writing a rule
+
+- The rule is the general failure mode, not the incident: it must apply wherever the same class of mistake can recur — another file, feature, command or step.
+- If the wording only fits the case that produced it, widen it to that class of case. The specific incident belongs in `Prevents` and `Evidence`.
+- One failure mode per rule; say what to do; keep the `Check before` moment concrete.
+- A rule that cannot trigger outside its first use case is not added.
 
 ## Reviews and delegation
 
