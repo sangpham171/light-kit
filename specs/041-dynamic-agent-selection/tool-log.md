@@ -116,3 +116,39 @@ stored. Safe to delete.
 | 2026-11-22T14:06:45Z | claude | Read | read | tests/kit.test.mjs |
 | 2026-11-22T14:06:48Z | claude | Bash | shell | sed -n '1,20p' specs/041-dynamic-agent-selection/status.md |
 | 2026-11-22T14:06:52Z | claude | Bash | shell | sed -i '' 's/^review_round: 0$/review_round: 1/' specs/041-dynamic-agent-selection/status.md && grep -E '^review_round\|^step' specs/041-dynamic-agent-selection/status.md |
+| 2026-11-22T14:07:04Z | claude | Read | read | .light-kit/rules.md |
+| 2026-11-22T14:07:04Z | claude | Read | read | kit/skills/light-triage/SKILL.md |
+| 2026-11-22T14:07:18Z | claude | Read | read | kit/audit/rules.json |
+| 2026-11-22T14:07:18Z | claude | Read | read | kit/templates/40-plan.md |
+| 2026-11-22T14:07:20Z | claude | Read | read | specs/041-dynamic-agent-selection/status.md |
+| 2026-11-22T14:07:26Z | claude | Read | read | docs/model-routing.md |
+| 2026-11-22T14:07:26Z | claude | Read | read | kit/agents/light-reviewer.md |
+| 2026-11-22T14:08:04Z | claude | Read | read | kit/skills/light-request/SKILL.md |
+| 2026-11-22T14:08:04Z | claude | Read | read | kit/skills/light-tech-debt/SKILL.md |
+| 2026-11-22T14:09:36Z | claude | Edit | write | kit/skills/light-agent-selection/SKILL.md |
+| 2026-11-22T14:09:37Z | claude | Edit | write | kit/skills/light-agent-selection/SKILL.md |
+| 2026-11-22T14:09:37Z | claude | Edit | write | kit/skills/light-agent-selection/SKILL.md |
+| 2026-11-22T14:09:39Z | claude | Edit | write | kit/workflows/direct.md |
+| 2026-11-22T14:09:40Z | claude | Edit | write | kit/workflows/standard.md |
+| 2026-11-22T14:09:40Z | claude | Edit | write | kit/workflows/full.md |
+| 2026-11-22T14:09:40Z | claude | Edit | write | kit/workflows/bootstrap.md |
+| 2026-11-22T14:09:41Z | claude | Edit | write | kit/workflows/standardize.md |
+| 2026-11-22T14:09:41Z | claude | Edit | write | kit/instructions/core.md |
+| 2026-11-22T14:09:44Z | claude | Edit | write | docs/usage.md |
+| 2026-11-22T14:09:45Z | claude | Edit | write | docs/model-routing.md |
+| 2026-11-22T14:09:51Z | claude | Edit | write | tests/kit.test.mjs |
+| 2026-11-22T14:09:56Z | claude | Bash | shell | node --test tests/kit.test.mjs 2>&1 \| tail -8 && node --test tests/models.test.mjs 2>&1 \| tail -6 |
+| 2026-11-22T14:10:27Z | claude | Bash | shell | npm test 2>&1 \| tail -6 |
+| 2026-11-22T14:10:31Z | claude | Bash | shell | git add kit/skills/light-agent-selection/SKILL.md kit/workflows kit/instructions/core.md docs/usage.md && git commit -q -m "fix(kit): scope the roster rules to each workflow" && git log --oneline -1 & |
+| 2026-11-22T14:10:34Z | claude | Read | read | specs/041-dynamic-agent-selection/50-implementation.md |
+| 2026-11-22T14:10:39Z | claude | Edit | write | specs/041-dynamic-agent-selection/50-implementation.md |
+| 2026-11-22T14:10:43Z | claude | Edit | write | specs/041-dynamic-agent-selection/50-implementation.md |
+| 2026-11-22T14:10:45Z | claude | Bash | shell | sed -n '1,30p' specs/040-init-updates-existing-kit/60-conclusion.md |
+| 2026-11-22T14:10:47Z | claude | Bash | shell | cat .light-kit/usage.json \| head -60 |
+| 2026-11-22T14:10:50Z | claude | Bash | shell | python3 -c " import json d=json.load(open('.light-kit/usage.json')) for k,v in d.items(): if '041' in k: print(k, json.dumps(v)[:600]) " |
+| 2026-11-22T14:10:54Z | claude | Bash | shell | python3 -c " import json d=json.load(open('.light-kit/usage.json')) print(list(d.keys())) for k in d: if k!='sessions': print(k, list(d[k].keys())[:5] if isinstance(d[k],dict) else '') " |
+| 2026-11-22T14:10:58Z | claude | Bash | shell | python3 -c " import json d=json.load(open('.light-kit/usage.json')) for k in d['requests']: if k.startswith('041'): print(k, json.dumps(d['requests'][k], indent=2)[:2000]) print('keys:', list(d['reque |
+| 2026-11-22T14:11:02Z | claude | Bash | shell | sed -n '/## Summary/,$p' specs/040-init-updates-existing-kit/60-conclusion.md \| head -40 |
+| 2026-11-22T14:11:07Z | claude | Write | write | specs/041-dynamic-agent-selection/60-conclusion.md |
+| 2026-11-22T14:11:10Z | claude | Bash | shell | sed -n '1,25p' specs/041-dynamic-agent-selection/60-conclusion.md |
+| 2026-11-22T14:11:12Z | claude | Edit | write | specs/041-dynamic-agent-selection/50-implementation.md |
