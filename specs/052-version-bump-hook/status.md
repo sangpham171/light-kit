@@ -7,8 +7,8 @@ base_commit: 8418c71f2e99d29750507eee75d497dd47f6d1e2
 work_branch: feat/052-version-bump-hook
 review_turns: 1
 review_round: 0
-step: request
-state: in-progress
+step: conclude
+state: done
 version_bump: minor
 ---
 
