@@ -43,7 +43,10 @@ Hook registrations (`settings.json`, ...) are always merged, never replaced, bec
 Re-running the installer is safe:
 - instruction files (`CLAUDE.md`, `AGENTS.md`, `.github/copilot-instructions.md`) only get a `<!-- light-kit:start/end -->` block replaced or appended
 - generated files are overwritten only if they carry the light-kit marker; your own files are skipped and listed
+- the kit copies under `.light-kit/templates/` are refreshed, so the next `light-init` has the current templates to merge from
 - obsolete generated files from earlier kit versions are removed (only files carrying the light-kit marker)
+
+After a reinstall, run `light-init` in a project that already has `.light-kit/`: it applies `node .light-kit/init/merge.mjs`, which adds the `##` sections, settings and JSON keys the new kit introduced to the project profile, rules, hooks config, models table and registry. Existing content is never changed or deleted, and a second run writes nothing.
 
 ## Uninstall
 ```sh
