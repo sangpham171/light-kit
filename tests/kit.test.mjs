@@ -256,6 +256,12 @@ test('project rules: a seeded file, a skill, and a before/after loop at every ch
   assert.match(skill, /promotion threshold in `\.light-kit\/project-profile\.md` \(default 3\)/);
   assert.match(skill, /Never renumber or delete a row/);
   assert.match(skill, /only the user can demote or remove/);
+  // a rule states the general failure mode, not the one incident
+  assert.match(template, /general failure mode, not the incident/);
+  assert.match(template, /widen it to the class of case/);
+  assert.match(skill, /general failure mode, not the incident/);
+  assert.match(skill, /cannot trigger outside its first use case is not added/);
+  assert.match(read('CLAUDE.md'), /general failure mode rather than the single incident/);
   assert.match(read('.light-kit/rules.md'), /\| `pending` \|/);
   // the promotion threshold is a per-project setting, defaulting to 3
   assert.match(read('.light-kit/templates/project-profile.md'), /## Rules\nPromotion threshold: 3/);
