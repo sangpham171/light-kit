@@ -75,6 +75,16 @@ test('the nearest project is used when run from a subfolder', () => {
   assert.deepEqual(statsOf(root).requests['001-demo'].skills, { 'light-rules': 1 });
 });
 
+test('the project switch turns the command off', () => {
+  const root = project(); request(root, '001-demo');
+  writeFileSync(join(root, '.light-kit/hooks.config.json'), JSON.stringify({ hooks: { 'agent-skill-usage': 'off' } }));
+  const r = run(['agent', 'light-reviewer', '--root', root], root);
+  assert.equal(r.status, 0);
+  assert.match(r.stdout, /is off/);
+  assert.equal(existsSync(join(root, '.light-kit/agent-skill-usage.json')), false);
+  assert.equal(existsSync(join(root, 'specs/001-demo/agent-skill-usage.json')), false);
+});
+
 test('bad arguments change nothing and exit non-zero', () => {
   const root = project(); request(root, '001-demo');
   assert.equal(run(['tool', 'x', '--root', root], root).status, 1);

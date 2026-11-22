@@ -1,8 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { backfill, callsIn, requestOf } from '../tools/backfill-usage.mjs';
 
 const project = () => {
@@ -70,6 +71,29 @@ test('a second run adds nothing and a dry run writes nothing', () => {
   assert.throws(() => readFileSync(withStats), /ENOENT/);
   assert.equal(backfill({ root, transcripts: dir }).added, 1);
   assert.equal(backfill({ root, transcripts: dir }).added, 0);
+});
+
+test('the project switch turns the import off', () => {
+  const root = project();
+  const dir = transcripts([event(root, '2026-01-01T10:00:00.000Z', [agent('t1')])]);
+  writeFileSync(join(root, '.light-kit/hooks.config.json'), JSON.stringify({ hooks: { 'agent-skill-usage': 'off' } }));
+  const result = backfill({ root, transcripts: dir });
+  assert.equal(result.disabled, true);
+  assert.equal(result.added, 0);
+  assert.equal(existsSync(join(root, '.light-kit/agent-skill-usage.json')), false);
+  assert.equal(existsSync(join(root, 'specs/001-demo/agent-skill-usage.json')), false);
+});
+
+test('the CLI runs through a symlinked path (R-007)', () => {
+  const root = project();
+  const dir = transcripts([event(root, '2026-01-01T10:00:00.000Z', [agent('t1')])]);
+  const link = join(mkdtempSync(join(tmpdir(), 'light-kit-link-')), 'backfill.mjs');
+  symlinkSync(resolve('tools/backfill-usage.mjs'), link);
+  const r = spawnSync('node', [link, '--root', root, '--transcripts', dir], { encoding: 'utf8' });
+  assert.equal(r.status, 0, r.stderr);
+  assert.match(r.stdout, /imported 1 agent\/skill calls/);
+  assert.ok(existsSync(join(root, '.light-kit/agent-skill-usage.json')));
+  assert.ok(existsSync(join(root, 'specs/001-demo/agent-skill-usage.json')));
 });
 
 test('a call lands on the request it names, else under (no request)', () => {
