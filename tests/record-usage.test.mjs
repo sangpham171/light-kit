@@ -21,6 +21,7 @@ const request = (root, name, state = 'in progress') => {
 const run = (args, cwd) => spawnSync('node', [SCRIPT, ...args], { cwd, encoding: 'utf8' });
 const statsOf = (root) => JSON.parse(readFileSync(join(root, '.light-kit/agent-skill-usage.json'), 'utf8'));
 const tableOf = (root) => readFileSync(join(root, '.light-kit/agent-skill-usage.md'), 'utf8');
+const requestStatsOf = (root, name) => JSON.parse(readFileSync(join(root, 'specs', name, 'agent-skill-usage.json'), 'utf8'));
 
 test('records a skill and an agent under the working request, in JSON and in the table', () => {
   const root = project(); request(root, '001-demo');
@@ -35,12 +36,18 @@ test('records a skill and an agent under the working request, in JSON and in the
   assert.match(table, /A: light-reviewer/);
   assert.match(table, /S: light-rules/);
   assert.match(table, /\| 001-demo \| 1 \| 1 \|/);
+  // The request folder gets the same counts, limited to that request.
+  const own = requestStatsOf(root, '001-demo');
+  assert.deepEqual(Object.keys(own.requests), ['001-demo']);
+  assert.deepEqual(own.requests['001-demo'].skills, { 'light-rules': 1 });
+  assert.deepEqual(own.requests['001-demo'].agents, { 'light-reviewer': 1 });
 });
 
 test('a use with no active request is reported under (no request)', () => {
   const root = project();
   assert.equal(run(['skill', 'light-triage', '--root', root], root).status, 0);
   assert.deepEqual(statsOf(root).requests['(no request)'].skills, { 'light-triage': 1 });
+  assert.equal(existsSync(join(root, 'specs')), false);
 });
 
 test('--request names the request even when the folder is not the working one', () => {
@@ -48,6 +55,8 @@ test('--request names the request even when the folder is not the working one', 
   const result = run(['agent', 'light-tester', '--root', root, '--request', '002-done'], root);
   assert.equal(result.status, 0);
   assert.deepEqual(statsOf(root).requests['002-done'].agents, { 'light-tester': 1 });
+  assert.deepEqual(requestStatsOf(root, '002-done').requests['002-done'].agents, { 'light-tester': 1 });
+  assert.equal(existsSync(join(root, 'specs/001-demo/agent-skill-usage.json')), false);
 });
 
 test('--id counts a use once, like the hook', () => {
