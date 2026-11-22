@@ -119,6 +119,13 @@
       "cacheRead": 1753344,
       "cacheWrite": 0,
       "timeMs": 535565
+    },
+    "b64f5bfc-0ec9-45d8-b8fa-4a1ad51bcfcb": {
+      "input": 88550,
+      "output": 73166,
+      "cacheRead": 9193856,
+      "cacheWrite": 0,
+      "timeMs": 849973
     }
   },
   "requests": {
@@ -962,6 +969,58 @@
           "cacheRead": 151424,
           "cacheWrite": 0,
           "timeMs": 115267,
+          "timed": true
+        }
+      }
+    },
+    "040-init-updates-existing-kit": {
+      "steps": {
+        "00-request": {
+          "input": 59866,
+          "output": 24144,
+          "cacheRead": 1008640,
+          "cacheWrite": 0,
+          "timeMs": 225937,
+          "timed": true
+        },
+        "10-understanding": {
+          "input": 1604,
+          "output": 817,
+          "cacheRead": 82688,
+          "cacheWrite": 0,
+          "timeMs": 3726,
+          "timed": true
+        },
+        "20-discovery": {
+          "input": 1878,
+          "output": 2877,
+          "cacheRead": 258176,
+          "cacheWrite": 0,
+          "timeMs": 15879,
+          "timed": true
+        },
+        "40-plan": {
+          "input": 228,
+          "output": 2705,
+          "cacheRead": 89472,
+          "cacheWrite": 0,
+          "timeMs": 12325,
+          "timed": true
+        },
+        "50-implementation": {
+          "input": 24352,
+          "output": 41023,
+          "cacheRead": 7302016,
+          "cacheWrite": 0,
+          "timeMs": 582347,
+          "timed": true
+        },
+        "60-conclusion": {
+          "input": 622,
+          "output": 1600,
+          "cacheRead": 452864,
+          "cacheWrite": 0,
+          "timeMs": 9759,
           "timed": true
         }
       }
