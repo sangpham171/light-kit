@@ -195,7 +195,7 @@ test('project rules: a seeded file, a skill, and a before/after loop at every ch
   assert.match(template, /\| `pending` \|/);
   assert.match(template, /\| `confirmed` \|/);
   assert.match(template, /`Count` is the number of tasks/);
-  assert.match(template, /3 or more/);
+  assert.match(template, /promotion threshold in `\.light-kit\/project-profile\.md` \(default 3\)/);
   const skill = read('.claude/skills/light-rules/SKILL.md');
   assert.match(skill, /## Before a task/);
   assert.match(skill, /## After a task/);
