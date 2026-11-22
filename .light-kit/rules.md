@@ -13,6 +13,20 @@ Style, stack and workflow preferences belong in `.light-kit/project-profile.md`,
 
 `Count` is the number of tasks in which the rule was violated, not the number of instances inside a task. A rule added after an incident starts at `Count: 1` — the incident itself counts. A rule added before any violation starts at `0`. The promotion threshold in `.light-kit/project-profile.md` (default 3) is the number of violated tasks that promotes a rule. When `Count` reaches it and `State` is `pending`, set `State` to `confirmed` in the same update.
 
+## When to update
+
+Write or update a rule when a failure appears, not only after a review:
+
+- the user reports a bug, a regression, or that something still does not work after earlier work;
+- a test, build, lint, format or manual check fails;
+- a review, tester or security finding exposes a mistake;
+- the user corrects the agent or rejects an output;
+- implementation or discovery shows the same error that happened before;
+- a new request is caused by a defect in earlier work;
+- a `confirmed` rule cannot be followed.
+
+Record it in the same request or exchange, with the report and the earlier request as evidence.
+
 ## Rules
 
 | ID | State | Count | Rule | Prevents | Check before | Last violated | Evidence |
@@ -28,6 +42,8 @@ Style, stack and workflow preferences belong in `.light-kit/project-profile.md`,
 4. If a `confirmed` rule cannot be followed, stop before acting and ask the user. Never work around it.
 
 ## After a task
+
+Run this at the end of every task, and immediately after any trigger above.
 
 1. Check every rule that applied against the result and its verification.
 2. **Violated:** add 1 to `Count`, set `Last violated` to today, and add the evidence (request id, file, test or commit). One task counts once per rule, however many instances it had.
