@@ -1,7 +1,7 @@
 import { appendFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
 import { loadConfig } from '../lib/config.mjs';
-import { commitPaths, currentBranch, inRepo, isProtectedBranch, uncommittedPaths } from '../lib/git.mjs';
+import { commitPaths, currentBranch, isProtectedBranch, isUnmerged, statusEntries } from '../lib/git.mjs';
 import { redact } from '../lib/secrets.mjs';
 import { activeRequests, currentRequest, listProjectDirs } from '../lib/specs.mjs';
 
@@ -80,14 +80,22 @@ const commitsDisabled = (dir) => {
 // On stop, commit the tool logs still uncommitted in the project and in each workspace project.
 // Only log paths are committed; a failure stays silent so the agent is never blocked.
 const commitLogs = (ctx, cfg) => {
+  const seen = new Set();
   for (const dir of new Set([ctx.root, ...listProjectDirs(ctx.root)])) {
-    if (!inRepo(dir) || commitsDisabled(dir)) continue;
-    const branch = currentBranch(dir);
+    if (!existsSync(join(dir, 'specs'))) continue;
+    if (commitsDisabled(dir) || (dir !== ctx.root && commitsDisabled(ctx.root))) continue;
+    const { root, entries } = statusEntries(dir);
+    if (!root || seen.has(root)) continue; // not a repository, or an earlier project covered it
+    seen.add(root);
+    // An unresolved merge or rebase owns the index: leave it untouched.
+    if (entries.some((e) => isUnmerged(e.code))) continue;
+    const logs = [...new Set(entries.map((e) => e.path))].filter((p) => LOG_PATH.test(p));
+    if (!logs.length) continue;
+    const branch = currentBranch(root);
     if (!branch) continue; // no commit yet, or a detached HEAD
     const dirCfg = dir === ctx.root ? cfg : loadConfig(ctx.layersFor(dir));
-    if (isProtectedBranch(dir, branch, dirCfg.protectedBranches)) continue;
-    const logs = uncommittedPaths(dir).filter((p) => LOG_PATH.test(p));
-    if (logs.length) commitPaths(dir, logs, COMMIT_MESSAGE);
+    if (isProtectedBranch(root, branch, dirCfg.protectedBranches)) continue;
+    commitPaths(root, logs, COMMIT_MESSAGE);
   }
 };
 
