@@ -74,8 +74,29 @@ test('other tools write no statistics', () => {
   const d = project();
   run(d, { tool_name: 'Bash', tool_input: { command: 'ls' } });
   run(d, { tool_name: 'Read', tool_input: { file_path: 'a.txt' } });
+  run(d, { tool_name: 'Write', tool_input: { file_path: 'a.txt', content: 'x' } });
   assert.equal(existsSync(join(d, '.light-kit/agent-skill-usage.json')), false);
   assert.equal(existsSync(join(d, '.light-kit/agent-skill-usage.md')), false);
+});
+
+test('a corrupt or unknown-version state restarts empty instead of failing', () => {
+  for (const content of ['not json', '{"version":0,"requests":{}}']) {
+    const d = project(); withSpec(d);
+    writeFileSync(join(d, '.light-kit/agent-skill-usage.json'), content);
+    const r = run(d, agentCall('light-developer', 'a1'));
+    assert.equal(r.status, 0);
+    assert.doesNotMatch(r.stderr, /agent-skill-usage errored/);
+    assert.deepEqual(statsOf(d).requests['001-x'].agents, { 'light-developer': 1 });
+  }
+  // A malformed row is dropped; the readable rows survive.
+  const d = project(); withSpec(d);
+  writeFileSync(join(d, '.light-kit/agent-skill-usage.json'), '{"version":1,"requests":{"001-x":42,"002-y":{"agents":{"light-reviewer":3}}}}');
+  const r = run(d, agentCall('light-developer', 'a1'));
+  assert.equal(r.status, 0);
+  assert.doesNotMatch(r.stderr, /agent-skill-usage errored/);
+  const stats = statsOf(d);
+  assert.deepEqual(stats.requests['001-x'].agents, { 'light-developer': 1 });
+  assert.deepEqual(stats.requests['002-y'].agents, { 'light-reviewer': 3 });
 });
 
 test('a user-level install in a project without .light-kit creates nothing', () => {
@@ -94,6 +115,21 @@ test('the hook can be switched off', () => {
   const d = project({ hooks: { 'agent-skill-usage': 'off' } }); withSpec(d);
   run(d, agentCall('light-developer', 'a1'));
   assert.equal(existsSync(join(d, '.light-kit/agent-skill-usage.json')), false);
+});
+
+test('the table keeps a column for every used name and shows a zero where a request has none', () => {
+  const d = project(); withSpec(d, '001-x');
+  run(d, agentCall('light-reviewer', 'a1'));
+  run(d, skillCall('light-review', 's1'));
+  writeFileSync(join(d, 'specs/001-x/status.md'), '---\nstep: conclude\nstate: done\n---\n');
+  withSpec(d, '002-y');
+  run(d, skillCall('light-triage', 's2'));
+
+  const table = tableOf(d);
+  assert.match(table, /^\| Request \| A: light-reviewer \| S: light-review \| S: light-triage \|$/m);
+  assert.match(table, /^\| 001-x \| 1 \| 1 \| 0 \|$/m);
+  assert.match(table, /^\| 002-y \| 0 \| 0 \| 1 \|$/m);
+  assert.match(table, /^\| \*\*All requests\*\* \| 1 \| 1 \| 1 \|$/m);
 });
 
 test('the last table row totals every request', () => {
