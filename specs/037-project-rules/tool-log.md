@@ -109,3 +109,111 @@ stored. Safe to delete.
 | 2026-11-22T11:41:08Z | claude | Write | write | specs/037-project-rules/50-implementation.md |
 | 2026-11-22T11:41:11Z | claude | Bash | shell | perl -0pi -e 's/^- \[ \] ([1-6]\.)/- [x] $1/gm' specs/037-project-rules/40-plan.md && grep -n "^- \[" specs/037-project-rules/40-plan.md |
 | 2026-11-22T11:41:11Z | claude | Edit | write | specs/037-project-rules/status.md |
+| 2026-11-22T11:41:14Z | claude | Bash | shell | git add specs/037-project-rules/40-plan.md specs/037-project-rules/50-implementation.md specs/037-project-rules/status.md && git commit -m "docs(spec): record the implementation for request 037" -- sp |
+| 2026-11-22T11:41:21Z | claude | Read | read | .light-kit/rules.md |
+| 2026-11-22T11:41:21Z | claude | Read | read | .light-kit/project-profile.md |
+| 2026-11-22T11:41:21Z | claude | Read | read | specs/037-project-rules/00-request.md |
+| 2026-11-22T11:41:21Z | claude | Read | read | specs/037-project-rules/10-understanding.md |
+| 2026-11-22T11:41:22Z | claude | Bash | shell | git log --oneline 561bba4..HEAD && git diff --stat 561bba4..HEAD |
+| 2026-11-22T11:41:22Z | claude | Read | read | specs/037-project-rules/10-understanding.md |
+| 2026-11-22T11:41:22Z | claude | Read | read | specs/037-project-rules/40-plan.md |
+| 2026-11-22T11:41:23Z | claude | Read | read | specs/037-project-rules/50-implementation.md |
+| 2026-11-22T11:41:23Z | claude | Read | read | specs/037-project-rules/20-discovery.md |
+| 2026-11-22T11:41:23Z | claude | Read | read | specs/037-project-rules/40-plan.md |
+| 2026-11-22T11:41:23Z | claude | Read | read | specs/037-project-rules/50-implementation.md |
+| 2026-11-22T11:41:23Z | claude | Read | read | kit/skills/light-review-checklist/SKILL.md |
+| 2026-11-22T11:41:27Z | claude | Bash | shell | git status --short && git log --oneline 561bba4..HEAD |
+| 2026-11-22T11:41:28Z | claude | Read | read | kit/templates/rules.md |
+| 2026-11-22T11:41:28Z | claude | Read | read | kit/skills/light-rules/SKILL.md |
+| 2026-11-22T11:41:29Z | claude | Read | read | kit/instructions/core.md |
+| 2026-11-22T11:41:29Z | claude | Read | read | kit/audit/rules.json |
+| 2026-11-22T11:41:31Z | claude | Read | read | tools/build.mjs |
+| 2026-11-22T11:41:31Z | claude | Read | read | kit/skills/light-init/SKILL.md |
+| 2026-11-22T11:41:31Z | claude | Read | read | kit/skills/light-implement/SKILL.md |
+| 2026-11-22T11:41:32Z | claude | Read | read | kit/agents/light-orchestrator.md |
+| 2026-11-22T11:41:35Z | claude | Read | read | tests/audit.test.mjs |
+| 2026-11-22T11:41:36Z | claude | Read | read | tests/kit.test.mjs |
+| 2026-11-22T11:41:39Z | claude | Read | read | kit/audit/audit.mjs |
+| 2026-11-22T11:41:39Z | claude | Read | read | docs/usage.md |
+| 2026-11-22T11:41:40Z | claude | Read | read | docs/installation.md |
+| 2026-11-22T11:41:46Z | claude | Bash | shell | npm test 2>&1 \| tail -30 |
+| 2026-11-22T11:41:46Z | claude | Read | read | kit/instructions/core.md |
+| 2026-11-22T11:41:46Z | claude | Read | read | kit/audit/rules.json |
+| 2026-11-22T11:41:46Z | claude | Read | read | kit/templates/rules.md |
+| 2026-11-22T11:41:46Z | claude | Read | read | kit/skills/light-rules/SKILL.md |
+| 2026-11-22T11:41:48Z | claude | Bash | shell | git diff 561bba4..HEAD -- tools/build.mjs kit/skills/light-init/SKILL.md kit/skills/light-implement/SKILL.md kit/agents/light-orchestrator.md kit/skills/light-review-checklist/SKILL.md tests/audit.tes |
+| 2026-11-22T11:41:48Z | claude | Bash | shell | ls tools tests && sed -n '1,120p' tools/install.mjs |
+| 2026-11-22T11:41:48Z | claude | Read | read | specs/037-project-rules/00-request.md |
+| 2026-11-22T11:41:52Z | claude | Read | read | .light-kit/codebase-map.md |
+| 2026-11-22T11:41:52Z | claude | Read | read | kit/agents/light-reviewer.md |
+| 2026-11-22T11:41:53Z | claude | Bash | shell | T=$(mktemp -d) && echo "TMP=$T" && node tools/install.mjs "$T" --clients claude 2>&1 \| tail -20 && echo "--- FILES ---" && ls "$T/.light-kit/templates/" && ls "$T/.claude/skills/" \| grep -x light-ru |
+| 2026-11-22T11:41:56Z | claude | Bash | shell | grep -n "rules.md\\|templates/rules\\|seed" tools/build.mjs \| head -40 && node --test tests/audit.test.mjs 2>&1 \| tail -8 && node --test tests/kit.test.mjs 2>&1 \| tail -8 |
+| 2026-11-22T11:42:03Z | claude | Read | read | tools/install.mjs |
+| 2026-11-22T11:42:04Z | claude | Read | read | tools/uninstall.mjs |
+| 2026-11-22T11:42:04Z | claude | Read | read | tools/build.mjs |
+| 2026-11-22T11:42:06Z | claude | Bash | shell | git diff 561bba4..HEAD -- docs/installation.md docs/usage.md .light-kit/codebase-map.md && echo "=== repo rules ===" && head -20 .light-kit/rules.md && echo "=== diff template vs repo rules ===" && di |
+| 2026-11-22T11:42:06Z | claude | Bash | shell | grep -n "SHARED_DIR\s*=\\|CLIENT_FOLDERS\\|skills/" tools/build.mjs \| head -30 |
+| 2026-11-22T11:42:15Z | claude | Bash | shell | grep -n "rules\\|KEEP\\|soft\\|templates" tools/uninstall.mjs \| head -40 |
+| 2026-11-22T11:42:17Z | claude | Bash | shell | H=$(mktemp -d) && node tools/install.mjs "$H" --clients claude --level user 2>&1 \| head -8 && echo "--- user files ---" && ls "$H/.light-kit/templates/" \| grep rules && ls "$H/.claude/skills/" \| gr |
+| 2026-11-22T11:42:19Z | claude | Bash | shell | U=$(mktemp -d) && node tools/install.mjs "$U" --clients claude >/dev/null 2>&1 && printf '# Project rules\n\n\| R-001 \| confirmed \| 3 \| Keep me. \|\n' > "$U/.light-kit/rules.md" && node tools/unins |
+| 2026-11-22T11:42:28Z | claude | Bash | shell | H=$(mktemp -d) && node tools/install.mjs "$H" --clients claude --level user >/dev/null 2>&1 && echo "H=$H" && grep -n "rules.md" "$H/.claude/skills/light-init/SKILL.md" && grep -n "rules.md" "$H/.clau |
+| 2026-11-22T11:42:35Z | claude | Bash | shell | A=$(mktemp -d) && node tools/install.mjs "$A" --clients claude,copilot,cursor,codex 2>&1 \| head -4 && echo "A=$A" && for f in .claude/skills/light-rules/SKILL.md .github/skills/light-rules/SKILL.md . |
+| 2026-11-22T11:42:42Z | claude | Bash | shell | A=$(ls -dt /var/folders/rz/44kkpc_j3bd2z4cyywpykk200000gn/T/tmp.* \| head -1) && echo "A=$A" && for f in AGENTS.md .github/copilot-instructions.md .cursor/rules/light-kit-core.mdc; do echo "-- $f"; gr |
+| 2026-11-22T11:42:45Z | claude | Bash | shell | A=/var/folders/rz/44kkpc_j3bd2z4cyywpykk200000gn/T/tmp.nxkvuXSUDH && for f in AGENTS.md .github/copilot-instructions.md .cursor/rules/light-kit-core.mdc; do echo "-- $f"; grep -c "Learn from repeated  |
+| 2026-11-22T11:43:00Z | claude | Bash | shell | grep -rn "rules" tests/ \| grep -v "audit/rules.json" \| head -30; echo "--- git status ---"; git status --short |
+| 2026-11-22T11:43:01Z | claude | Read | read | specs/037-project-rules/status.md |
+| 2026-11-22T11:43:04Z | claude | Read | read | kit/workflows/standard.md |
+| 2026-11-22T11:43:05Z | claude | Read | read | kit/agents/light-developer.md |
+| 2026-11-22T11:43:05Z | claude | Read | read | kit/workflows/direct.md |
+| 2026-11-22T11:43:15Z | claude | Read | read | kit/skills/light-project-scope/SKILL.md |
+| 2026-11-22T11:43:15Z | claude | Bash | shell | grep -rn "project-profile.md\\|\.light-kit/" kit/skills/light-project-scope/SKILL.md kit/instructions/core.md \| head -20 |
+| 2026-11-22T11:43:24Z | claude | Read | read | tests/uninstall.test.mjs |
+| 2026-11-22T11:43:26Z | claude | Bash | shell | node kit/audit/audit.mjs --source kit --json > /tmp/lk_src_audit.json && node -e "const r=require('/tmp/lk_src_audit.json'); console.log(JSON.stringify({level:r.level, agents:r.components.filter(c=>c. |
+| 2026-11-22T11:43:27Z | claude | Bash | shell | node -e " import('./tools/install.mjs').then(async (m)=>{ const {mkdtempSync,writeFileSync,readFileSync}=await import('node:fs'); const {tmpdir}=await import('node:os'); const {join}=await import('nod |
+| 2026-11-22T11:43:29Z | claude | Bash | shell | cat package.json && git status --short && git diff --stat |
+| 2026-11-22T11:43:37Z | claude | Bash | shell | W=$(mktemp -d) && mkdir -p "$W/p1/.git" "$W/p2/.git" && node tools/install.mjs "$W" --clients claude 2>&1 \| head -6 && echo "W=$W" && echo "workspace template:" && ls "$W/.light-kit/templates/rules.m |
+| 2026-11-22T11:43:46Z | claude | Read | read | tests/kit.test.mjs |
+| 2026-11-22T11:43:51Z | claude | Bash | shell | node -e "const r=require('/tmp/lk_src_audit.json'); console.log(r.components.filter(c=>c.type==='rule'&&/Learn/.test(c.id))); console.log(r.components.filter(c=>c.id==='light-rules'));" |
+| 2026-11-22T11:44:01Z | claude | Bash | shell | node --test tests/kit.test.mjs 2>&1 \| grep -E "project rules\|^# (tests\|pass\|fail)" |
+| 2026-11-22T11:44:13Z | claude | Read | read | kit/skills/light-init/SKILL.md |
+| 2026-11-22T11:44:13Z | claude | Read | read | kit/skills/light-rules/SKILL.md |
+| 2026-11-22T11:44:25Z | claude | Bash | shell | A=/var/folders/rz/44kkpc_j3bd2z4cyywpykk200000gn/T/tmp.nxkvuXSUDH && for f in .cursor/rules/light-rules.mdc .agents/skills/light-rules/SKILL.md .github/skills/light-rules/SKILL.md; do echo "-- $f"; gr |
+| 2026-11-22T11:45:03Z | claude | Bash | shell | sed -n '295,320p' tools/build.mjs; echo "=== uninstall keep ==="; sed -n '1,40p' tools/uninstall.mjs; echo "=== project scope ==="; sed -n '1,40p' kit/skills/light-project-scope/SKILL.md |
+| 2026-11-22T11:45:04Z | claude | Bash | shell | sed -n '88,100p' tests/workspace.test.mjs; sed -n '1,30p' tests/uninstall.test.mjs |
+| 2026-11-22T11:45:11Z | claude | Edit | write | tools/build.mjs |
+| 2026-11-22T11:45:12Z | claude | Edit | write | tools/build.mjs |
+| 2026-11-22T11:45:12Z | claude | Edit | write | tools/uninstall.mjs |
+| 2026-11-22T11:45:12Z | claude | Edit | write | tools/uninstall.mjs |
+| 2026-11-22T11:45:15Z | claude | Edit | write | kit/templates/rules.md |
+| 2026-11-22T11:45:16Z | claude | Edit | write | kit/templates/rules.md |
+| 2026-11-22T11:45:16Z | claude | Edit | write | kit/templates/rules.md |
+| 2026-11-22T11:45:17Z | claude | Edit | write | kit/templates/rules.md |
+| 2026-11-22T11:45:20Z | claude | Edit | write | kit/skills/light-rules/SKILL.md |
+| 2026-11-22T11:45:20Z | claude | Edit | write | kit/skills/light-rules/SKILL.md |
+| 2026-11-22T11:45:21Z | claude | Edit | write | kit/skills/light-rules/SKILL.md |
+| 2026-11-22T11:45:25Z | claude | Bash | shell | sed -n '1,45p' tests/workspace.test.mjs; echo "=== uninstall soft test ==="; sed -n '20,75p' tests/uninstall.test.mjs |
+| 2026-11-22T11:45:28Z | claude | Bash | shell | grep -n "KEEP_SOFT\\|removed\\|kept" tools/uninstall.mjs \| head -30; sed -n '70,130p' tools/uninstall.mjs |
+| 2026-11-22T11:45:31Z | claude | Edit | write | tests/kit.test.mjs |
+| 2026-11-22T11:45:32Z | claude | Edit | write | tests/kit.test.mjs |
+| 2026-11-22T11:45:33Z | claude | Edit | write | tests/workspace.test.mjs |
+| 2026-11-22T11:45:33Z | claude | Edit | write | tests/uninstall.test.mjs |
+| 2026-11-22T11:45:34Z | claude | Edit | write | tests/uninstall.test.mjs |
+| 2026-11-22T11:45:36Z | claude | Edit | write | tests/audit.test.mjs |
+| 2026-11-22T11:45:37Z | claude | Edit | write | tests/audit.test.mjs |
+| 2026-11-22T11:45:37Z | claude | Edit | write | tests/audit.test.mjs |
+| 2026-11-22T11:45:37Z | claude | Edit | write | tests/audit.test.mjs |
+| 2026-11-22T11:45:40Z | claude | Edit | write | docs/usage.md |
+| 2026-11-22T11:45:41Z | claude | Edit | write | docs/usage.md |
+| 2026-11-22T11:45:42Z | claude | Edit | write | docs/installation.md |
+| 2026-11-22T11:45:42Z | claude | Edit | write | kit/skills/light-project-scope/SKILL.md |
+| 2026-11-22T11:46:05Z | claude | Bash | shell | cp kit/templates/rules.md .light-kit/rules.md && npm test 2>&1 \| tail -12 |
+| 2026-11-22T11:46:13Z | claude | Bash | shell | node --test tests/workspace.test.mjs tests/uninstall.test.mjs 2>&1 \| tail -8 |
+| 2026-11-22T11:46:15Z | claude | Bash | shell | tmp=$(mktemp -d) && mkdir -p "$tmp/p1/.git" "$tmp/p2/.git" && node tools/install.mjs "$tmp" --clients claude >/dev/null 2>&1 && ls "$tmp/p1/.light-kit" "$tmp/p2/.light-kit" && rm -rf "$tmp" |
+| 2026-11-22T11:46:17Z | claude | Read | read | specs/037-project-rules/50-implementation.md |
+| 2026-11-22T11:46:21Z | claude | Bash | shell | git status --short |
+| 2026-11-22T11:46:25Z | claude | Bash | shell | git add .light-kit/rules.md docs/installation.md docs/usage.md kit/skills/light-project-scope/SKILL.md kit/skills/light-rules/SKILL.md kit/templates/rules.md tests/audit.test.mjs tests/kit.test.mjs te |
+| 2026-11-22T11:46:37Z | claude | Write | write | specs/037-project-rules/50-implementation.md |
+| 2026-11-22T11:46:41Z | claude | Bash | shell | perl -0pi -e 's/^- \[ \] 7\./- [x] 7./m' specs/037-project-rules/40-plan.md && grep -n "^- \[ \] 7" specs/037-project-rules/40-plan.md \|\| echo "task 7 checked" |
+| 2026-11-22T11:46:41Z | claude | Edit | write | specs/037-project-rules/status.md |
+| 2026-11-22T11:46:49Z | claude | Write | write | specs/037-project-rules/60-conclusion.md |
+| 2026-11-22T11:46:51Z | claude | Edit | write | specs/037-project-rules/status.md |

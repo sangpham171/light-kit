@@ -6,8 +6,8 @@ base_commit: 561bba4abd933e699a04c20c3e9cd9dc5b145497
 work_branch: feat/037-project-rules
 review_turns: 1
 review_round: 1
-step: review
-state: in-progress
+step: conclude
+state: done
 ---
 
 Blockers / pending questions:
