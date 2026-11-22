@@ -7,8 +7,8 @@ base_commit: 68eeb76cfaa07c9d2422e4e69794955e9f0c378a
 work_branch: fix/050-sensitive-allow-kit-folders
 review_turns: 1
 review_round: 1
-step: implement
-state: in-progress
+step: conclude
+state: done
 ---
 
 Blockers / pending questions:

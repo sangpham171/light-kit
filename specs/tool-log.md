@@ -7,5 +7,5 @@ stored. Safe to delete.
 
 | Time | Client | Tool | Kind | Target |
 |---|---|---|---|---|
-| 2026-11-22T16:41:49Z | claude | Bash | shell | git status --short && git add -A specs && git commit -q -m "docs(spec): log the frontmatter fix in request 049" && git log --oneline -12 && echo --- && git status --short |
-| 2026-11-22T16:41:52Z | claude | Bash | shell | git add .light-kit/usage.json && git commit -q -m "chore(stats): record usage state" && git status --short && git log --oneline -1 |
+| 2026-11-22T16:56:33Z | claude | Bash | shell | sed -n '1,30p' specs/050-sensitive-allow-kit-folders/60-conclusion.md && echo "---git---" && git status --short |
+| 2026-11-22T16:57:06Z | claude | Bash | shell | npm test 2>&1 \| tail -6 |
