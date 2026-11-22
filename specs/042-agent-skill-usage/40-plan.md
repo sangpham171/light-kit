@@ -18,7 +18,7 @@ usage:
 - [x] 3. Add `tests/agent-skill-usage.test.mjs`: counts, total row, dedupe, `(no request)`, non-agent tools, unmanaged project, `off` — level: medium — files: that test — verify: `node --test tests/agent-skill-usage.test.mjs` — commit: `test(hooks): cover agent and skill usage stats`
 - [x] 4. Add `Agent|Task|Skill` to the Claude post-tool matcher in `tools/build.mjs` and assert the generated matcher — level: easy — files: `tools/build.mjs`, `tests/agent-skill-usage.test.mjs` — verify: that test file — commit: `feat(hooks): watch agent and skill tool events`
 - [x] 5. Document the hook in `kit/hooks/README.md` and `docs/safety-hooks.md` — level: easy — files: those — verify: read-back — commit: `docs(hooks): document agent and skill usage stats`
-- [ ] 6. Run `npm test`, then review and conclude — level: medium — files: `50-implementation.md`, `60-conclusion.md` — verify: `npm test` — commit: `docs(spec): record request 042`
+- [x] 6. Run `npm test`, then review and conclude — level: medium — files: `50-implementation.md`, `60-conclusion.md` — verify: `npm test` — commit: `docs(spec): record request 042`
 
 ## Risks
 - Client tool names differ by build; the check accepts tool-name aliases and falls back to the input shape (`subagent_type`, `skill`).

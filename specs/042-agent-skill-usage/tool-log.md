@@ -98,3 +98,30 @@ stored. Safe to delete.
 | 2026-11-22T14:46:25Z | claude | Read | read | kit/hooks/README.md |
 | 2026-11-22T14:46:25Z | claude | Read | read | docs/safety-hooks.md |
 | 2026-11-22T14:46:32Z | claude | Bash | shell | npm test 2>&1 \| tail -6 |
+| 2026-11-22T14:46:56Z | claude | Read | read | package.json |
+| 2026-11-22T14:47:18Z | claude | Read | read | tools/build.mjs |
+| 2026-11-22T14:48:24Z | claude | Read | read | .light-kit/rules.md |
+| 2026-11-22T14:48:24Z | claude | Read | read | .light-kit/project-profile.md |
+| 2026-11-22T14:49:15Z | claude | Read | read | docs/usage.md |
+| 2026-11-22T14:49:21Z | claude | Read | read | kit/skills/light-review-checklist/SKILL.md |
+| 2026-11-22T14:49:21Z | claude | Read | read | kit/skills/light-review-cycle/SKILL.md |
+| 2026-11-22T14:51:01Z | claude | Read | read | .gitignore |
+| 2026-11-22T14:52:32Z | claude | Bash | shell | for d in 004-token-consumption 006-token-usage-unknown 027-tool-call-log 038-tool-log-stop-commit; do echo "=== $d ==="; sed -n '/## Technical debt/,/^## [^T]/p' "specs/$d/50-implementation.md" 2>/dev |
+| 2026-11-22T14:52:35Z | claude | Edit | write | kit/hooks/lib/usage-stats.mjs |
+| 2026-11-22T14:52:39Z | claude | Edit | write | kit/hooks/checks/agent-skill-usage.mjs |
+| 2026-11-22T14:52:39Z | claude | Edit | write | kit/hooks/checks/agent-skill-usage.mjs |
+| 2026-11-22T14:52:45Z | claude | Edit | write | tests/agent-skill-usage.test.mjs |
+| 2026-11-22T14:52:48Z | claude | Edit | write | tests/agent-skill-usage.test.mjs |
+| 2026-11-22T14:52:54Z | claude | Bash | shell | node --test tests/agent-skill-usage.test.mjs 2>&1 \| tail -12 |
+| 2026-11-22T14:52:59Z | claude | Edit | write | kit/hooks/README.md |
+| 2026-11-22T14:53:00Z | claude | Edit | write | specs/042-agent-skill-usage/50-implementation.md |
+| 2026-11-22T14:53:31Z | claude | Bash | shell | npm test 2>&1 \| tail -6 |
+| 2026-11-22T14:53:36Z | claude | Bash | shell | git add kit/hooks/lib/usage-stats.mjs kit/hooks/checks/agent-skill-usage.mjs && git commit -q -m "fix(hooks): harden agent and skill usage state" && git add tests/agent-skill-usage.test.mjs && git com |
+| 2026-11-22T14:53:39Z | claude | Bash | shell | sed -n '1,60p' specs/041-dynamic-agent-selection/60-conclusion.md |
+| 2026-11-22T14:53:46Z | claude | Edit | write | specs/042-agent-skill-usage/50-implementation.md |
+| 2026-11-22T14:53:47Z | claude | Edit | write | specs/042-agent-skill-usage/40-plan.md |
+| 2026-11-22T14:53:51Z | claude | Write | write | specs/042-agent-skill-usage/60-conclusion.md |
+| 2026-11-22T14:53:55Z | claude | Bash | shell | sed -n '1,25p' specs/042-agent-skill-usage/60-conclusion.md |
+| 2026-11-22T14:53:58Z | claude | Edit | write | .light-kit/rules.md |
+| 2026-11-22T14:53:59Z | claude | Edit | write | specs/042-agent-skill-usage/status.md |
+| 2026-11-22T14:54:02Z | claude | Edit | write | specs/042-agent-skill-usage/50-implementation.md |
