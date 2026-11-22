@@ -12,10 +12,14 @@
 import { existsSync, mkdirSync, realpathSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { loadConfig } from './lib/config.mjs';
 import { JSON_FILE, MD_FILE, NO_REQUEST, readStats, recordCall, renderTable, saveRequestStats, saveStats, saveText } from './lib/usage-stats.mjs';
 import { activeRequests, currentRequest } from './lib/specs.mjs';
 
 const KINDS = new Set(['agent', 'skill']);
+
+// The project-level switch disables the manual command too, so `off` means off everywhere.
+const disabled = (project) => loadConfig([project]).modes['agent-skill-usage'] === 'off';
 
 const cleanName = (value) => String(value ?? '').replace(/\s+/g, ' ').trim().slice(0, 80);
 
@@ -44,6 +48,9 @@ export function recordUsage({ kind, name, root = projectRoot(), request, id = ''
   if (!project) throw new Error(`${process.cwd()} is not in a light-kit project (no .light-kit folder)`);
   const dir = join(project, '.light-kit');
   if (!existsSync(dir)) throw new Error(`${project} has no .light-kit folder`);
+  if (disabled(project)) {
+    return { added: false, disabled: true, kind: type, name: used, request: NO_REQUEST, total: 0, file: join(dir, JSON_FILE), root: project };
+  }
 
   let owner = NO_REQUEST;
   let requestDir = '';
@@ -68,7 +75,7 @@ export function recordUsage({ kind, name, root = projectRoot(), request, id = ''
     if (requestDir) saveRequestStats(requestDir, stats, owner);
   }
   const total = Number(stats.requests[owner]?.[type === 'agent' ? 'agents' : 'skills']?.[used]) || before;
-  return { added, kind: type, name: used, request: owner, total, file };
+  return { added, disabled: false, kind: type, name: used, request: owner, total, file, root: project };
 }
 
 // Compare real paths: `/var/...` and `/private/var/...` are the same file, and a temp folder is
@@ -93,9 +100,11 @@ if (isEntry()) {
       kind: positional[0], name: positional[1],
       root: options.root || projectRoot(), request: options.request, id: options.id,
     });
-    console.log(result.added
-      ? `recorded ${result.kind} ${result.name} for ${result.request} (${result.total} total)`
-      : `${result.kind} ${result.name} was already recorded for ${result.request}`);
+    console.log(result.disabled
+      ? `agent-skill-usage is off for ${result.root}; nothing recorded`
+      : result.added
+        ? `recorded ${result.kind} ${result.name} for ${result.request} (${result.total} total)`
+        : `${result.kind} ${result.name} was already recorded for ${result.request}`);
   } catch (e) {
     console.error(`record-usage: ${e.message}`);
     process.exitCode = 1;
