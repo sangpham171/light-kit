@@ -133,6 +133,13 @@
       "cacheRead": 6471936,
       "cacheWrite": 0,
       "timeMs": 689950
+    },
+    "d35df5fa-e682-4905-90f1-b309391197d5": {
+      "input": 69898,
+      "output": 36085,
+      "cacheRead": 2245888,
+      "cacheWrite": 0,
+      "timeMs": 481374
     }
   },
   "requests": {
@@ -1080,6 +1087,42 @@
           "cacheRead": 850176,
           "cacheWrite": 0,
           "timeMs": 24703,
+          "timed": true
+        }
+      }
+    },
+    "042-agent-skill-usage": {
+      "steps": {
+        "00-request": {
+          "input": 66131,
+          "output": 15455,
+          "cacheRead": 934912,
+          "cacheWrite": 0,
+          "timeMs": 343390,
+          "timed": true
+        },
+        "10-understanding": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "timeMs": 5675,
+          "timed": true
+        },
+        "40-plan": {
+          "input": 3591,
+          "output": 18390,
+          "cacheRead": 1210240,
+          "cacheWrite": 0,
+          "timeMs": 126054,
+          "timed": true
+        },
+        "50-implementation": {
+          "input": 176,
+          "output": 2240,
+          "cacheRead": 100736,
+          "cacheWrite": 0,
+          "timeMs": 6255,
           "timed": true
         }
       }
