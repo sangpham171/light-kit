@@ -1,15 +1,13 @@
 import { existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { activeRequests, currentRequest } from '../lib/specs.mjs';
-import { NO_REQUEST, callOf, readStats, recordCall, renderTable, saveStats, saveText } from '../lib/usage-stats.mjs';
+import { JSON_FILE, MD_FILE, NO_REQUEST, callOf, readStats, recordCall, renderTable, saveRequestStats, saveStats, saveText } from '../lib/usage-stats.mjs';
 
 // How often each agent and skill ran, per request. One row per agent or skill call, counted against
 // the request the session is working on (a call made before a request exists goes to `(no request)`).
-// Writes `.light-kit/agent-skill-usage.json` (source of truth) and the rendered table beside it.
+// Writes `.light-kit/agent-skill-usage.json` (source of truth) and the rendered table beside it, plus
+// the same pair inside the request's own `specs/<NNN-slug>/` folder for every real request.
 // Silent and never blocking, like `tool-log`; unmanaged projects are left untouched.
-
-const JSON_FILE = 'agent-skill-usage.json';
-const MD_FILE = 'agent-skill-usage.md';
 
 // Same working-request rule as `tool-log`: a statusless folder is a leftover, not a request.
 const workingRequest = (ctx) => currentRequest(
@@ -42,6 +40,9 @@ export default {
     mkdirSync(dir, { recursive: true });
     saveStats(file, stats);
     saveText(join(dir, MD_FILE), renderTable(stats));
+    if (request?.home && request.name !== NO_REQUEST) {
+      saveRequestStats(join(request.home, 'specs', request.name), stats, request.name);
+    }
     return null;
   },
 };
