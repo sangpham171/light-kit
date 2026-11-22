@@ -172,3 +172,5 @@ stored. Safe to delete.
 | 2026-11-22T15:12:50Z | claude | Bash | shell | npm test 2>&1 \| tail -8 |
 | 2026-11-22T15:12:52Z | claude | Edit | write | specs/043-rule-triggers/status.md |
 | 2026-11-22T15:12:52Z | claude | Edit | write | specs/043-rule-triggers/40-plan.md |
+| 2026-11-22T15:20:20Z | claude | Read | read | specs/043-rule-triggers/50-implementation.md |
+| 2026-11-22T15:20:20Z | claude | Read | read | specs/043-rule-triggers/60-conclusion.md |
