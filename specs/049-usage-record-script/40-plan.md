@@ -13,11 +13,11 @@ usage:
 
 # Plan
 
-- [ ] 1. Add `kit/hooks/record-usage.mjs`: resolve the project root and working request, record one agent or skill use through `usage-stats.mjs`, write both files, print one line — level: medium — files: `kit/hooks/record-usage.mjs` — verify: run it by hand in a temp project; JSON and MD gain one use — commit: `feat(hooks): add the usage record command`
-- [ ] 2. Add the always-loaded instruction to call it when the hook cannot see a use — level: easy — files: `kit/instructions/core.md` — verify: `grep -n "record-usage" kit/instructions/core.md` — commit: `docs(kit): instruct agents to record the uses the hook cannot see`
-- [ ] 3. Test the script: agent and skill kinds, request attribution, `--request`, `--id` dedupe, unknown kind, no `.light-kit` — level: easy — files: `tests/record-usage.test.mjs` — verify: `node --test tests/record-usage.test.mjs` — commit: `test(hooks): cover the usage record command`
-- [ ] 4. Document the command and the once-per-use rule in the hook docs — level: easy — files: `kit/hooks/README.md`, `docs/safety-hooks.md` — verify: `npm test` — commit: `docs(kit): document the usage record command`
-- [ ] 5. Conclude the request and commit the state files — level: easy — files: `specs/049-usage-record-script/*` — verify: `npm test` — commit: `docs(spec): conclude request 049`
+- [x] 1. Add `kit/hooks/record-usage.mjs`: resolve the project root and working request, record one agent or skill use through `usage-stats.mjs`, write both files, print one line — level: medium — files: `kit/hooks/record-usage.mjs` — verify: run it by hand in a temp project; JSON and MD gain one use — commit: `feat(hooks): add the usage record command`
+- [x] 2. Add the always-loaded instruction to call it when the hook cannot see a use — level: easy — files: `kit/instructions/core.md` — verify: `grep -n "record-usage" kit/instructions/core.md` — commit: `docs(kit): instruct agents to record the uses the hook cannot see`
+- [x] 3. Test the script: agent and skill kinds, request attribution, `--request`, `--id` dedupe, unknown kind, no `.light-kit` — level: easy — files: `tests/record-usage.test.mjs` — verify: `node --test tests/record-usage.test.mjs` — commit: `test(hooks): cover the usage record command`
+- [x] 4. Document the command and the once-per-use rule in the hook docs — level: easy — files: `kit/hooks/README.md`, `docs/safety-hooks.md` — verify: `npm test` — commit: `docs(kit): document the usage record command`
+- [x] 5. Conclude the request and commit the state files — level: easy — files: `specs/049-usage-record-script/*` — verify: `npm test` — commit: `docs(spec): conclude request 049`
 
 Each task = one verified, coherent commit.
 
