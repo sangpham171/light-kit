@@ -127,3 +127,47 @@ stored. Safe to delete.
 | 2026-11-22T13:42:22Z | claude | Edit | write | docs/installation.md |
 | 2026-11-22T13:42:22Z | claude | Read | read | kit/hooks/lib/config.mjs |
 | 2026-11-22T13:42:24Z | claude | Bash | shell | git status --short |
+| 2026-11-22T13:42:27Z | claude | Read | read | tests/init.test.mjs |
+| 2026-11-22T13:42:33Z | claude | Read | read | tools/install.mjs |
+| 2026-11-22T13:42:36Z | claude | Read | read | kit/skills/light-init/SKILL.md |
+| 2026-11-22T13:42:38Z | claude | Read | read | docs/installation.md |
+| 2026-11-22T13:42:38Z | claude | Read | read | docs/usage.md |
+| 2026-11-22T13:42:40Z | claude | Read | read | tests/kit.test.mjs |
+| 2026-11-22T13:42:40Z | claude | Bash | shell | npm test 2>&1 \| tail -60 |
+| 2026-11-22T13:42:41Z | claude | Read | read | kit/init/merge.mjs |
+| 2026-11-22T13:42:41Z | claude | Bash | shell | git log --oneline -8 && ls kit/init tools tests |
+| 2026-11-22T13:42:42Z | claude | Read | read | tests/workspace.test.mjs |
+| 2026-11-22T13:42:42Z | claude | Bash | shell | git show --stat 84d2f35 && git show 84d2f35 -- kit/init/merge.mjs tools/build.mjs \| head -100 |
+| 2026-11-22T13:42:43Z | claude | Bash | shell | grep -n "templates\\|init" tools/build.mjs \| head -60 && echo ---- && grep -n "DEFAULT_MODES" -A 30 kit/hooks/lib/config.mjs \| head -50 |
+| 2026-11-22T13:42:43Z | claude | Bash | shell | ls kit/templates && echo ---- && cat kit/templates/models.json && echo ---- && cat kit/templates/project-hooks.config.json |
+| 2026-11-22T13:42:44Z | claude | Bash | shell | sed -n '1,60p' tools/install.mjs |
+| 2026-11-22T13:42:44Z | claude | Bash | shell | cat kit/templates/project-profile.md && echo '=====RULES=====' && cat kit/templates/rules.md && echo '=====PROJECTS=====' && cat kit/templates/projects.md |
+| 2026-11-22T13:42:49Z | claude | Read | read | tools/uninstall.mjs |
+| 2026-11-22T13:42:49Z | claude | Bash | shell | set -e T=$(mktemp -d /tmp/lk-probe-XXXXXX) echo "TMP=$T" node /Users/light/Documents/code/light-kit/tools/install.mjs "$T" --clients claude 2>&1 \| tail -30 echo "--- installed tree ---" find "$T/.lig |
+| 2026-11-22T13:42:55Z | claude | Bash | shell | set -e T=$(cat /tmp/lk-probe-path) S=$(mktemp -d /tmp/lk-script-XXXXXX) echo "SCRIPT_DIR=$S" cat > "$S/customize.mjs" <<'EOF' import { readFileSync, writeFileSync } from 'node:fs'; import { join } fro |
+| 2026-11-22T13:42:57Z | claude | Read | read | kit/hooks/hooks.config.json |
+| 2026-11-22T13:42:59Z | claude | Bash | shell | set -e T=$(cat /tmp/lk-probe-path) grep -n "_none yet_" "$T/.light-kit/rules.md" \| cat -A node -e ' const fs=require("fs"); const p=process.argv[1]+"/.light-kit/rules.md"; let t=fs.readFileSync(p,"ut |
+| 2026-11-22T13:43:03Z | claude | Bash | shell | set +e T=$(cat /tmp/lk-probe-path) echo "=== RUN 1 ===" node "$T/.light-kit/init/merge.mjs" --project "$T" > "$T/run1.out" 2>&1 echo "exit=$?" cat "$T/run1.out" echo echo "=== diff customized files (b |
+| 2026-11-22T13:43:07Z | claude | Bash | shell | set +e T=$(cat /tmp/lk-probe-path) echo "=== RUN 2 ===" # snapshot content + mtimes before run 2 node -e ' const fs=require("fs");const T=process.argv[1]; const files=["project-profile.md","rules.md", |
+| 2026-11-22T13:43:11Z | claude | Bash | shell | set +e T=$(cat /tmp/lk-probe-path) printf '{ "broken": \n "no close" \n' > "$T/.light-kit/models.json" echo "before sha: $(shasum -a 256 "$T/.light-kit/models.json" \| cut -d' ' -f1)" cp "$T/.light-ki |
+| 2026-11-22T13:43:14Z | claude | Bash | shell | grep -n "homedir\\|level\\|process.argv\\|target" tools/install.mjs \| tail -40 |
+| 2026-11-22T13:43:21Z | claude | Bash | shell | set +e K=/Users/light/Documents/code/light-kit H=$(mktemp -d /tmp/lk-home-XXXXXX) P=$(mktemp -d /tmp/lk-userproj-XXXXXX) echo "HOME_FAKE=$H" echo "PROJECT=$P" HOME="$H" node "$K/tools/install.mjs" --l |
+| 2026-11-22T13:43:24Z | claude | Bash | shell | grep -n "merge.mjs\\|Existing install\\|--project\\|user level" kit/skills/light-init/SKILL.md |
+| 2026-11-22T13:43:24Z | claude | Bash | shell | grep -n "merge.mjs\\|existing\\|in place\\|in-place\\|templates" docs/usage.md docs/installation.md \| head -40 |
+| 2026-11-22T13:43:24Z | claude | Read | read | .light-kit/rules.md |
+| 2026-11-22T13:43:24Z | claude | Read | read | .light-kit/project-profile.md |
+| 2026-11-22T13:43:28Z | claude | Bash | shell | set +e K=/Users/light/Documents/code/light-kit T=$(cat /tmp/lk-probe-path) # Mark the installed template with a sentinel, keep the user profile/rule printf '\nSENTINEL-STALE-TEMPLATE\n' >> "$T/.light- |
+| 2026-11-22T13:43:33Z | claude | Bash | shell | T=$(cat /tmp/lk-probe-path); find "$T/.light-kit/hooks" -maxdepth 3 -type f \| sed "s\|$T/\|\|" \| sort; echo ---; ls /Users/light/Documents/code/light-kit/kit/hooks; find /Users/light/Documents/code/ |
+| 2026-11-22T13:43:37Z | claude | Bash | shell | set +e T=$(cat /tmp/lk-probe-path) node -e 'const fs=require("fs");const p=process.argv[1]+"/.light-kit/hooks.config.json";const j=JSON.parse(fs.readFileSync(p));delete j.hooks["tool-log"];delete j.ho |
+| 2026-11-22T13:43:38Z | claude | Read | read | package.json |
+| 2026-11-22T13:43:43Z | claude | Bash | shell | set +e K=/Users/light/Documents/code/light-kit W=$(mktemp -d /tmp/lk-ws-XXXXXX) P2=$(mktemp -d /tmp/lk-wsproj-XXXXXX) echo "WS=$W PROJ=$P2" node "$K/tools/install.mjs" "$W" --level workspace --clients |
+| 2026-11-22T13:43:50Z | claude | Bash | shell | set +e K=/Users/light/Documents/code/light-kit N=$(mktemp -d /tmp/lk-assert-XXXXXX) S=/tmp/lk-script-AwBYux node "$K/tools/install.mjs" "$N" --clients claude >/dev/null 2>&1 # reuse customize script b |
+| 2026-11-22T13:43:54Z | claude | Bash | shell | set +e K=/Users/light/Documents/code/light-kit T=$(cat /tmp/lk-probe-path); H=$(cat /tmp/lk-home-path) echo "=== project-level generated skill lines ===" grep -n "init/merge.mjs" "$T/.claude/skills/li |
+| 2026-11-22T13:43:57Z | claude | Bash | shell | git status --short |
+| 2026-11-22T13:44:00Z | claude | Bash | shell | git log --oneline -3 && echo --- && git diff --stat && echo --- && git diff docs/installation.md \| head -40 |
+| 2026-11-22T13:44:04Z | claude | Bash | shell | node -e 'const p=require("./package.json");console.log(JSON.stringify(p.scripts,null,2))' |
+| 2026-11-22T13:44:06Z | claude | Bash | shell | grep -rn "lint(" tests/*.mjs \| head |
+| 2026-11-22T13:44:16Z | claude | Read | read | specs/040-init-updates-existing-kit/status.md |
+| 2026-11-22T13:44:18Z | claude | Edit | write | kit/init/merge.mjs |
+| 2026-11-22T13:44:21Z | claude | Edit | write | tests/init.test.mjs |
+| 2026-11-22T13:44:25Z | claude | Bash | shell | node --test tests/init.test.mjs 2>&1 \| tail -8 |
