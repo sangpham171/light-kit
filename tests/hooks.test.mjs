@@ -213,8 +213,10 @@ test('session start reminds the agent that rules are recorded outside review', (
   const r = run(d, 'claude', 'session-start', {});
   assert.equal(r.code, 0);
   assert.match(JSON.parse(r.out).hookSpecificOutput.additionalContext, /light-rules/);
-  // language-neutral: it never reads the prompt
+  // language-neutral: it never reads the prompt, and the removed key is ignored
   assert.equal(run(d, 'claude', 'prompt', { prompt: 'the export still does not work' }).out, '');
+  const stale = project({ rules: { extraDefectPatterns: ['no funciona'] } });
+  assert.equal(run(stale, 'claude', 'prompt', { prompt: 'la exportación no funciona' }).out, '');
   const off = project({ hooks: { 'rules-reminder': 'off' } });
   assert.doesNotMatch(run(off, 'claude', 'session-start', {}).out, /light-rules/);
   const none = project();
