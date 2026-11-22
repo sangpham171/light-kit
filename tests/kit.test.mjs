@@ -218,7 +218,7 @@ test('project rules: a seeded file, a skill, and a before/after loop at every ch
     ...kit.workflows.map((w) => w.body),
     ...kit.templates.map((t) => t.text),
   ];
-  for (const text of sources) assert.doesNotMatch(text, /Violated 3 times|reaches 3\b|Count` is 3 or more/);
+  for (const text of sources) assert.doesNotMatch(text, /violated 3 times|\b3 or more\b|\b(?:at |after )?(?:three|3) (?:violations?|failures?)\b|reaches 3\b/i);
   assert.match(read('CLAUDE.md'), /Learn from repeated mistakes/);
   assert.match(read('CLAUDE.md'), /Project rules: `\.light-kit\/rules\.md`/);
   assert.match(read('.claude/skills/light-init/SKILL.md'), /create `\.light-kit\/rules\.md`/);

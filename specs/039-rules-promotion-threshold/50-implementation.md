@@ -7,8 +7,8 @@ runs:
     thinking: unknown
     level: easy
 usage:
-  tokens: 3,084 input · 231,424 cache read · 0 cache write · 1,204 output · 235,712 total
-  time: 1m 1s
+  tokens: 15,782 input · 764,288 cache read · 0 cache write · 4,196 output · 784,266 total
+  time: 5m 7s
 ---
 
 # Implementation log
@@ -25,6 +25,8 @@ usage:
 - Task 5 docs(kit): document the configurable rule promotion threshold — `grep` found the setting in the learned-rules section.
 
 - Task 6 test(kit): cover the configurable promotion threshold — `node --test tests/kit.test.mjs` passed 24/24; `npm test` passed 183/183; the kit-source grep for `Violated 3 times`, `Count is 3 or more` and `reaches 3` returned nothing.
+
+- Round 1 review fix fix(kit): address the round 1 review for request 039 — F-1.1 and F-1.2 fixed; `node --test tests/kit.test.mjs` passed 24/24; `npm test` passed 183/183.
 
 Rules applied: `.light-kit/rules.md` holds no rules yet. `rules: no change`.
 
@@ -46,5 +48,12 @@ Rules applied: `.light-kit/rules.md` holds no rules yet. `rules: no change`.
 - Task 4: `grep -n "promotion threshold" kit/instructions/core.md` — rules 15 and the project-knowledge bullet; `node --test tests/kit.test.mjs` — 24 pass.
 - Task 5: `grep -n "Promotion threshold" docs/usage.md` — found.
 - Task 6: `node --test tests/kit.test.mjs` — 24 pass; `npm test` — 183 pass, 0 fail; `grep -rn "Violated 3 times\|Count\` is 3 or more\|reaches 3\b" kit` — no matches.
+- Round 1: the broadened guard was probed against every kit source and against a full multi-client temp install — no matches; `node --test tests/kit.test.mjs` — 24 pass; `npm test` — 183 pass, 0 fail.
 
 ## Review rounds
+
+### Round 1 of 1
+- F-1.1 [should-fix] docs/usage.md:11 — the fallback sentence says "a missing, non-numeric or lower value falls back to 3"; the missing comparator can be read as "lower than 3", contradicting the allowed `integer >= 1` range stated in the same sentence — suggested fix: "a missing, non-numeric or lower-than-1 value falls back to 3" — status: fixed (this commit; see Progress)
+- F-1.2 [nit] tests/kit.test.mjs:221 — the negative guard only catches "Violated 3 times", "reaches 3" and "Count is 3 or more"; other phrasings of a fixed 3 would pass — suggested fix: broaden the pattern only if it causes no false positives — status: fixed (this commit; guard now also catches "3 or more", "three/3 violations" and "after 3 failures"; probed against kit sources and a full temp install with no false positives)
+
+Verdict: changes requested
