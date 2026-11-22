@@ -65,6 +65,12 @@ test('sensitive files: blocked for read, write and shell; templates allowed', ()
   assert.equal(run(d, 'claude', 'pre-tool', bash('cat .env')).code, 2);
   assert.equal(run(d, 'claude', 'pre-tool', bash('ls .env')).code, 0);
   assert.equal(run(d, 'claude', 'pre-tool', bash('git add .env.example')).code, 0);
+  // A secret-looking name outside the kit-managed folders stays blocked; inside them it passes.
+  assert.equal(run(d, 'claude', 'pre-tool', { tool_name: 'Read', tool_input: { file_path: join(d, 'credentials') } }).code, 2);
+  for (const f of ['.claude/credentials', '.copilot/secrets.json', '.light-kit/credentials', 'specs/001-x/credentials']) {
+    assert.equal(run(d, 'claude', 'pre-tool', { tool_name: 'Read', tool_input: { file_path: join(d, f) } }).code, 0, f);
+  }
+  assert.equal(run(d, 'claude', 'pre-tool', bash('cat specs/001-x/credentials')).code, 0);
 });
 
 test('secrets in written content are blocked, placeholders and plain code pass', () => {
