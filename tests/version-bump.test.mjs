@@ -1,4 +1,4 @@
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { copyFileSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -16,7 +16,7 @@ function fixture({ version = '0.1.0', specs = [], baseline = 51, commit = false,
   mkdirSync(join(root, '.light-kit'), { recursive: true });
   if (state) {
     writeFileSync(join(root, '.light-kit', 'version-bump.json'),
-      JSON.stringify({ version: 1, file: 'package.json', baseline, commit, applied: {} }, null, 2) + '\n');
+      JSON.stringify({ version: 1, baseline, commit, applied: {} }, null, 2) + '\n');
   }
   for (const spec of specs) addSpec(root, spec);
   return root;
@@ -117,7 +117,7 @@ test('a missing state file seeds the baseline at the newest request without bump
 test('malformed applied rows are dropped, never thrown on', () => {
   const root = fixture({ specs: [{ number: 52, bump: 'patch' }] });
   writeFileSync(join(root, '.light-kit', 'version-bump.json'),
-    JSON.stringify({ version: 1, file: 'package.json', baseline: 51, commit: false, applied: { 52: 7, nope: 'x' } }));
+    JSON.stringify({ version: 1, baseline: 51, commit: false, applied: { 52: 7, nope: 'x' } }));
   const result = runVersionBump(root);
   assert.equal(result.changed, true);
   assert.equal(versionOf(root), '0.1.1');
@@ -143,6 +143,17 @@ test('a dry run reports the bump without writing', () => {
   assert.equal(result.changed, true);
   assert.equal(versionOf(root), '0.1.0');
   assert.deepEqual(stateOf(root).applied, {});
+});
+
+test('the CLI entry stays silent and exits 0 on a dry run', () => {
+  const root = fixture({ specs: [{ number: 52, bump: 'minor' }] });
+  mkdirSync(join(root, 'tools'), { recursive: true });
+  copyFileSync(new URL('../tools/version-bump.mjs', import.meta.url), join(root, 'tools', 'version-bump.mjs'));
+  const run = spawnSync(process.execPath, ['tools/version-bump.mjs', '--dry-run'], { cwd: root, encoding: 'utf8' });
+  assert.equal(run.status, 0);
+  assert.match(run.stderr, /would set 0\.2\.0/);
+  assert.equal(run.stdout, '');
+  assert.equal(versionOf(root), '0.1.0');
 });
 
 test('commits only package.json and the state file as a release', () => {

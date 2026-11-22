@@ -78,7 +78,6 @@ export function loadState(file) {
   }
   return {
     version: STATE_VERSION,
-    file: typeof raw.file === 'string' && raw.file ? raw.file : 'package.json',
     baseline: Number.isInteger(raw.baseline) ? raw.baseline : null,
     commit: raw.commit !== false,
     applied,
@@ -88,7 +87,6 @@ export function loadState(file) {
 const writeState = (file, state) => {
   writeFileSync(file, JSON.stringify({
     version: STATE_VERSION,
-    file: state.file,
     baseline: state.baseline,
     commit: state.commit,
     applied: state.applied,
@@ -130,7 +128,7 @@ export function runVersionBump(root, { apply = true, log = () => {} } = {}) {
   // A missing or unreadable state seeds the baseline at the newest existing request: history never bumps.
   if (!state) {
     const baseline = specs.length ? Math.max(...specs.map((s) => s.number)) : 0;
-    state = { version: STATE_VERSION, file: 'package.json', baseline, commit: true, applied: {} };
+    state = { version: STATE_VERSION, baseline, commit: true, applied: {} };
     if (apply) writeState(stateFile, state);
     return { changed: false, seeded: baseline, state };
   }
