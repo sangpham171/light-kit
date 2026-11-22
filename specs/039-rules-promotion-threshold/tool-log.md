@@ -167,3 +167,4 @@ stored. Safe to delete.
 | 2026-11-22T13:19:08Z | claude | Bash | shell | git log --oneline caf09d1..HEAD && git status --short |
 | 2026-11-22T13:19:12Z | claude | Write | write | specs/039-rules-promotion-threshold/60-conclusion.md |
 | 2026-11-22T13:42:22Z | claude | Read | read | specs/039-rules-promotion-threshold/60-conclusion.md |
+| 2026-11-22T13:45:05Z | claude | Read | read | specs/039-rules-promotion-threshold/40-plan.md |
