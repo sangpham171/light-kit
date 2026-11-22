@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 // light-kit init merge: update an existing .light-kit folder to the current kit without erasing anything.
 // Usage: node merge.mjs [--project <dir>] [--dry-run]
 // Installed at <root>/.light-kit/init/merge.mjs; the templates it merges from sit in <root>/.light-kit/templates/.
@@ -9,7 +8,7 @@
 //    section lacks (matched by key, so a value the user changed is never duplicated or replaced);
 //  - JSON: add keys the document lacks, recursively; every existing value wins.
 // Files that do not exist are left for light-init to create. Invalid JSON is reported and left untouched.
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, realpathSync } from 'node:fs';
 import { dirname, join, resolve, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -157,7 +156,10 @@ const line = (entry) => {
   return parts.join(', ');
 };
 
-if (resolve(process.argv[1] ?? '') === fileURLToPath(import.meta.url)) {
+// Both paths are resolved: a temp folder may be reached through a symlink (/var -> /private/var on macOS).
+const selfPath = fileURLToPath(import.meta.url);
+const invoked = process.argv[1] && (() => { try { return realpathSync(process.argv[1]) === realpathSync(selfPath); } catch { return resolve(process.argv[1]) === resolve(selfPath); } })();
+if (invoked) {
   const args = process.argv.slice(2);
   const opt = (n) => { const i = args.indexOf(`--${n}`); return i === -1 ? null : args[i + 1]; };
   const project = opt('project') ?? process.cwd();
