@@ -18,6 +18,8 @@ usage:
 
 - Task 2 docs(kit): read rule promotion threshold from the project profile — `grep` found the setting and `node --test tests/kit.test.mjs` passed 24/24.
 
+- Task 3 docs(kit): describe rule promotion by the profile threshold — `grep` found the phrase in the template and this repo's seed; `node --test tests/kit.test.mjs` passed 24/24.
+
 Rules applied: `.light-kit/rules.md` holds no rules yet. `rules: no change`.
 
 ## Technical debt

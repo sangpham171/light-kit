@@ -8,10 +8,10 @@ Style, stack and workflow preferences belong in `.light-kit/project-profile.md`,
 
 | State | Meaning | Agent behaviour |
 |---|---|---|
-| `pending` | Violated 0–2 times, or added before any violation. On probation. | Advisory: check it, mention it when it applies, but do not block work on it. |
-| `confirmed` | Violated 3 times. Critical. | Mandatory: never break it. If it conflicts with the task, stop and ask the user. |
+| `pending` | Violated fewer times than the promotion threshold, or added before any violation. On probation. | Advisory: check it, mention it when it applies, but do not block work on it. |
+| `confirmed` | Violated the promotion threshold or more times. Critical. | Mandatory: never break it. If it conflicts with the task, stop and ask the user. |
 
-`Count` is the number of tasks in which the rule was violated, not the number of instances inside a task. A rule added after an incident starts at `Count: 1` — the incident itself counts. A rule added before any violation starts at `0`. When `Count` is 3 or more and `State` is `pending`, set `State` to `confirmed` in the same update.
+`Count` is the number of tasks in which the rule was violated, not the number of instances inside a task. A rule added after an incident starts at `Count: 1` — the incident itself counts. A rule added before any violation starts at `0`. The promotion threshold in `.light-kit/project-profile.md` (default 3) is the number of violated tasks that promotes a rule. When `Count` reaches it and `State` is `pending`, set `State` to `confirmed` in the same update.
 
 ## Rules
 
@@ -32,7 +32,7 @@ Replace the `_none yet_` row when you add the first rule.
 
 1. Check every rule that applied against the result and its verification.
 2. **Violated:** add 1 to `Count`, set `Last violated` to today, and add the evidence (request id, file, test or commit). One task counts once per rule, however many instances it had.
-3. **Reached 3:** when `Count` is 3 or more, set `State` to `confirmed` in the same edit and report the promotion.
+3. **Reached the threshold:** when `Count` reaches the promotion threshold in `.light-kit/project-profile.md` (default 3), set `State` to `confirmed` in the same edit and report the promotion.
 4. **New repeatable error or bug:** add a row with a new `R-NNN` id, `pending`, `Count: 1`, today's date and the evidence. The incident is the first violation.
 5. **Nothing happened:** leave the file unchanged and write `rules: no change` in the task log.
 6. Never renumber or delete a row, and never rewrite a `confirmed` rule. If a rule is wrong or obsolete, propose the change to the user; only the user can demote or remove it.
