@@ -173,6 +173,48 @@ test('the orchestrator runs the brainstormer agent for uncertain requests', () =
   assert.match(readFileSync(new URL('../README.md', import.meta.url), 'utf8'), /the `light-brainstormer` agent/);
 });
 
+test('the orchestrator adapts the agent roster as the request unfolds, and records why', () => {
+  const dir = tmp();
+  install(dir, ['claude']);
+  const read = (p) => readFileSync(join(dir, p), 'utf8');
+  const kit = loadKit();
+  for (const c of CLIENT_NAMES)
+    assert.ok(build(kit, [c]).some((f) => f.path.includes('light-agent-selection')), c);
+  const skill = read('.claude/skills/light-agent-selection/SKILL.md');
+  assert.match(skill, /are the \*\*baseline\*\*, chosen from what is known at triage/);
+  assert.match(skill, /## 1\. When to re-evaluate/);
+  assert.match(skill, /## 2\. What you may change/);
+  assert.match(skill, /## 3\. What you must not change/);
+  for (const m of ['Add an agent to a step', 'Add a step', 'Skip an optional agent', 'Split a step', 'Repeat a finished step', 'Reorder remaining steps'])
+    assert.ok(skill.includes(m), m);
+  assert.match(skill, /every workflow keeps `understand`, a written `40-plan\.md` before code, `implement`, the `review`\/`fix` loop and `conclude`/);
+  assert.match(skill, /`light-reviewer` always runs/);
+  assert.match(skill, /`light-tester` whenever behavior changes/);
+  assert.match(skill, /auth, personal data, money, migrations, public interfaces or new dependencies/);
+  assert.match(skill, /`## Agent plan`/);
+  assert.match(skill, /`## Routing`/);
+  assert.match(skill, /`runs:` header/);
+  const orch = read('.claude/agents/light-orchestrator.md');
+  assert.match(orch, /baseline roster/);
+  assert.match(orch, /not a fixed list/);
+  assert.match(orch, /light-agent-selection/);
+  assert.match(orch, /## Agent plan/);
+  assert.match(read('CLAUDE.md'), /light-agent-selection/);
+  assert.match(read('.light-kit/templates/10-understanding.md'), /## Agent plan\n<!-- Baseline from the chosen workflow/);
+  for (const w of ['direct', 'standard', 'full', 'bootstrap', 'standardize']) {
+    const text = read(`.light-kit/workflows/${w}.md`);
+    assert.match(text, /agents named in each step are the baseline/, w);
+    assert.match(text, /light-agent-selection/, w);
+  }
+  const routing = read('.claude/skills/light-model-routing/SKILL.md');
+  assert.match(routing, /Choose the roster and the model separately/);
+  assert.match(routing, /mark its Routing line as skipped/);
+  const usage = readFileSync(new URL('../docs/usage.md', import.meta.url), 'utf8');
+  assert.match(usage, /light-agent-selection/);
+  assert.match(usage, /## Agent plan/);
+  assert.deepEqual(lint(kit), []); // the baseline prose does not name a fake agent
+});
+
 test('the plan is written before code, even for direct requests', () => {
   const dir = tmp();
   install(dir, ['claude']);
