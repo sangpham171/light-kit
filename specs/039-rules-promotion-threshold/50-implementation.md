@@ -16,6 +16,8 @@ usage:
 ## Progress
 - Task 1 feat(kit): add rules promotion threshold to the project profile — `grep -n "Promotion threshold: 3"` found the line in both profiles.
 
+- Task 2 docs(kit): read rule promotion threshold from the project profile — `grep` found the setting and `node --test tests/kit.test.mjs` passed 24/24.
+
 Rules applied: `.light-kit/rules.md` holds no rules yet. `rules: no change`.
 
 ## Technical debt
