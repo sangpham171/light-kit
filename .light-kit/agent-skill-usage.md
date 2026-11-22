@@ -26,5 +26,6 @@ is the source of truth. Safe to delete.
 | 045-universal-rules-reminder | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
 | 049-usage-record-script | 1 | 2 | 0 | 1 | 1 | 0 | 0 | 0 | 0 |
 | 050-sensitive-allow-kit-folders | 0 | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 1 |
+| 051-agent-skill-usage-per-spec | 0 | 2 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
 | (no request) | 0 | 0 | 2 | 0 | 0 | 1 | 1 | 4 | 0 |
-| **All requests** | 4 | 3 | 20 | 3 | 2 | 8 | 1 | 4 | 1 |
+| **All requests** | 4 | 5 | 21 | 3 | 2 | 8 | 1 | 4 | 1 |
