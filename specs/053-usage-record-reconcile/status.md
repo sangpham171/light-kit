@@ -8,8 +8,8 @@ work_branch: fix/053-usage-record-reconcile
 review_turns: 1
 review_round: 1
 version_bump: minor
-step: conclude
-state: in-progress
+step: done
+state: done
 ---
 
 Blockers / pending questions:
