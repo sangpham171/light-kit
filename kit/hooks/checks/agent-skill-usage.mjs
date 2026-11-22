@@ -1,7 +1,7 @@
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { activeRequests, currentRequest } from '../lib/specs.mjs';
-import { NO_REQUEST, callOf, readStats, recordCall, renderTable, saveStats } from '../lib/usage-stats.mjs';
+import { NO_REQUEST, callOf, readStats, recordCall, renderTable, saveStats, saveText } from '../lib/usage-stats.mjs';
 
 // How often each agent and skill ran, per request. One row per agent or skill call, counted against
 // the request the session is working on (a call made before a request exists goes to `(no request)`).
@@ -41,7 +41,7 @@ export default {
 
     mkdirSync(dir, { recursive: true });
     saveStats(file, stats);
-    writeFileSync(join(dir, MD_FILE), renderTable(stats));
+    saveText(join(dir, MD_FILE), renderTable(stats));
     return null;
   },
 };

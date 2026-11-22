@@ -37,21 +37,43 @@ export function callOf(tool, input) {
   return { kind, name: cleanName(value) };
 }
 
+const isObject = (v) => Boolean(v) && typeof v === 'object' && !Array.isArray(v);
+
+// A row from an older or hand-edited file is repaired to this shape, so a stray value can never make
+// recordCall or the renderer throw: an unreadable state restarts empty instead of failing every call.
+const rowOf = (row) => isObject(row)
+  ? {
+    first: typeof row.first === 'string' ? row.first : '',
+    last: typeof row.last === 'string' ? row.last : '',
+    agents: isObject(row.agents) ? row.agents : {},
+    skills: isObject(row.skills) ? row.skills : {},
+  }
+  : null;
+
 export function readStats(file) {
   try {
     const s = JSON.parse(readFileSync(file, 'utf8'));
-    if (s?.version !== VERSION || !s.requests || typeof s.requests !== 'object') throw new Error('unknown version');
-    return { version: VERSION, recent: Array.isArray(s.recent) ? s.recent.slice(-RECENT_LIMIT) : [], requests: s.requests };
+    if (s?.version !== VERSION || !isObject(s.requests)) throw new Error('unknown version');
+    const requests = {};
+    for (const [name, row] of Object.entries(s.requests)) {
+      const repaired = rowOf(row);
+      if (repaired) requests[name] = repaired;
+    }
+    const recent = Array.isArray(s.recent) ? s.recent.filter((id) => typeof id === 'string') : [];
+    return { version: VERSION, recent: recent.slice(-RECENT_LIMIT), requests };
   } catch {
     return { version: VERSION, recent: [], requests: {} };
   }
 }
 
-export function saveStats(file, stats) {
+// Temp file plus rename: an interrupted write leaves the previous file intact, never a half file.
+export function saveText(file, text) {
   const temp = `${file}.tmp-${process.pid}`;
-  writeFileSync(temp, `${JSON.stringify(stats, null, 2)}\n`);
+  writeFileSync(temp, text);
   renameSync(temp, file);
 }
+
+export const saveStats = (file, stats) => saveText(file, `${JSON.stringify(stats, null, 2)}\n`);
 
 // Add one call. Returns false when the same tool call was already counted, so a client that delivers
 // an event twice does not inflate the numbers.
