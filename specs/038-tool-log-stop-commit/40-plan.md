@@ -13,11 +13,11 @@ usage:
 
 # Plan
 
-- [ ] 1. Add git helpers for listing uncommitted paths and committing a path list — level: easy — files: `kit/hooks/lib/git.mjs` — verify: `node --test tests/hooks.test.mjs` — commit: included with task 2
-- [ ] 2. Commit the remaining tool logs on the stop event — level: easy — files: `kit/hooks/checks/tool-log.mjs` — verify: `node --test tests/hooks.test.mjs` — commit: `feat(hooks): commit the remaining tool log when the agent stops`
-- [ ] 3. Cover the stop commit in the hooks tests — level: medium — files: `tests/hooks.test.mjs` — verify: `node --test tests/hooks.test.mjs` — commit: `test(hooks): cover the tool-log commit on stop`
-- [ ] 4. Describe the stop commit in the docs — level: easy — files: `kit/hooks/README.md`, `docs/safety-hooks.md`, `specs/README.md` — verify: text review — commit: `docs(hooks): describe the tool log commit on stop`
-- [ ] 5. Run the full suite, refresh the user-level install and record the result — level: easy — files: `specs/038-tool-log-stop-commit/50-implementation.md` — verify: `npm test` — commit: `docs(spec): record request 038`
+- [x] 1. Add git helpers for listing uncommitted paths and committing a path list — level: easy — files: `kit/hooks/lib/git.mjs` — verify: `node --test tests/hooks.test.mjs` — commit: included with task 2
+- [x] 2. Commit the remaining tool logs on the stop event — level: easy — files: `kit/hooks/checks/tool-log.mjs` — verify: `node --test tests/hooks.test.mjs` — commit: `feat(hooks): commit the remaining tool log when the agent stops`
+- [x] 3. Cover the stop commit in the hooks tests — level: medium — files: `tests/hooks.test.mjs` — verify: `node --test tests/hooks.test.mjs` — commit: `test(hooks): cover the tool-log commit on stop`
+- [x] 4. Describe the stop commit in the docs — level: easy — files: `kit/hooks/README.md`, `docs/safety-hooks.md`, `specs/README.md` — verify: text review — commit: `docs(hooks): describe the tool log commit on stop`
+- [x] 5. Run the full suite, refresh the user-level install and record the result — level: easy — files: `specs/038-tool-log-stop-commit/50-implementation.md` — verify: `npm test` — commit: `docs(spec): record request 038`
 
 ## Design
 - Extend the existing `tool-log` check with `events: ['post-tool', 'stop']`; no new hook id, so the current `hooks.tool-log` mode also controls the commit.
