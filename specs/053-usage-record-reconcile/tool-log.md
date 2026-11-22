@@ -116,3 +116,33 @@ stored. Safe to delete.
 | 2026-11-22T21:13:36Z | claude | Bash | shell | ls -lt ~/.claude/projects/-Users-light-Documents-code-light-kit/*.jsonl \| head -3; cd ~/.claude/projects/-Users-light-Documents-code-light-kit && node -e ' const fs=require("fs"); const f=fs.readdirS |
 | 2026-11-22T21:13:39Z | claude | Bash | shell | node -e 'const s=require("./.light-kit/agent-skill-usage.json"); console.log(JSON.stringify(s.requests["(no request)"],null,2)); console.log("recent tail", s.recent.slice(-8))' |
 | 2026-11-22T21:13:47Z | claude | Bash | shell | sed -n '38p' kit/hooks/README.md |
+| 2026-11-22T21:14:19Z | claude | Read | read | kit/hooks/record-usage.mjs |
+| 2026-11-22T21:14:23Z | claude | Read | read | kit/hooks/checks/index.mjs |
+| 2026-11-22T21:14:24Z | claude | Read | read | docs/safety-hooks.md |
+| 2026-11-22T21:14:27Z | claude | Read | read | tools/backfill-usage.mjs |
+| 2026-11-22T21:14:43Z | claude | Read | read | .light-kit/agent-skill-usage.json |
+| 2026-11-22T21:14:43Z | claude | Read | read | specs/053-usage-record-reconcile/status.md |
+| 2026-11-22T21:14:48Z | claude | Read | read | specs/053-usage-record-reconcile/agent-skill-usage.json |
+| 2026-11-22T21:14:48Z | claude | Read | read | .light-kit/rules.md |
+| 2026-11-22T21:15:07Z | claude | Read | read | /Users/light/.light-kit/templates/50-implementation.md |
+| 2026-11-22T21:17:10Z | claude | Bash | shell | sed -n '1,30p' docs/safety-hooks.md; echo "===TEMPLATE==="; cat kit/templates/50-implementation.md |
+| 2026-11-22T21:17:19Z | claude | Edit | write | kit/hooks/checks/agent-skill-usage.mjs |
+| 2026-11-22T21:17:23Z | claude | Edit | write | kit/hooks/checks/agent-skill-usage.mjs |
+| 2026-11-22T21:17:27Z | claude | Edit | write | kit/hooks/checks/agent-skill-usage.mjs |
+| 2026-11-22T21:17:29Z | claude | Edit | write | kit/hooks/checks/agent-skill-usage.mjs |
+| 2026-11-22T21:17:32Z | claude | Edit | write | kit/hooks/checks/agent-skill-usage.mjs |
+| 2026-11-22T21:17:34Z | claude | Edit | write | kit/hooks/checks/agent-skill-usage.mjs |
+| 2026-11-22T21:17:37Z | claude | Edit | write | docs/safety-hooks.md |
+| 2026-11-22T21:17:41Z | claude | Edit | write | docs/safety-hooks.md |
+| 2026-11-22T21:17:45Z | claude | Edit | write | kit/hooks/README.md |
+| 2026-11-22T21:17:53Z | claude | Edit | write | tests/agent-skill-usage.test.mjs |
+| 2026-11-22T21:18:04Z | claude | Bash | shell | cat >> tests/agent-skill-usage.test.mjs <<'EOF' test('stop reconciles a nested project on its own stats file', () => { const d = project(); const proj = join(d, 'proj'); mkdirSync(join(proj, '.light-k |
+| 2026-11-22T21:18:13Z | claude | Bash | shell | node --test tests/agent-skill-usage.test.mjs 2>&1 \| grep -A25 "not ok" |
+| 2026-11-22T21:18:22Z | claude | Edit | write | kit/hooks/checks/agent-skill-usage.mjs |
+| 2026-11-22T21:18:30Z | claude | Bash | shell | node --test tests/agent-skill-usage.test.mjs 2>&1 \| tail -10 |
+| 2026-11-22T21:18:33Z | claude | Read | read | specs/053-usage-record-reconcile/50-implementation.md |
+| 2026-11-22T21:18:36Z | claude | Bash | shell | git show 48b1c1637878293384c1d4cd4c7e6f3789a71406:kit/hooks/checks/agent-skill-usage.mjs \| sed -n '10,17p' |
+| 2026-11-22T21:18:45Z | claude | Write | write | specs/053-usage-record-reconcile/50-implementation.md |
+| 2026-11-22T21:19:22Z | claude | Bash | shell | npm test 2>&1 \| tail -12 |
+| 2026-11-22T21:19:29Z | claude | Edit | write | specs/053-usage-record-reconcile/status.md |
+| 2026-11-22T21:19:31Z | claude | Bash | shell | git status --short |

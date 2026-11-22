@@ -44,7 +44,8 @@
     "call_01_QURRy47mMZQIi3jgeIcE1041",
     "call_00_wBiJhK5sRqTVXjsv0HKQ0560",
     "call_01_3Z5KG0Uhb4puwKldZLwa0051",
-    "call_02_G9o0ORBTiv4fvw6p6bXV6884"
+    "call_02_G9o0ORBTiv4fvw6p6bXV6884",
+    "call_00_OeneR6w2M37flHtQXehr3254"
   ],
   "requests": {
     "(no request)": {
@@ -246,6 +247,14 @@
       "agents": {
         "light-reviewer": 1,
         "light-orchestrator": 2
+      },
+      "skills": {}
+    },
+    "053-usage-record-reconcile": {
+      "first": "2026-11-22T21:13:14.836Z",
+      "last": "2026-11-22T21:13:14.836Z",
+      "agents": {
+        "light-reviewer": 1
       },
       "skills": {}
     }
