@@ -117,7 +117,6 @@ export function loadConfig(layers) {
     sensitiveAllow: [...BUILTIN.sensitiveAllow, ...arr(raw.sensitive?.allow)],
     envKeywords: [...BUILTIN.envKeywords, ...arr(raw.sensitive?.extraEnvKeywords)],
     extraSecretPatterns: arr(raw.secrets?.extraPatterns),
-    extraDefectPatterns: arr(raw.rules?.extraDefectPatterns),
     extraDeny: arr(raw.commands?.extraDeny),
     allowCommands: arr(raw.commands?.allow),
     extraForbiddenText: arr(raw.commit?.extraForbiddenText),

@@ -30,7 +30,6 @@ Ask yourself each question, answer it from the repo (manifests, scripts, CI, doc
 | What one command verifies the whole project (tests, build)? | `verify.command` |
 | Which branches must never receive direct commits (long-lived, release, deployment branches)? | `branches.protected` (globs, added to the defaults) |
 | Which source-adjacent paths may change without a request? | `spec.exempt` |
-| Which language do user requests arrive in, and which words there report a bug or "not working"? Leave empty when the request language is English or Vietnamese, which are built in. | `rules.extraDefectPatterns` (regexes) |
 
 ## Modes
 Each hook in `hooks` is `block` (deny the action), `warn` (tell the agent, allow it) or `off`.
