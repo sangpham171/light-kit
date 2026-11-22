@@ -1,9 +1,12 @@
-import { readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 // Per-request counts of agent and skill calls. The JSON file is the source of truth; the Markdown
 // table beside it is rendered from it, so a reader gets a table and a tool gets exact numbers.
 // Readers are best-effort like `usage.mjs`: a missing or corrupt file starts empty, never throws.
 
+export const JSON_FILE = 'agent-skill-usage.json';
+export const MD_FILE = 'agent-skill-usage.md';
 export const VERSION = 1;
 export const NO_REQUEST = '(no request)';
 // Enough recent call ids to absorb a client re-delivering the same event; no id ever repeats after that.
@@ -74,6 +77,22 @@ export function saveText(file, text) {
 }
 
 export const saveStats = (file, stats) => saveText(file, `${JSON.stringify(stats, null, 2)}\n`);
+
+// The same stats limited to one request, written into that request's folder: the folder carries the
+// usage it caused, beside the project-wide aggregate. A derived view, so it is best-effort — a
+// missing folder or a failed write is skipped, never thrown, and the aggregate stays the truth.
+export function saveRequestStats(requestDir, stats, request) {
+  const row = stats.requests?.[request];
+  if (!row || !existsSync(requestDir)) return false;
+  const view = { version: VERSION, requests: { [request]: row } };
+  try {
+    saveStats(join(requestDir, JSON_FILE), view);
+    saveText(join(requestDir, MD_FILE), renderTable(view));
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 // Add one call. Returns false when the same tool call was already counted, so a client that delivers
 // an event twice does not inflate the numbers.
