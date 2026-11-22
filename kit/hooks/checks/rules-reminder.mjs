@@ -1,5 +1,6 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { regexes } from '../lib/config.mjs';
 
 // A user message that reports a defect. A feature request that merely mentions a failure
 // ("add a retry when the request fails") can match too; the message below is advisory and
@@ -19,15 +20,28 @@ const DEFECT = [
   /\b(?:fail|fails|failed|failing)\b.{0,30}\b(?:test|tests|build|lint|check|checks|verification)\b/i,
 ];
 
+// A starter set for Vietnamese; other languages go in `rules.extraDefectPatterns`.
+const VIETNAMESE = [
+  /\blỗi\b/i,
+  /\bhỏng\b/i,
+  /\bkhông hoạt động\b/i,
+  /\bkhông chạy\b/i,
+  /\bvẫn không\b/i,
+  /\bsập\b/i,
+  /\bthất bại\b/i,
+];
+
 const hasRules = (ctx) => [ctx.scope, ctx.root].some((dir) => dir && existsSync(join(dir, '.light-kit/rules.md')));
 
 export default {
   id: 'rules-reminder',
   events: ['prompt'],
-  run(ctx) {
+  run(ctx, cfg) {
     if (!ctx.kitEnabled || !hasRules(ctx)) return null;
     const prompt = (ctx.prompt ?? '').trim();
-    if (!prompt || !DEFECT.some((re) => re.test(prompt))) return null;
+    if (!prompt) return null;
+    const patterns = [...DEFECT, ...VIETNAMESE, ...regexes(cfg?.extraDefectPatterns ?? [])];
+    if (!patterns.some((re) => re.test(prompt))) return null;
     return {
       message: 'this reads like a defect report. If something from an earlier request or change is broken, apply the `light-rules` skill before fixing it: record the rule that should have prevented it, or add a `pending` rule with this report and the earlier request as evidence. A review is not the only trigger; a user-reported bug, a failed check or a correction counts too.',
     };
