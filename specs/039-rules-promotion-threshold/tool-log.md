@@ -42,3 +42,15 @@ stored. Safe to delete.
 | 2026-11-22T13:11:43Z | claude | Bash | shell | cat specs/037-project-rules/60-conclusion.md && echo '=== 037 plan ===' && cat specs/037-project-rules/40-plan.md |
 | 2026-11-22T13:11:52Z | claude | Write | write | specs/039-rules-promotion-threshold/10-understanding.md |
 | 2026-11-22T13:11:54Z | claude | Bash | shell | git status --short && ls specs/039-rules-promotion-threshold |
+| 2026-11-22T13:11:57Z | claude | Bash | shell | git add specs/039-rules-promotion-threshold && git commit -q -m "docs(spec): record request 039" && git add .light-kit/usage.json && git commit -q -m "chore(kit): record local usage state" && git log  |
+| 2026-11-22T13:12:03Z | claude | Read | read | specs/039-rules-promotion-threshold/00-request.md |
+| 2026-11-22T13:12:03Z | claude | Read | read | specs/039-rules-promotion-threshold/10-understanding.md |
+| 2026-11-22T13:12:04Z | claude | Bash | shell | grep -rn "confirmed\\|promote\\|promotion" kit/audit tools/build.mjs kit/skills/light-init/SKILL.md kit/skills/light-implement/SKILL.md kit/agents/light-orchestrator.md kit/skills/light-review-checkli |
+| 2026-11-22T13:12:04Z | claude | Read | read | kit/templates/project-profile.md |
+| 2026-11-22T13:12:04Z | claude | Read | read | kit/skills/light-rules/SKILL.md |
+| 2026-11-22T13:12:04Z | claude | Read | read | kit/templates/rules.md |
+| 2026-11-22T13:12:04Z | claude | Read | read | kit/instructions/core.md |
+| 2026-11-22T13:12:05Z | claude | Read | read | docs/usage.md |
+| 2026-11-22T13:12:06Z | claude | Read | read | tests/kit.test.mjs |
+| 2026-11-22T13:12:06Z | claude | Read | read | .light-kit/rules.md |
+| 2026-11-22T13:12:06Z | claude | Read | read | .light-kit/project-profile.md |
