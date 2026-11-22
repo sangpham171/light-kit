@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "requests": {
+    "006-token-usage-unknown": {
+      "first": "2026-10-26T20:12:07.339Z",
+      "last": "2026-10-26T20:12:09.229Z",
+      "agents": {
+        "light-reviewer": 1,
+        "light-tester": 1
+      },
+      "skills": {}
+    }
+  }
+}

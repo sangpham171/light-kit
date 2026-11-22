@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "requests": {
+    "012-cache-usage-templates": {
+      "first": "2026-10-26T21:43:22.940Z",
+      "last": "2026-10-26T21:43:22.940Z",
+      "agents": {
+        "light-reviewer": 1
+      },
+      "skills": {}
+    }
+  }
+}

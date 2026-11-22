@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "requests": {
+    "032-token-usage-rewrite": {
+      "first": "2026-11-09T12:37:41.699Z",
+      "last": "2026-11-09T12:52:02.063Z",
+      "agents": {
+        "light-tech-lead": 1,
+        "light-developer": 2,
+        "light-reviewer": 1
+      },
+      "skills": {}
+    }
+  }
+}

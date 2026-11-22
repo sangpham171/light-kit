@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "requests": {
+    "036-brainstormer-agent": {
+      "first": "2026-11-22T10:50:46.673Z",
+      "last": "2026-11-22T10:59:06.554Z",
+      "agents": {
+        "light-reviewer": 1,
+        "light-tester": 1,
+        "light-tech-writer": 1
+      },
+      "skills": {}
+    }
+  }
+}
