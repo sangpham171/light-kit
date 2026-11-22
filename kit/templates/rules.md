@@ -18,10 +18,12 @@ Style, stack and workflow preferences belong in `.light-kit/project-profile.md`,
 Write or update a rule when a failure appears, not only after a review:
 
 - the user reports a bug, a regression, or that something still does not work after earlier work;
-- a test, build, lint or manual check fails;
+- a test, build, lint, format or manual check fails;
 - a review, tester or security finding exposes a mistake;
 - the user corrects the agent or rejects an output;
-- a new request is caused by a defect in earlier work.
+- implementation or discovery shows the same error that happened before;
+- a new request is caused by a defect in earlier work;
+- a `confirmed` rule cannot be followed.
 
 Record it in the same request or exchange, with the report and the earlier request as evidence.
 

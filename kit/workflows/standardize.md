@@ -16,7 +16,8 @@ steps:
 3. implement — agent: light-developer — skill: light-tech-debt — writes: 50-implementation.md (one item at a time; after each, rerun its Verify step and the baseline checks; the debt check covers only what the items' changes introduced)
 4. review — agent: light-reviewer — writes: notes in 50-implementation.md (confirm every change is cosmetic or additive and behavior-preserving; flag anything that goes beyond its item)
 5. fix — agent: light-developer — skill: light-review-cycle — writes: 50-implementation.md
-6. conclude — agent: light-tech-writer — writes: 60-conclusion.md (and tick the items done in the backlog)
+6. rules — agent: light-orchestrator — skill: light-rules — writes: `.light-kit/rules.md` when a rule changes
+7. conclude — agent: light-tech-writer — writes: 60-conclusion.md (and tick the items done in the backlog)
 
 Rules:
 - Only items in the backlog: all of them, or the ids given to the command; skip items marked `rejected`. Never add items.
