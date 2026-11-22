@@ -7,8 +7,8 @@ runs:
     thinking: unknown
     level: easy
 usage:
-  tokens: 340 input · 172,672 cache read · 0 cache write · 1,128 output · 174,140 total
-  time: 7s
+  tokens: 799 input · 447,104 cache read · 0 cache write · 1,547 output · 449,450 total
+  time: 39s
 ---
 
 # Plan
@@ -19,7 +19,7 @@ usage:
 - [x] 4. Add `kit/hooks/checks/rules-reminder.mjs`, register it in `checks/index.mjs`, add its `warn` default in `lib/config.mjs` and `kit/hooks/hooks.config.json` — level: medium — files: those four — verify: `node --test tests/hooks.test.mjs` — commit: `feat(hooks): remind the agent when a user reports a defect`
 - [x] 5. Add hook tests and extend the rules test in `tests/hooks.test.mjs` and `tests/kit.test.mjs` — level: medium — files: those two — verify: `node --test tests/hooks.test.mjs tests/kit.test.mjs` — commit: `test(hooks): cover the rules reminder`
 - [x] 6. Document the hook in `kit/hooks/README.md` and `docs/safety-hooks.md` — level: easy — files: those two — verify: read-back — commit: `docs(hooks): document the rules reminder`
-- [ ] 7. Run `npm test`, then review and conclude — level: medium — files: `50-implementation.md`, `60-conclusion.md` — verify: `npm test` — commit: `docs(spec): record request 043`
+- [x] 7. Run `npm test`, then review and conclude — level: medium — files: `50-implementation.md`, `60-conclusion.md` — verify: `npm test` — commit: `docs(spec): record request 043`
 
 ## Risks
 - The prompt heuristic can fire on a feature request that mentions a failure ("add a retry when the request fails"); it is advisory and names the condition, so the agent judges.
