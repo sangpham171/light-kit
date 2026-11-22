@@ -146,6 +146,14 @@ test('the last table row totals every request', () => {
   assert.match(table, /^\| \*\*All requests\*\* \| 2 \| 1 \|$/m);
 });
 
+test('an install ships the record command and tells the agent to use it', () => {
+  const d = project();
+  assert.ok(existsSync(join(d, '.light-kit/hooks/record-usage.mjs')));
+  const instructions = readFileSync(join(d, 'CLAUDE.md'), 'utf8');
+  assert.match(instructions, /hooks\/record-usage\.mjs <agent\|skill> <name>/);
+  assert.match(instructions, /do not run it after a tool call the hook already counted/);
+});
+
 test('the generated Claude hooks watch the agent and skill tools', () => {
   const d = project();
   const settings = JSON.parse(readFileSync(join(d, '.claude/settings.json'), 'utf8'));
