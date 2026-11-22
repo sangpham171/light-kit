@@ -15,3 +15,5 @@ stored. Safe to delete.
 | 2026-11-22T21:20:09Z | claude | Bash | shell | grep -rn "version-bump" kit tools .light-kit/hooks.config.json \| head -20; echo "---git show registration---"; git log --all --oneline -- .claude/settings.json \| head |
 | 2026-11-22T21:20:11Z | claude | Bash | shell | sed -n '150,200p' tools/version-bump.mjs |
 | 2026-11-22T21:20:16Z | claude | Bash | shell | node tools/version-bump.mjs; node -p 'require("./package.json").version'; git log --oneline -3; git status --short |
+| 2026-11-22T21:20:20Z | claude | Bash | shell | git add specs/tool-log.md && git commit -q -m "chore(spec): record tool-call logs" && git status --short && git log --oneline -5 |
+| 2026-11-22T21:20:23Z | claude | Bash | shell | sed -n '20,40p' README.md |
