@@ -1,6 +1,7 @@
 {
   "sensitive": { "extraFiles": [], "allow": [], "extraEnvKeywords": [] },
   "secrets": { "extraPatterns": [] },
+  "rules": { "extraDefectPatterns": [] },
   "commands": { "extraDeny": [], "allow": [] },
   "protect": { "paths": [] },
   "spec": { "exempt": [] },
