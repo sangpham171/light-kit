@@ -48,6 +48,9 @@ export function mergeMarkdown(text, template) {
   const base = splitSections(text);
   const tpl = splitSections(template);
   const existing = new Map(base.sections.map((s) => [s.heading, s]));
+  // Keys already set anywhere in the document: a user who moved a setting to another section keeps
+  // one value, never a contradictory duplicate.
+  const have = new Set(base.lines.map(settingKey).filter(Boolean));
   const out = [...base.lines];
   const inserts = [];
   const addedSections = [];
@@ -59,7 +62,6 @@ export function mergeMarkdown(text, template) {
     const target = existing.get(section.heading);
     if (!target) { addedSections.push(section.heading); continue; } // appended below, in template order
     // Settings the section lacks, matched by key so a user-set value is not duplicated.
-    const have = new Set(base.lines.slice(target.start, target.end).map(settingKey).filter(Boolean));
     const missing = body.filter((line) => settingKey(line) && !have.has(settingKey(line)));
     if (missing.length) {
       let at = target.end;
@@ -178,5 +180,7 @@ if (invoked) {
     if (entry.skipped) console.log(`  skipped ${entry.path}: ${entry.skipped}`);
     else if (entry.changed) console.log(`  ${dryRun ? 'would update' : 'updated'} ${entry.path}: ${line(entry)}`);
   }
-  console.log(changed.length ? `light-kit update: ${changed.length} document${changed.length === 1 ? '' : 's'} ${dryRun ? 'would change' : 'updated'}.` : 'light-kit update: everything is current.');
+  const skipped = report.files.filter((f) => f.skipped).length;
+  if (changed.length) console.log(`light-kit update: ${changed.length} document${changed.length === 1 ? '' : 's'} ${dryRun ? 'would change' : 'updated'}${skipped ? `, ${skipped} skipped` : ''}.`);
+  else console.log(skipped ? `light-kit update: nothing to add; ${skipped} document${skipped === 1 ? '' : 's'} skipped.` : 'light-kit update: everything is current.');
 }

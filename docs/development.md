@@ -11,6 +11,7 @@
 | `kit/templates/` | Artifact templates and seed configs. |
 | `kit/hooks/` | Safety hooks and their reference (`kit/hooks/README.md`). |
 | `kit/audit/` | The audit tool used by the `light-audit` skill. |
+| `kit/init/` | The in-place update script used by `light-init` on an existing `.light-kit/`, installed as `.light-kit/init/merge.mjs`. |
 | `tools/build.mjs` | Generates each client's files. Client formats live here, in `CLIENTS`. |
 | `tools/install.mjs` | Installs a generated kit into a target folder (see [Installation](installation.md)). |
 | `tools/uninstall.mjs` | Removes an installed kit, soft or hard (see [Uninstall](installation.md#uninstall)). |

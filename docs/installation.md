@@ -46,7 +46,7 @@ Re-running the installer is safe:
 - the kit copies under `.light-kit/templates/` are refreshed, so the next `light-init` has the current templates to merge from
 - obsolete generated files from earlier kit versions are removed (only files carrying the light-kit marker)
 
-After a reinstall, run `light-init` in a project that already has `.light-kit/`: it applies `node .light-kit/init/merge.mjs`, which adds the `##` sections, settings and JSON keys the new kit introduced to the project profile, rules, hooks config, models table and registry. Existing content is never changed or deleted, and a second run writes nothing.
+After a reinstall, run `light-init` in a project that already has `.light-kit/`: it applies `node .light-kit/init/merge.mjs`, which adds the `##` sections, settings and JSON keys the new kit introduced to the project profile, rules, hooks config, models table and registry (missing hook modes are added to a config that already lists modes; a tuning-only config keeps using the built-in defaults). Existing content is never changed or deleted, and a second run writes nothing.
 
 ## Uninstall
 ```sh
@@ -56,7 +56,7 @@ Soft is the default. Both modes are idempotent and leave alone any file the kit 
 
 | Mode | Removes | Keeps |
 |---|---|---|
-| `--soft` (default) | client agents, skills, rules and TOML, plus the command files an earlier version generated; the instruction blocks in `CLAUDE.md`, `AGENTS.md` and Copilot instructions; light-kit hook entries (`settings.json`, `hooks.json`) with your own hooks intact; the generated files in `.light-kit/{workflows,profiles,hooks}`; `.light-kit/{audit,templates}`; `kit.config.json` | `specs/`; `.light-kit/{project-profile.md,rules.md,hooks.config.json,models.json,projects.md}`; the codebase map, assessment and backlog |
+| `--soft` (default) | client agents, skills, rules and TOML, plus the command files an earlier version generated; the instruction blocks in `CLAUDE.md`, `AGENTS.md` and Copilot instructions; light-kit hook entries (`settings.json`, `hooks.json`) with your own hooks intact; the generated files in `.light-kit/{workflows,profiles,hooks,init}`; `.light-kit/{audit,templates}`; `kit.config.json` | `specs/`; `.light-kit/{project-profile.md,rules.md,hooks.config.json,models.json,projects.md}`; the codebase map, assessment and backlog |
 | `--hard` | all of soft, plus the kit's own folders: `.light-kit/` and `specs/` | files outside the kit's folders that the kit does not own |
 
 Hard mode asks for confirmation; `--yes` skips the question, and without a terminal it refuses until `--yes` is passed. At user level hard removes `~/.light-kit/` only (there is no `specs/` at that level); at workspace level it also removes every registered project's `.light-kit/` and `specs/`.
@@ -96,7 +96,7 @@ Monorepo projects (one repository) are discovered by `light-init`.
 | Copilot, user level | `~/.copilot/{agents,skills,hooks}`, `~/.copilot/copilot-instructions.md` |
 | Cursor | `.cursor/rules/*.mdc` (one rule per agent and per skill) |
 | Codex | `.codex/agents/*.toml`, `.agents/skills`, `AGENTS.md` |
-| all | `AGENTS.md`, `.light-kit/{workflows,templates,profiles,project-profile.md,hooks.config.json,hooks/}`; `.light-kit/rules.md` is seeded per project (never at user level) (at user level: `~/.light-kit/...`, and `~/.codex/AGENTS.md`, `~/.claude/CLAUDE.md`, `~/.copilot/copilot-instructions.md`, `~/.copilot/{agents,skills,hooks}`) |
+| all | `AGENTS.md`, `.light-kit/{workflows,templates,profiles,project-profile.md,hooks.config.json,hooks/,init/}`; `.light-kit/rules.md` is seeded per project (never at user level) (at user level: `~/.light-kit/...`, and `~/.codex/AGENTS.md`, `~/.claude/CLAUDE.md`, `~/.copilot/copilot-instructions.md`, `~/.copilot/{agents,skills,hooks}`) |
 | hooks | `.claude/settings.json`, `.codex/hooks.json`, `.cursor/hooks.json`, `.github/hooks/light-kit.json` (merged, your own hooks are kept) |
 
 Commands are skills, so no client gets a command or prompt file: an earlier version wrote those and the installer sweeps them out on upgrade (only files carrying the light-kit marker). Client formats change often; they are defined in one place, `CLIENTS` in `tools/build.mjs`. Copilot and Cursor have no parallel subagents here, so parallel steps run sequentially there.

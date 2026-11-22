@@ -38,6 +38,12 @@ test('markdown merge adds a missing setting to an existing section', () => {
   assert.deepEqual(merged.addedSettings, ['Promotion threshold']);
 });
 
+test('a setting moved to another section is not duplicated', () => {
+  const merged = mergeMarkdown('# P\n\n## Other\nStyle: normal\n\n## Output style\n- note\n', '# P\n\n## Output style\nStyle: concise   <!-- x -->\n');
+  assert.equal(merged.text.match(/^Style:/gm).length, 1);
+  assert.ok(merged.text.includes('Style: normal'));
+});
+
 test('json merge keeps every existing value and adds only missing keys', () => {
   const merged = mergeJson({ a: { b: 1 } }, { a: { b: 2, c: 3 }, d: 4 });
   assert.deepEqual(merged.value, { a: { b: 1, c: 3 }, d: 4 });
@@ -115,6 +121,9 @@ test('invalid JSON is reported and left untouched', async () => {
   const report = await mergeProject(dir);
   assert.equal(read(dir, '.light-kit/models.json'), '{ broken');
   assert.equal(report.files.find((f) => f.path.endsWith('models.json')).skipped, 'invalid JSON');
+  const out = execFileSync(process.execPath, [join(dir, '.light-kit/init/merge.mjs'), '--project', dir], { encoding: 'utf8' });
+  assert.match(out, /skipped .*models\.json: invalid JSON/);
+  assert.match(out, /nothing to add; 1 document skipped/);
 });
 
 test('the installed script runs against a project with --project', () => {
