@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { backfill, callsIn, requestOf } from '../tools/backfill-usage.mjs';
@@ -44,6 +44,22 @@ test('imports agent and skill calls, attributes them, and skips other projects a
   const table = readFileSync(join(root, '.light-kit/agent-skill-usage.md'), 'utf8');
   assert.match(table, /\| 001-demo \| 1 \|/);
   assert.match(table, /S: light-rules/);
+
+  // The imported request gets its own pair, limited to its row.
+  const own = JSON.parse(readFileSync(join(root, 'specs/001-demo/agent-skill-usage.json'), 'utf8'));
+  assert.deepEqual(Object.keys(own.requests), ['001-demo']);
+  assert.deepEqual(own.requests['001-demo'].agents, { 'light-reviewer': 1 });
+  assert.match(readFileSync(join(root, 'specs/001-demo/agent-skill-usage.md'), 'utf8'), /\| 001-demo \| 1 \|/);
+});
+
+test('a repeat run recreates a deleted per-request file', () => {
+  const root = project();
+  const dir = transcripts([event(root, '2026-01-01T10:00:00.000Z', [agent('t1')])]);
+  assert.equal(backfill({ root, transcripts: dir }).added, 1);
+  rmSync(join(root, 'specs/001-demo/agent-skill-usage.json'));
+  assert.equal(backfill({ root, transcripts: dir }).added, 0);
+  const own = JSON.parse(readFileSync(join(root, 'specs/001-demo/agent-skill-usage.json'), 'utf8'));
+  assert.deepEqual(own.requests['001-demo'].agents, { 'light-reviewer': 1 });
 });
 
 test('a second run adds nothing and a dry run writes nothing', () => {
