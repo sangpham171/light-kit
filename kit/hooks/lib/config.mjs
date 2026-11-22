@@ -20,6 +20,7 @@ export const DEFAULT_MODES = {
   'warn-secret-output': 'warn',
   'session-context': 'warn',
   'tool-log': 'warn',
+  'agent-skill-usage': 'warn',
   'verify-on-stop': 'off',
   'audit-log': 'off',
   'commit-checkpoint': 'warn',
