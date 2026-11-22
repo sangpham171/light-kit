@@ -39,6 +39,7 @@ Users install the generated files into a project or at user level, then work thr
 
 ## Data
 - Project and hook settings are JSON files; requests are Markdown files under `specs/`.
+- Project rules live in `.light-kit/rules.md` (pending/confirmed, counted violations), seeded once from `kit/templates/rules.md`.
 - Hook state is local JSON under `.light-kit/`; Copilot and Claude usage sources are client-owned local JSONL files.
 - No project database or migration framework is present.
 
