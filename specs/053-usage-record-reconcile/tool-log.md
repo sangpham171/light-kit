@@ -63,3 +63,33 @@ stored. Safe to delete.
 | 2026-11-22T21:08:22Z | claude | Write | write | specs/053-usage-record-reconcile/40-plan.md |
 | 2026-11-22T21:08:25Z | claude | Write | write | specs/053-usage-record-reconcile/status.md |
 | 2026-11-22T21:08:27Z | claude | Bash | shell | git status --short && echo "---diff stat---" && git diff --stat |
+| 2026-11-22T21:08:31Z | claude | Bash | shell | git add .light-kit/rules.md .light-kit/agent-skill-usage.json .light-kit/agent-skill-usage.md .light-kit/usage.json specs/053-usage-record-reconcile && git commit -q -m "docs(spec): plan usage record  |
+| 2026-11-22T21:08:59Z | claude | Write | write | kit/hooks/lib/runs.mjs |
+| 2026-11-22T21:09:02Z | claude | Edit | write | kit/hooks/checks/artifact-header.mjs |
+| 2026-11-22T21:09:06Z | claude | Edit | write | kit/hooks/checks/artifact-header.mjs |
+| 2026-11-22T21:09:09Z | claude | Edit | write | kit/hooks/lib/usage-stats.mjs |
+| 2026-11-22T21:09:29Z | claude | Write | write | kit/hooks/checks/agent-skill-usage.mjs |
+| 2026-11-22T21:09:36Z | claude | Bash | shell | node --test tests/agent-skill-usage.test.mjs 2>&1 \| tail -40 |
+| 2026-11-22T21:10:06Z | claude | Bash | shell | node --test tests/hooks.test.mjs 2>&1 \| tail -25 |
+| 2026-11-22T21:10:08Z | claude | Bash | shell | wc -l tests/agent-skill-usage.test.mjs && tail -30 tests/agent-skill-usage.test.mjs |
+| 2026-11-22T21:10:21Z | claude | Edit | write | tests/agent-skill-usage.test.mjs |
+| 2026-11-22T21:10:24Z | claude | Edit | write | tests/agent-skill-usage.test.mjs |
+| 2026-11-22T21:10:35Z | claude | Bash | shell | cat >> tests/agent-skill-usage.test.mjs <<'EOF' test('an agent credited by an artifact header is counted even when no tool call ran', () => { const d = project(); withSpec(d); const file = artifact(d, |
+| 2026-11-22T21:10:41Z | claude | Edit | write | kit/hooks/checks/agent-skill-usage.mjs |
+| 2026-11-22T21:10:48Z | claude | Bash | shell | node --test tests/agent-skill-usage.test.mjs 2>&1 \| tail -20 |
+| 2026-11-22T21:10:51Z | claude | Read | read | kit/hooks/README.md |
+| 2026-11-22T21:10:54Z | claude | Edit | write | kit/hooks/README.md |
+| 2026-11-22T21:10:56Z | claude | Read | read | kit/hooks/README.md |
+| 2026-11-22T21:11:00Z | claude | Edit | write | kit/hooks/README.md |
+| 2026-11-22T21:11:03Z | claude | Edit | write | kit/instructions/core.md |
+| 2026-11-22T21:11:06Z | claude | Bash | shell | grep -rn "do not run it after a tool call\\|hook already counted" . --exclude-dir=.git |
+| 2026-11-22T21:11:07Z | claude | Edit | write | tests/agent-skill-usage.test.mjs |
+| 2026-11-22T21:11:15Z | claude | Bash | shell | node --test tests/agent-skill-usage.test.mjs tests/record-usage.test.mjs 2>&1 \| tail -12 |
+| 2026-11-22T21:11:45Z | claude | Bash | shell | node --test tests/hooks.test.mjs tests/kit.test.mjs 2>&1 \| tail -12 |
+| 2026-11-22T21:11:50Z | claude | Bash | shell | node --input-type=module -e ' import { readFileSync, readdirSync } from "node:fs"; import { join } from "node:path"; import { runsOf, headerOf } from "./kit/hooks/lib/runs.mjs"; const req = "/Users/li |
+| 2026-11-22T21:12:00Z | claude | Bash | shell | node --input-type=module -e ' import { readFileSync, readdirSync } from "node:fs"; import { join } from "node:path"; import { runsOf } from "/Users/light/Documents/code/light-kit/kit/hooks/lib/runs.mj |
+| 2026-11-22T21:12:03Z | claude | Bash | shell | cd /Users/light/Documents/code/ai-it-team && git branch --show-current && git status --short && echo "---TABLE---" && cat specs/095-generated-app-section-layout/agent-skill-usage.md |
+| 2026-11-22T21:12:11Z | claude | Bash | shell | cd /Users/light/Documents/code/ai-it-team && git add .light-kit/agent-skill-usage.json .light-kit/agent-skill-usage.md specs/095-generated-app-section-layout/agent-skill-usage.json specs/095-generated |
+| 2026-11-22T21:12:45Z | claude | Bash | shell | npm test 2>&1 \| tail -30 |
+| 2026-11-22T21:13:00Z | claude | Write | write | specs/053-usage-record-reconcile/50-implementation.md |
+| 2026-11-22T21:13:02Z | claude | Bash | shell | git status --short |
