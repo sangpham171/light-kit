@@ -187,31 +187,43 @@ test('the orchestrator adapts the agent roster as the request unfolds, and recor
   assert.match(skill, /## 3\. What you must not change/);
   for (const m of ['Add an agent to a step', 'Add a step', 'Skip an optional agent', 'Split a step', 'Repeat a finished step', 'Reorder remaining steps'])
     assert.ok(skill.includes(m), m);
-  assert.match(skill, /every workflow keeps `understand`, a written `40-plan\.md` before code, `implement`, the `review`\/`fix` loop and `conclude`/);
+  assert.match(skill, /keep the steps the chosen workflow defines as required/);
+  assert.match(skill, /plus `understand` when the workflow has one/);
   assert.match(skill, /`light-reviewer` always runs/);
-  assert.match(skill, /`light-tester` whenever behavior changes/);
+  assert.match(skill, /where the workflow has a `light-tester`, never drop it when the change alters behavior/);
+  assert.match(skill, /add `light-security-reviewer` whenever the change touches/);
   assert.match(skill, /auth, personal data, money, migrations, public interfaces or new dependencies/);
+  assert.match(skill, /an agent the user asked for, one a `confirmed` rule in `\.light-kit\/rules\.md` requires/);
   assert.match(skill, /`## Agent plan`/);
   assert.match(skill, /`## Routing`/);
+  assert.match(skill, /mark a dropped step as skipped and a split step as split/);
   assert.match(skill, /`runs:` header/);
   const orch = read('.claude/agents/light-orchestrator.md');
   assert.match(orch, /baseline roster/);
   assert.match(orch, /not a fixed list/);
+  assert.match(orch, /Before each step and whenever a fact changes the work, apply the `light-agent-selection` skill|before each step and whenever a fact changes the work/);
   assert.match(orch, /light-agent-selection/);
   assert.match(orch, /## Agent plan/);
   assert.match(read('CLAUDE.md'), /light-agent-selection/);
-  assert.match(read('.light-kit/templates/10-understanding.md'), /## Agent plan\n<!-- Baseline from the chosen workflow/);
+  assert.match(read('CLAUDE.md'), /agents and steps a workflow lists are a baseline/);
+  const understanding = read('.light-kit/templates/10-understanding.md');
+  assert.match(understanding, /## Agent plan\n<!-- Baseline from the chosen workflow/);
+  assert.match(understanding, /\+ light-x — <reason> \(after <event>\)/);
+  assert.match(understanding, /- light-y — <reason>/);
   for (const w of ['direct', 'standard', 'full', 'bootstrap', 'standardize']) {
     const text = read(`.light-kit/workflows/${w}.md`);
-    assert.match(text, /agents named in each step are the baseline/, w);
+    assert.match(text, /agents and steps named below are the baseline/, w);
     assert.match(text, /light-agent-selection/, w);
   }
   const routing = read('.claude/skills/light-model-routing/SKILL.md');
   assert.match(routing, /Choose the roster and the model separately/);
+  assert.match(routing, /rate the new or repeated step at the moment it is added/);
   assert.match(routing, /mark its Routing line as skipped/);
   const usage = readFileSync(new URL('../docs/usage.md', import.meta.url), 'utf8');
   assert.match(usage, /light-agent-selection/);
   assert.match(usage, /## Agent plan/);
+  const routingDoc = readFileSync(new URL('../docs/model-routing.md', import.meta.url), 'utf8');
+  assert.match(routingDoc, /`light-agent-selection` decides the agents and steps/);
   assert.deepEqual(lint(kit), []); // the baseline prose does not name a fake agent
 });
 
