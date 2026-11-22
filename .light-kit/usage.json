@@ -126,6 +126,13 @@
       "cacheRead": 9193856,
       "cacheWrite": 0,
       "timeMs": 849973
+    },
+    "ca2c3c77-6dad-492a-a955-c5800cb140e9": {
+      "input": 84401,
+      "output": 48538,
+      "cacheRead": 6471936,
+      "cacheWrite": 0,
+      "timeMs": 689950
     }
   },
   "requests": {
@@ -1021,6 +1028,58 @@
           "cacheRead": 452864,
           "cacheWrite": 0,
           "timeMs": 9759,
+          "timed": true
+        }
+      }
+    },
+    "041-dynamic-agent-selection": {
+      "steps": {
+        "00-request": {
+          "input": 62566,
+          "output": 10383,
+          "cacheRead": 844416,
+          "cacheWrite": 0,
+          "timeMs": 218896,
+          "timed": true
+        },
+        "10-understanding": {
+          "input": 2627,
+          "output": 4823,
+          "cacheRead": 293120,
+          "cacheWrite": 0,
+          "timeMs": 24677,
+          "timed": true
+        },
+        "20-discovery": {
+          "input": 258,
+          "output": 1232,
+          "cacheRead": 78592,
+          "cacheWrite": 0,
+          "timeMs": 6383,
+          "timed": true
+        },
+        "40-plan": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "timeMs": 145,
+          "timed": true
+        },
+        "50-implementation": {
+          "input": 15632,
+          "output": 29608,
+          "cacheRead": 4405632,
+          "cacheWrite": 0,
+          "timeMs": 415146,
+          "timed": true
+        },
+        "60-conclusion": {
+          "input": 3318,
+          "output": 2492,
+          "cacheRead": 850176,
+          "cacheWrite": 0,
+          "timeMs": 24703,
           "timed": true
         }
       }
