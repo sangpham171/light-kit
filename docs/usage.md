@@ -7,6 +7,9 @@
 
 `.light-kit/project-profile.md` is yours: kit upgrades never overwrite it.
 
+## Learned rules
+`light-init` also seeds `.light-kit/rules.md`, a short table of rules learned from errors and bugs that already happened. A rule starts `pending` and is only a warning; every task in which it is violated adds one to its `Count`; at three violations it becomes `confirmed`, a critical rule that agents must not break. Agents read the file before a task and update it after one, adding a row for each new repeatable failure. Only you can remove or demote a confirmed rule. Style and stack preferences belong in the project profile, not here. The file is yours: kit upgrades never overwrite it.
+
 ## Brainstorming an idea
 Before asking for a request, `light-brainstorm` explores an idea in several independent directions: actors and affected people, the journey and lifecycle, alternatives, solution shape, scale and cost, failure and misuse, second-order effects, and precedent. It pushes each direction with inversion, an assumption inventory, constraint shifts and analogies, then lists the cases the user did not mention and ranks them by impact and uncertainty.
 
