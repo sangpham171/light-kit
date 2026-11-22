@@ -22,7 +22,7 @@ Read `00-request.md` (or, when the user describes the work instead, that descrip
 - **3–6 → `standard`**
 - **7+, or Ambiguity = 2, or Risk = 2 → `full`**
 
-The user can override with an explicit workflow.
+When Ambiguity is 2 and `00-request.md` references no brainstorm map, the orchestrator invokes `light-brainstormer` before finalizing the workflow; triage then uses the map's cases and options. The user can override with an explicit workflow.
 
 ## Output
 Append to `10-understanding.md`:
