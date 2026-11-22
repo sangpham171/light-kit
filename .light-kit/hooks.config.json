@@ -2,6 +2,10 @@
   "sensitive": {
     "extraFiles": [],
     "allow": [
+      "**/.claude/**",
+      "**/.copilot/**",
+      "**/.light-kit/**",
+      "**/specs/**",
       "**/kit/hooks/lib/secrets.mjs"
     ],
     "extraEnvKeywords": []
