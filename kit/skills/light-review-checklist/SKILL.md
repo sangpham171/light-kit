@@ -14,5 +14,6 @@ purpose: compensation
 6. **Maintainability** — naming, duplication, unnecessary complexity, docs updated.
 7. **Plan fidelity** — deviations are recorded in `50-implementation.md`.
 8. **Technical debt** — the developer's Technical debt section is complete and honest: nothing introduced by the change is left open without a reason.
+9. **Project rules** — every applicable `confirmed` rule in `.light-kit/rules.md` was followed; report each violation so the orchestrator can record it.
 
 Report findings as `blocker`, `should-fix` or `nit`, each with file and line and a suggested fix. End with a verdict: approve or changes requested.
