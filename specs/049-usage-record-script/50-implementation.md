@@ -7,8 +7,8 @@ runs:
     thinking: unknown
     level: easy
 usage:
-  tokens: 10,273 input · 5,978,880 cache read · 0 cache write · 21,662 output · 6,010,815 total
-  time: 5m 17s
+  tokens: 12,972 input · 7,200,768 cache read · 0 cache write · 23,786 output · 7,237,526 total
+  time: 5m 46s
 ---
 
 # Implementation log
@@ -46,6 +46,7 @@ The hook is event-based, not session-based: it writes `.light-kit/agent-skill-us
 
 ## Rules
 - R-007 added (`pending`, `Count: 1`) after the failed installed-copy run: compare real paths for entry-point and path equality.
+- R-008 added (`pending`, `Count: 1`) after checking the new status files: requests 047 and 048 had no opening frontmatter delimiter, so their `state: done` was invisible; both fixed in the same commit.
 - R-006 applied: the command plus the instruction record uses at the moment they happen, with the existing history imported in request 048; no new history gap.
 - R-005 applied: R-007 states the class of failure.
 - R-004 applied: `.light-kit/agent-skill-usage.json`, `.light-kit/agent-skill-usage.md` and `.light-kit/usage.json` are committed with the conclusion.
