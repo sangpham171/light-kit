@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 // Record one agent or skill use in `.light-kit/agent-skill-usage.json` and its Markdown table.
 // node .light-kit/hooks/record-usage.mjs <agent|skill> <name> [--request <slug>] [--id <call-id>] [--root <dir>]
 //
@@ -10,7 +9,7 @@
 //
 // `--id` is the client's tool-call id when the caller has one: a use already recorded (by the hook or
 // an earlier call) is skipped, so a use is never counted twice.
-import { existsSync, mkdirSync } from 'node:fs';
+import { existsSync, mkdirSync, realpathSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { NO_REQUEST, readStats, recordCall, renderTable, saveStats, saveText } from './lib/usage-stats.mjs';
@@ -69,7 +68,14 @@ export function recordUsage({ kind, name, root = projectRoot(), request, id = ''
   return { added, kind: type, name: used, request: owner, total, file };
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+// Compare real paths: `/var/...` and `/private/var/...` are the same file, and a temp folder is
+// reached through both spellings.
+const isEntry = () => {
+  if (!process.argv[1]) return false;
+  try { return realpathSync(resolve(process.argv[1])) === realpathSync(fileURLToPath(import.meta.url)); } catch { return false; }
+};
+
+if (isEntry()) {
   try {
     const args = process.argv.slice(2);
     const positional = [];

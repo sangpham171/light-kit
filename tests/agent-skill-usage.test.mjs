@@ -152,6 +152,10 @@ test('an install ships the record command and tells the agent to use it', () => 
   const instructions = readFileSync(join(d, 'CLAUDE.md'), 'utf8');
   assert.match(instructions, /hooks\/record-usage\.mjs <agent\|skill> <name>/);
   assert.match(instructions, /do not run it after a tool call the hook already counted/);
+  // the installed copy runs as installed: generation must not break its first line
+  const call = spawnSync('node', [join(d, '.light-kit/hooks/record-usage.mjs'), 'skill', 'light-rules'], { cwd: d, encoding: 'utf8' });
+  assert.equal(call.status, 0, call.stderr);
+  assert.deepEqual(statsOf(d).requests['(no request)'].skills, { 'light-rules': 1 });
 });
 
 test('the generated Claude hooks watch the agent and skill tools', () => {
