@@ -148,3 +148,5 @@ stored. Safe to delete.
 | 2026-11-15T21:43:43Z | claude | Write | write | specs/034-brainstorm-skill/status.md |
 | 2026-11-18T13:50:51Z | claude | Read | read | specs/034-brainstorm-skill/50-implementation.md |
 | 2026-11-18T13:52:27Z | claude | Read | read | specs/034-brainstorm-skill/60-conclusion.md |
+| 2026-11-22T10:52:25Z | claude | Read | read | specs/034-brainstorm-skill/50-implementation.md |
+| 2026-11-22T10:54:10Z | claude | Read | read | specs/034-brainstorm-skill/40-plan.md |
