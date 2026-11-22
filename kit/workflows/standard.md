@@ -8,6 +8,8 @@ purpose: structure
 
 Use when triage scores 3–6.
 
+The agents named in each step are the baseline; the orchestrator may add, skip, split, repeat or reorder them as the request unfolds (`light-agent-selection`).
+
 steps:
 1. understand — agent: light-orchestrator — writes: 10-understanding.md
 2. discover — agent: light-tech-lead — skill: light-discovery — writes: 20-discovery.md
