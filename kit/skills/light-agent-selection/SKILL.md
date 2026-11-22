@@ -19,15 +19,15 @@ Do not re-open the roster after every tool call. At a step boundary or a changed
 | Move | Use when | Example |
 |---|---|---|
 | Add an agent to a step | the baseline has a gap the work now needs | `light-security-reviewer` once auth, personal data, money or a public interface enters the change |
-| Add a step | the work needs a kind of output no current step produces | a discovery or design pass when an implementation task exposes an unknown structure; `light-tech-writer` when docs become part of the request |
+| Add a step | the workflow can carry it and the work needs a kind of output no current step produces | a discovery or design pass when an implementation task exposes an unknown structure (escalate `direct` first; `standardize` keeps its assessment); `light-tech-writer` when docs become part of the request |
 | Skip an optional agent | its only contribution has nothing to act on | `light-ux-designer` when there is no user interface; `light-product-owner` when goals and scope are settled and uncontested |
 | Split a step | one step now holds two distinct kinds of work | design into architecture and UX; verification into behavior tests and a security review |
 | Repeat a finished step | new facts invalidated its output | another discovery or design pass after clarification; another implementation pass for a task the review reopened |
 | Reorder remaining steps | a dependency allows it | security review before the second implementation pass |
 
 ## 3. What you must not change
-- **Mandatory steps:** every workflow keeps `understand`, a written `40-plan.md` before code, `implement`, the `review`/`fix` loop and `conclude`. `direct` keeps no discovery or design; when the work needs more, escalate the workflow (as `direct` already does) instead of quietly adding its steps.
-- **The specialists the work needs:** `light-reviewer` always runs; `light-tester` whenever behavior changes; `light-security-reviewer` whenever the change touches auth, personal data, money, migrations, public interfaces or new dependencies. Risk adds these, never removes them.
+- **Mandatory steps:** keep the steps the chosen workflow defines as required: a written `40-plan.md` before code, `implement`, the `review`/`fix` loop and `conclude`, plus `understand` when the workflow has one (`standardize` uses its assessment instead). `direct` keeps no discovery or design; when the work needs more, escalate the workflow (as `direct` already does) instead of quietly adding its steps.
+- **The specialists the work needs:** `light-reviewer` always runs; where the workflow has a `light-tester`, never drop it when the change alters behavior; add `light-security-reviewer` whenever the change touches auth, personal data, money, migrations, public interfaces or new dependencies. Risk adds these, never removes them.
 - **Anyone the request names:** an agent the user asked for, one a `confirmed` rule in `.light-kit/rules.md` requires, or one a plan task names stays until the user agrees to drop it.
 - **Who calls agents:** the main session running the request. A subagent cannot re-delegate.
 
@@ -36,7 +36,7 @@ Choose the roster yourself and give one line of reason. Ask only between genuine
 
 ## 5. Record
 - `10-understanding.md`, `## Agent plan`: the baseline roster once, one line per step (`<step>: <agents> — <why>`), then one line per change (`<step>: + light-x — <reason> (after <event>)`, `<step>: - light-y — <reason>`). Keep the lines in order.
-- `## Routing`: add a line for a new or repeated step when it is added, and mark a dropped step as skipped; never leave a dropped step looking as if it ran.
+- `## Routing`: add a line for a new or repeated step when it is added; mark a dropped step as skipped and a split step as split, rating both new steps. Never leave a removed step looking as if it ran.
 - `50-implementation.md`: list roster deviations under Decisions and deviations when they changed the build.
 - Each artifact's `runs:` header: the agents that actually ran, in order, with `part:` when several contributed (global rule 12). A skipped agent appears nowhere.
 - Tell the user a changed roster in one line when it is not obvious from the request.
