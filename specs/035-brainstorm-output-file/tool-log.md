@@ -126,3 +126,6 @@ stored. Safe to delete.
 | 2026-11-18T13:55:13Z | claude | Bash | shell | git add specs/035-brainstorm-output-file/50-implementation.md && git commit -m "docs(spec): record the round 1 review for request 035" && git log --oneline -1 |
 | 2026-11-18T13:55:20Z | claude | Write | write | specs/035-brainstorm-output-file/60-conclusion.md |
 | 2026-11-18T13:55:21Z | claude | Write | write | specs/035-brainstorm-output-file/status.md |
+| 2026-11-22T10:52:25Z | claude | Read | read | specs/035-brainstorm-output-file/50-implementation.md |
+| 2026-11-22T10:52:25Z | claude | Read | read | specs/035-brainstorm-output-file/60-conclusion.md |
+| 2026-11-22T10:54:10Z | claude | Read | read | specs/035-brainstorm-output-file/40-plan.md |

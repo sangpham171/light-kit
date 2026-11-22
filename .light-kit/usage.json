@@ -91,6 +91,13 @@
       "cacheRead": 7192832,
       "cacheWrite": 0,
       "timeMs": 1116814
+    },
+    "945e4359-38cb-4e43-baec-2a82d51ac8cd": {
+      "input": 71122,
+      "output": 29279,
+      "cacheRead": 3086720,
+      "cacheWrite": 0,
+      "timeMs": 850151
     }
   },
   "requests": {
@@ -742,6 +749,50 @@
           "cacheRead": 121600,
           "cacheWrite": 0,
           "timeMs": 11060,
+          "timed": true
+        }
+      }
+    },
+    "036-brainstormer-agent": {
+      "steps": {
+        "00-request": {
+          "input": 51664,
+          "output": 6131,
+          "cacheRead": 297728,
+          "cacheWrite": 0,
+          "timeMs": 223811,
+          "timed": true
+        },
+        "10-understanding": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "timeMs": 3661,
+          "timed": true
+        },
+        "40-plan": {
+          "input": 2047,
+          "output": 2966,
+          "cacheRead": 57216,
+          "cacheWrite": 0,
+          "timeMs": 5954,
+          "timed": true
+        },
+        "50-implementation": {
+          "input": 15796,
+          "output": 17969,
+          "cacheRead": 2164352,
+          "cacheWrite": 0,
+          "timeMs": 569382,
+          "timed": true
+        },
+        "60-conclusion": {
+          "input": 1615,
+          "output": 2213,
+          "cacheRead": 567424,
+          "cacheWrite": 0,
+          "timeMs": 47343,
           "timed": true
         }
       }
