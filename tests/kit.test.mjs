@@ -199,7 +199,7 @@ test('project rules: a seeded file, a skill, and a before/after loop at every ch
   const skill = read('.claude/skills/light-rules/SKILL.md');
   assert.match(skill, /## Before a task/);
   assert.match(skill, /## After a task/);
-  assert.match(skill, /3 or more/);
+  assert.match(skill, /promotion threshold in `\.light-kit\/project-profile\.md` \(default 3\)/);
   assert.match(skill, /Never renumber or delete a row/);
   assert.match(skill, /only the user can demote or remove/);
   assert.match(read('.light-kit/rules.md'), /\| `pending` \|/);
