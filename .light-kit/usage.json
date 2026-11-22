@@ -156,11 +156,11 @@
       "timeMs": 315258
     },
     "1e760e20-da43-4921-a3d7-ff865024002e": {
-      "input": 94892,
-      "output": 90118,
-      "cacheRead": 13758464,
+      "input": 97591,
+      "output": 92242,
+      "cacheRead": 14980352,
       "cacheWrite": 0,
-      "timeMs": 1308623
+      "timeMs": 1337727
     }
   },
   "requests": {
@@ -1447,11 +1447,11 @@
           "timed": true
         },
         "50-implementation": {
-          "input": 10273,
-          "output": 21662,
-          "cacheRead": 5978880,
+          "input": 12972,
+          "output": 23786,
+          "cacheRead": 7200768,
           "cacheWrite": 0,
-          "timeMs": 317429,
+          "timeMs": 346533,
           "timed": true
         },
         "60-conclusion": {
