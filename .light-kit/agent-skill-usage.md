@@ -4,25 +4,26 @@ How often each agent (`A:`) and skill (`S:`) ran, per request. Written by the li
 `agent-skill-usage` hook; `agent-skill-usage.json` holds the same data in machine-readable form and
 is the source of truth. Safe to delete.
 
-| Request | A: light-developer | A: light-reviewer | A: light-tech-lead | A: light-tech-writer | A: light-tester | S: light-hooks-config | S: light-request |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| 005-readme-install-details | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
-| 006-token-usage-unknown | 0 | 1 | 0 | 0 | 1 | 0 | 0 |
-| 010-token-usage-format | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
-| 011-cache-token-usage | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
-| 012-cache-usage-templates | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
-| 032-token-usage-rewrite | 2 | 1 | 1 | 0 | 0 | 0 | 0 |
-| 034-brainstorm-skill | 0 | 1 | 0 | 0 | 1 | 0 | 0 |
-| 035-brainstorm-output-file | 0 | 1 | 0 | 0 | 1 | 0 | 0 |
-| 036-brainstormer-agent | 0 | 1 | 0 | 1 | 1 | 0 | 0 |
-| 037-project-rules | 0 | 1 | 0 | 0 | 1 | 0 | 0 |
-| 038-tool-log-stop-commit | 0 | 1 | 0 | 0 | 1 | 0 | 0 |
-| 039-rules-promotion-threshold | 1 | 1 | 1 | 0 | 0 | 0 | 0 |
-| 040-init-updates-existing-kit | 0 | 1 | 0 | 0 | 1 | 0 | 0 |
-| 041-dynamic-agent-selection | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
-| 042-agent-skill-usage | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
-| 043-rule-triggers | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
-| 044-multilingual-rules-reminder | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
-| 045-universal-rules-reminder | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
-| (no request) | 0 | 2 | 0 | 0 | 1 | 1 | 4 |
-| **All requests** | 3 | 20 | 2 | 1 | 8 | 1 | 4 |
+| Request | A: light-developer | A: light-orchestrator | A: light-reviewer | A: light-tech-lead | A: light-tech-writer | A: light-tester | S: light-hooks-config | S: light-request |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| 005-readme-install-details | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+| 006-token-usage-unknown | 0 | 0 | 1 | 0 | 0 | 1 | 0 | 0 |
+| 010-token-usage-format | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+| 011-cache-token-usage | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+| 012-cache-usage-templates | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+| 032-token-usage-rewrite | 2 | 0 | 1 | 1 | 0 | 0 | 0 | 0 |
+| 034-brainstorm-skill | 0 | 0 | 1 | 0 | 0 | 1 | 0 | 0 |
+| 035-brainstorm-output-file | 0 | 0 | 1 | 0 | 0 | 1 | 0 | 0 |
+| 036-brainstormer-agent | 0 | 0 | 1 | 0 | 1 | 1 | 0 | 0 |
+| 037-project-rules | 0 | 0 | 1 | 0 | 0 | 1 | 0 | 0 |
+| 038-tool-log-stop-commit | 0 | 0 | 1 | 0 | 0 | 1 | 0 | 0 |
+| 039-rules-promotion-threshold | 1 | 0 | 1 | 1 | 0 | 0 | 0 | 0 |
+| 040-init-updates-existing-kit | 0 | 0 | 1 | 0 | 0 | 1 | 0 | 0 |
+| 041-dynamic-agent-selection | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+| 042-agent-skill-usage | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+| 043-rule-triggers | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+| 044-multilingual-rules-reminder | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+| 045-universal-rules-reminder | 0 | 0 | 1 | 0 | 0 | 0 | 0 | 0 |
+| 049-usage-record-script | 1 | 2 | 0 | 1 | 1 | 0 | 0 | 0 |
+| (no request) | 0 | 0 | 2 | 0 | 0 | 1 | 1 | 4 |
+| **All requests** | 4 | 2 | 20 | 3 | 2 | 8 | 1 | 4 |
