@@ -1,14 +1,14 @@
 ---
 step: plan
 runs:
-  - agent: light-tech-lead
+  - agent: light-orchestrator
     part: implementation plan
     model: deepseek-flash[1m]
     thinking: unknown
     level: easy
 usage:
-  tokens: 232 input · 49,024 cache read · 0 cache write · 1,983 output · 51,239 total
-  time: 5s
+  tokens: 6,387 input · 759,424 cache read · 0 cache write · 6,728 output · 772,539 total
+  time: 1m 48s
 ---
 
 # Plan

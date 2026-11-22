@@ -161,6 +161,13 @@
       "cacheRead": 14980352,
       "cacheWrite": 0,
       "timeMs": 1337727
+    },
+    "27ce559b-9338-41d4-bd98-95393d1198ed": {
+      "input": 50191,
+      "output": 16066,
+      "cacheRead": 1332736,
+      "cacheWrite": 0,
+      "timeMs": 342992
     }
   },
   "requests": {
@@ -1460,6 +1467,50 @@
           "cacheRead": 169984,
           "cacheWrite": 0,
           "timeMs": 8405,
+          "timed": true
+        }
+      }
+    },
+    "050-sensitive-allow-kit-folders": {
+      "steps": {
+        "00-request": {
+          "input": 42273,
+          "output": 7311,
+          "cacheRead": 387072,
+          "cacheWrite": 0,
+          "timeMs": 216353,
+          "timed": true
+        },
+        "10-understanding": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "timeMs": 1984,
+          "timed": true
+        },
+        "40-plan": {
+          "input": 6387,
+          "output": 6728,
+          "cacheRead": 759424,
+          "cacheWrite": 0,
+          "timeMs": 108851,
+          "timed": true
+        },
+        "50-implementation": {
+          "input": 1531,
+          "output": 2027,
+          "cacheRead": 186240,
+          "cacheWrite": 0,
+          "timeMs": 12251,
+          "timed": true
+        },
+        "60-conclusion": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "timeMs": 3553,
           "timed": true
         }
       }
