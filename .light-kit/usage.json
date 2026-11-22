@@ -177,11 +177,11 @@
       "timeMs": 683022
     },
     "3f3d4289-e593-4b4a-ac8f-fe5e62b60942": {
-      "input": 54744,
-      "output": 27126,
-      "cacheRead": 890624,
+      "input": 65745,
+      "output": 56689,
+      "cacheRead": 4098432,
       "cacheWrite": 0,
-      "timeMs": 525036
+      "timeMs": 789330
     }
   },
   "requests": {
@@ -1592,11 +1592,27 @@
           "timed": true
         },
         "40-plan": {
-          "input": 0,
-          "output": 0,
-          "cacheRead": 0,
+          "input": 5772,
+          "output": 18467,
+          "cacheRead": 1101824,
           "cacheWrite": 0,
-          "timeMs": 0,
+          "timeMs": 114508,
+          "timed": true
+        },
+        "50-implementation": {
+          "input": 1259,
+          "output": 4092,
+          "cacheRead": 525312,
+          "cacheWrite": 0,
+          "timeMs": 57793,
+          "timed": true
+        },
+        "60-conclusion": {
+          "input": 3970,
+          "output": 7004,
+          "cacheRead": 1580672,
+          "cacheWrite": 0,
+          "timeMs": 91993,
           "timed": true
         }
       }
