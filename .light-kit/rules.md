@@ -34,7 +34,8 @@ Record it in the same request or exchange, with the report and the earlier reque
 | R-001 | pending | 1 | Check each earlier request's open debt against the change and state in `50-implementation.md` and `60-conclusion.md` whether it is resolved or still open. | 039 TD-1 was labelled "not introduced" while it stayed open for `.light-kit/rules.md`, and the conclusion read as if it were closed. | Before writing the implementation log and the conclusion. | 2026-11-22 | `specs/040-init-updates-existing-kit/50-implementation.md`, review F-1.1 |
 | R-002 | pending | 1 | Sanitize every nested row when reading a best-effort state file, not only the top-level shape; a malformed value must be dropped or restart the file empty, never throw. | A parseable state file with a non-object request row made the new hook error on every agent or skill call instead of restarting empty. | Before writing a reader for hook state under `.light-kit/`. | 2026-11-22 | `specs/042-agent-skill-usage/50-implementation.md`, review F-1.1 |
 | R-003 | pending | 2 | Do not detect user intent from language-specific keywords: no word list is universal. Use a language-neutral signal or let the agent judge the message. | The `rules-reminder` hook matched only English (043), then only English and Vietnamese (044), while every other language passed silently. | Before adding a text heuristic that reads the user's prompt. | 2026-11-22 | `specs/043-rule-triggers`, `specs/044-multilingual-rules-reminder`, `specs/045-universal-rules-reminder/00-request.md`, user report |
-| R-004 | pending | 1 | Commit the state files the hooks wrote for the request — `.light-kit/usage.json`, `.light-kit/agent-skill-usage.json` and `.light-kit/agent-skill-usage.md` — at the conclusion checkpoint. | Request 042 left its new stats files staged and request 045 left both stats files and `usage.json` uncommitted. | Before writing `60-conclusion.md`, and in the final checkpoint. | 2026-11-22 | `specs/046-usage-state-commit`, user report; `specs/042-agent-skill-usage`, `specs/045-universal-rules-reminder` |
+| R-004 | pending | 1 | Commit every state or generated file the request's tooling or hooks wrote before the conclusion checkpoint, not only the source changes. | Request 042 left its new stats files staged and request 045 left both stats files and `usage.json` uncommitted. | Before writing `60-conclusion.md`, and in the final checkpoint. | 2026-11-22 | `specs/046-usage-state-commit`, user report; `specs/042-agent-skill-usage`, `specs/045-universal-rules-reminder` |
+| R-005 | pending | 1 | Write each rule as the general failure mode, not the incident: it must apply wherever the same class of mistake can recur, in any file, feature, command or step. | Rules narrowed to one use case never fired elsewhere: R-004 named three hook state files, so the same class of mistake stayed unguarded in every other area. | Before adding or changing any rule. | 2026-11-22 | user correction, this exchange; `specs/047-generic-rules/00-request.md` |
 
 ## Before a task
 
@@ -58,10 +59,12 @@ Run this at the end of every task, and immediately after any trigger above.
 ## Writing a rule
 
 - One failure mode per rule.
+- Write the general failure mode, not the incident: the rule must apply wherever the same class of mistake can recur — any file, feature, command or step, not only where it first happened.
+- If a rule only makes sense for the one case that produced it, widen it to the class of case it belongs to. The specific incident belongs in `Prevents` and `Evidence`.
 - Say what to do, not what went wrong: `Check the response status before parsing the body`, not `be careful with APIs`.
 - `Prevents` names the error or bug the rule stops.
 - `Check before` says when the rule applies: a file, a command, a step or a moment.
-- Keep it specific enough to check. A vague rule is not added.
+- Keep it specific enough to check: name the class of case precisely. A vague rule is not added.
 - Use the next free `R-NNN`; never reuse an id.
 
 Example row:
