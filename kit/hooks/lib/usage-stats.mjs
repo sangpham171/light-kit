@@ -110,6 +110,28 @@ export function recordCall(stats, { kind, name, request, at, id }) {
   return true;
 }
 
+// Fill the uses a tool call cannot report: the request's artifact headers are the kit's own record of
+// which agent did each step, so each agent's count rises to the number of `runs:` entries it has.
+// Counts never fall, so a call or a manual record already at or above the header count is not counted
+// twice, and a header that is edited later cannot erase a use. Returns how many uses were added.
+export function reconcileAgents(stats, request, runs, at) {
+  const targets = {};
+  for (const run of runs) if (run?.agent) targets[run.agent] = (Number(targets[run.agent]) || 0) + 1;
+  if (!Object.keys(targets).length) return 0;
+  const row = (stats.requests[request] ??= { first: at, last: at, agents: {}, skills: {} });
+  row.agents = isObject(row.agents) ? row.agents : {};
+  row.skills = isObject(row.skills) ? row.skills : {};
+  row.first = typeof row.first === 'string' && row.first ? row.first : at;
+  row.last = typeof row.last === 'string' && row.last ? row.last : at;
+  let added = 0;
+  for (const [agent, target] of Object.entries(targets)) {
+    const current = Number(row.agents[agent]) || 0;
+    if (current < target) { row.agents[agent] = target; added += target - current; }
+  }
+  if (added) row.last = at;
+  return added;
+}
+
 const namesOf = (requests, field) => {
   const found = new Set();
   for (const row of Object.values(requests)) for (const name of Object.keys(row?.[field] ?? {})) found.add(name);
