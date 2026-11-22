@@ -35,6 +35,7 @@ Users install the generated files into a project or at user level, then work thr
 - `tools/install.mjs` and `tools/uninstall.mjs` manage generated files at user, workspace or project level.
 - `tools/backfill-usage.mjs` imports agent and skill calls from Claude Code session records into `.light-kit/agent-skill-usage.json`/`.md`; `npm run backfill-usage` runs it.
 - `kit/hooks/run.mjs` normalizes client events, loads configured checks and emits client-compatible responses.
+- `kit/hooks/record-usage.mjs` records one agent or skill use the hook cannot see; installed as `.light-kit/hooks/record-usage.mjs`.
 - `kit/hooks/checks/` contains individual checks; shared parsing and usage logic live in `kit/hooks/lib/`.
 - The package uses Node built-ins; no runtime package dependencies are declared in `package.json`.
 
