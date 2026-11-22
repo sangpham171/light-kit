@@ -444,6 +444,46 @@ test('tool-log commits nothing on a protected branch, a detached HEAD, with comm
   assert.ok(existsSync(join(plain, 'specs/tool-log.md')));
 });
 
+test('tool-log commits logs when the repository root is above the implemented project', () => {
+  const outer = mkdtempSync(join(tmpdir(), 'light-kit-outer-'));
+  const d = join(outer, 'ws');
+  install(d, CLIENT_NAMES);
+  const g = (...args) => spawnSync('git', args, { cwd: outer, encoding: 'utf8' });
+  g('init', '-q');
+  g('symbolic-ref', 'HEAD', 'refs/heads/work');
+  g('config', 'user.email', 'test@example.com');
+  g('config', 'user.name', 'Test');
+  g('config', 'commit.gpgsign', 'false');
+  g('add', '-A');
+  g('commit', '-q', '-m', 'init');
+  run(d, 'claude', 'post-tool', bash('npm test'));
+  assert.ok(existsSync(join(d, 'specs/tool-log.md')));
+  run(d, 'claude', 'stop', {});
+  assert.match(g('show', '--format=', '--name-only', 'HEAD').stdout, /ws\/specs\/tool-log\.md/);
+  assert.equal(g('status', '--porcelain', '-uall').stdout.trim(), '');
+});
+
+test('tool-log leaves a repository with an unresolved merge untouched', () => {
+  const d = project();
+  const g = workRepo(d);
+  writeFileSync(join(d, 'conflict.txt'), 'base');
+  g('add', '-A');
+  g('commit', '-qm', 'base');
+  g('checkout', '-qb', 'side');
+  writeFileSync(join(d, 'conflict.txt'), 'side');
+  g('commit', '-qam', 'side');
+  g('checkout', '-q', 'work');
+  writeFileSync(join(d, 'conflict.txt'), 'work');
+  g('commit', '-qam', 'work');
+  assert.notEqual(g('merge', 'side').status, 0);
+  run(d, 'claude', 'post-tool', bash('ls'));
+  run(d, 'claude', 'stop', {});
+  assert.equal(g('log', '-1', '--format=%s').stdout.trim(), 'work');
+  const status = g('status', '--porcelain', '-uall').stdout;
+  assert.match(status, /UU conflict\.txt/);
+  assert.match(status, /specs\/tool-log\.md/);
+});
+
 test('bad input and internal problems fail open', () => {
   const d = project();
   assert.equal(run(d, 'claude', 'pre-tool', 'not json').code, 0);
