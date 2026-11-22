@@ -14,4 +14,5 @@ Prove it works.
 - Derive test cases from the acceptance criteria and the edge cases in the requirements.
 - Run the full relevant test suite and any manual checks; report exact commands and results.
 - Add missing tests; report failures with reproduction steps.
+- A failure caused by a mistake in the work, rather than a missing feature, is a rule trigger: say so in the finding so the orchestrator records the rule; a user-reported defect counts the same way.
 - Never mark something verified that you did not run.
