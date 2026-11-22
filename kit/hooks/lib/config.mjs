@@ -16,6 +16,7 @@ export const DEFAULT_MODES = {
   'token-usage': 'warn',
   'require-spec': 'warn',
   'capture-discussion': 'warn',
+  'rules-reminder': 'warn',
   'post-edit-quality': 'warn',
   'warn-secret-output': 'warn',
   'session-context': 'warn',
