@@ -7,8 +7,8 @@ runs:
     thinking: unknown
     level: easy
 usage:
-  tokens: 230 input · 152,192 cache read · 0 cache write · 866 output · 153,288 total
-  time: 4s
+  tokens: 451 input · 329,216 cache read · 0 cache write · 1,159 output · 330,826 total
+  time: 6s
 ---
 
 # Plan
@@ -18,7 +18,7 @@ usage:
 - [x] 3. Add the built-in Vietnamese patterns and merge the configured patterns in `kit/hooks/checks/rules-reminder.mjs` — level: easy — files: that one — verify: `node --test tests/hooks.test.mjs` — commit: same as task 2
 - [x] 4. Add hook tests: Vietnamese built-in, Vietnamese feature prompt silent, Spanish via config, invalid regex — level: medium — files: `tests/hooks.test.mjs` — verify: `node --test tests/hooks.test.mjs` — commit: `test(hooks): cover multilingual defect patterns`
 - [x] 5. Document the language limit and the config key in `kit/hooks/README.md` and `docs/safety-hooks.md` — level: easy — files: those two — verify: read-back; `node --test tests/kit.test.mjs` — commit: `docs(hooks): document multilingual defect patterns`
-- [ ] 6. Run `npm test`, then review and conclude — level: medium — files: `50-implementation.md`, `60-conclusion.md` — verify: `npm test` — commit: `docs(spec): record request 044`
+- [x] 6. Run `npm test`, then review and conclude — level: medium — files: `50-implementation.md`, `60-conclusion.md` — verify: `npm test` — commit: `docs(spec): record request 044`
 
 ## Risks
 - Vietnamese words are short and can appear in feature requests; the hook is advisory and the test keeps one common feature prompt silent.

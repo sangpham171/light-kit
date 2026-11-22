@@ -47,3 +47,42 @@ stored. Safe to delete.
 | 2026-11-22T15:19:32Z | claude | Read | read | specs/044-multilingual-rules-reminder/10-understanding.md |
 | 2026-11-22T15:19:32Z | claude | Read | read | specs/044-multilingual-rules-reminder/40-plan.md |
 | 2026-11-22T15:19:32Z | claude | Read | read | specs/044-multilingual-rules-reminder/50-implementation.md |
+| 2026-11-22T15:19:33Z | claude | Read | read | kit/skills/light-review-checklist/SKILL.md |
+| 2026-11-22T15:19:33Z | claude | Read | read | kit/skills/light-review-cycle/SKILL.md |
+| 2026-11-22T15:19:33Z | claude | Read | read | .light-kit/project-profile.md |
+| 2026-11-22T15:19:36Z | claude | Read | read | kit/hooks/checks/rules-reminder.mjs |
+| 2026-11-22T15:19:37Z | claude | Read | read | kit/hooks/hooks.config.json |
+| 2026-11-22T15:19:37Z | claude | Read | read | kit/hooks/lib/config.mjs |
+| 2026-11-22T15:19:37Z | claude | Read | read | kit/templates/project-hooks.config.json |
+| 2026-11-22T15:19:37Z | claude | Read | read | tests/hooks.test.mjs |
+| 2026-11-22T15:19:39Z | claude | Read | read | tests/hooks.test.mjs |
+| 2026-11-22T15:19:40Z | claude | Read | read | tests/kit.test.mjs |
+| 2026-11-22T15:19:40Z | claude | Read | read | kit/hooks/README.md |
+| 2026-11-22T15:19:42Z | claude | Read | read | docs/safety-hooks.md |
+| 2026-11-22T15:19:42Z | claude | Read | read | .light-kit/rules.md |
+| 2026-11-22T15:19:48Z | claude | Read | read | .light-kit/hooks.config.json |
+| 2026-11-22T15:19:51Z | claude | Read | read | tests/kit.test.mjs |
+| 2026-11-22T15:19:51Z | claude | Read | read | tests/kit.test.mjs |
+| 2026-11-22T15:19:55Z | claude | Read | read | kit/hooks/run.mjs |
+| 2026-11-22T15:19:55Z | claude | Read | read | kit/hooks/checks/index.mjs |
+| 2026-11-22T15:20:09Z | claude | Read | read | kit/init/merge.mjs |
+| 2026-11-22T15:20:09Z | claude | Read | read | kit/skills/light-hooks-config/SKILL.md |
+| 2026-11-22T15:20:59Z | claude | Read | read | kit/skills/light-rules/SKILL.md |
+| 2026-11-22T15:21:50Z | claude | Read | read | kit/skills/light-hooks-config/SKILL.md |
+| 2026-11-22T15:21:53Z | claude | Edit | write | kit/hooks/README.md |
+| 2026-11-22T15:21:54Z | claude | Edit | write | kit/hooks/README.md |
+| 2026-11-22T15:21:54Z | claude | Edit | write | kit/hooks/README.md |
+| 2026-11-22T15:21:54Z | claude | Edit | write | docs/safety-hooks.md |
+| 2026-11-22T15:21:55Z | claude | Edit | write | tests/hooks.test.mjs |
+| 2026-11-22T15:21:56Z | claude | Edit | write | .light-kit/rules.md |
+| 2026-11-22T15:21:56Z | claude | Edit | write | kit/skills/light-hooks-config/SKILL.md |
+| 2026-11-22T15:21:59Z | claude | Edit | write | specs/044-multilingual-rules-reminder/50-implementation.md |
+| 2026-11-22T15:22:00Z | claude | Edit | write | specs/044-multilingual-rules-reminder/50-implementation.md |
+| 2026-11-22T15:22:00Z | claude | Edit | write | specs/044-multilingual-rules-reminder/50-implementation.md |
+| 2026-11-22T15:22:02Z | claude | Edit | write | specs/044-multilingual-rules-reminder/50-implementation.md |
+| 2026-11-22T15:22:33Z | claude | Bash | shell | node --test tests/hooks.test.mjs tests/kit.test.mjs 2>&1 \| tail -8 |
+| 2026-11-22T15:23:05Z | claude | Bash | shell | npm test 2>&1 \| tail -8 |
+| 2026-11-22T15:23:10Z | claude | Bash | shell | git add kit/hooks/README.md docs/safety-hooks.md && git commit -m "docs(hooks): clarify the multilingual pattern setup" -- kit/hooks/README.md docs/safety-hooks.md && git add tests/hooks.test.mjs && g |
+| 2026-11-22T15:23:17Z | claude | Write | write | specs/044-multilingual-rules-reminder/60-conclusion.md |
+| 2026-11-22T15:23:19Z | claude | Edit | write | specs/044-multilingual-rules-reminder/status.md |
+| 2026-11-22T15:23:19Z | claude | Edit | write | specs/044-multilingual-rules-reminder/40-plan.md |
