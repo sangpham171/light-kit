@@ -187,6 +187,32 @@ test('the plan is written before code, even for direct requests', () => {
   assert.match(read('.light-kit/hooks.config.json'), /"capture-discussion": "warn"/);
 });
 
+test('project rules: a seeded file, a skill, and a before/after loop at every checkpoint', () => {
+  const dir = tmp();
+  install(dir, ['claude']);
+  const read = (p) => readFileSync(join(dir, p), 'utf8');
+  const template = read('.light-kit/templates/rules.md');
+  assert.match(template, /\| `pending` \|/);
+  assert.match(template, /\| `confirmed` \|/);
+  assert.match(template, /`Count` is the number of tasks/);
+  assert.match(template, /takes `Count` to 3/);
+  const skill = read('.claude/skills/light-rules/SKILL.md');
+  assert.match(skill, /## Before a task/);
+  assert.match(skill, /## After a task/);
+  assert.match(skill, /reaches 3/);
+  assert.match(skill, /Never renumber or delete a row/);
+  assert.match(read('CLAUDE.md'), /Learn from repeated mistakes/);
+  assert.match(read('CLAUDE.md'), /Project rules: `\.light-kit\/rules\.md`/);
+  assert.match(read('.claude/skills/light-init/SKILL.md'), /create `\.light-kit\/rules\.md`/);
+  assert.match(read('.claude/skills/light-implement/SKILL.md'), /apply the `light-rules` skill/);
+  assert.match(read('.claude/agents/light-orchestrator.md'), /apply the `light-rules` skill/);
+  assert.match(read('.claude/skills/light-review-checklist/SKILL.md'), /`confirmed` rule in `\.light-kit\/rules\.md`/);
+  // the template is a seed: a project's own rules survive an upgrade
+  writeFileSync(join(dir, '.light-kit/templates/rules.md'), '# Project rules\n\n| R-001 | confirmed | 3 | Keep this row. |\n');
+  install(dir, ['claude']);
+  assert.match(read('.light-kit/templates/rules.md'), /R-001/);
+});
+
 test('install into empty dir, then second run changes nothing', () => {
   const dir = tmp();
   const first = install(dir, CLIENT_NAMES);
