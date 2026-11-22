@@ -12,10 +12,8 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { NO_REQUEST, callOf, readStats, recordCall, renderTable, saveStats, saveText } from '../kit/hooks/lib/usage-stats.mjs';
+import { JSON_FILE, MD_FILE, NO_REQUEST, callOf, readStats, recordCall, renderTable, saveRequestStats, saveStats, saveText } from '../kit/hooks/lib/usage-stats.mjs';
 
-const JSON_FILE = 'agent-skill-usage.json';
-const MD_FILE = 'agent-skill-usage.md';
 const SLUG = /\b\d{3}-[a-z0-9]+(?:-[a-z0-9]+)*\b/g;
 
 const transcriptFiles = (dir, out = []) => {
@@ -74,9 +72,12 @@ export function backfill({ root = process.cwd(), transcripts = join(homedir(), '
   const calls = callsIn(transcripts, project);
   let added = 0;
   for (const call of calls) if (recordCall(stats, call)) added += 1;
-  if (added && !dryRun) {
+  if (!dryRun) {
     saveStats(file, stats);
     saveText(join(dir, MD_FILE), renderTable(stats));
+    for (const name of Object.keys(stats.requests)) {
+      if (name !== NO_REQUEST) saveRequestStats(join(project, 'specs', name), stats, name);
+    }
   }
   return { added, found: calls.length, foundFiles: transcriptFiles(transcripts).length, stats, file, dryRun };
 }
