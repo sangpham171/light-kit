@@ -3,11 +3,16 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { loadKit, lint, build, CLIENT_NAMES, START, END } from '../tools/build.mjs';
+import { loadKit, lint, build, marked, CLIENT_NAMES, START, END } from '../tools/build.mjs';
 import { install } from '../tools/install.mjs';
 import { formatUsage } from '../kit/hooks/lib/usage.mjs';
 
 const tmp = () => mkdtempSync(join(tmpdir(), 'light-kit-'));
+
+test('a generated script keeps its shebang on the first line', () => {
+  assert.equal(marked('#!/usr/bin/env node\nx'), '#!/usr/bin/env node\n// light-kit:generated\nx');
+  assert.equal(marked('x'), '// light-kit:generated\nx');
+});
 
 test('kit lints clean', () => {
   assert.deepEqual(lint(loadKit()), []);
