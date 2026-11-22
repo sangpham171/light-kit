@@ -105,6 +105,13 @@
       "cacheRead": 6915712,
       "cacheWrite": 0,
       "timeMs": 704463
+    },
+    "b39eacf6-2ff3-47b8-bf8d-e0d28955a37e": {
+      "input": 49819,
+      "output": 17218,
+      "cacheRead": 814336,
+      "cacheWrite": 0,
+      "timeMs": 343531
     }
   },
   "requests": {
@@ -852,6 +859,42 @@
           "cacheRead": 265600,
           "cacheWrite": 0,
           "timeMs": 12789,
+          "timed": true
+        }
+      }
+    },
+    "038-tool-log-stop-commit": {
+      "steps": {
+        "00-request": {
+          "input": 49345,
+          "output": 15039,
+          "cacheRead": 621312,
+          "cacheWrite": 0,
+          "timeMs": 333133,
+          "timed": true
+        },
+        "10-understanding": {
+          "input": 322,
+          "output": 1494,
+          "cacheRead": 127744,
+          "cacheWrite": 0,
+          "timeMs": 6676,
+          "timed": true
+        },
+        "20-discovery": {
+          "input": 152,
+          "output": 685,
+          "cacheRead": 65280,
+          "cacheWrite": 0,
+          "timeMs": 3563,
+          "timed": true
+        },
+        "40-plan": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "timeMs": 159,
           "timed": true
         }
       }
