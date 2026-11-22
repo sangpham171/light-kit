@@ -303,12 +303,14 @@ export function build(kitIn, clients, { hooks = true, level = 'project', project
   // Seed only: no generated marker, so the installer never overwrites it once init has filled it in.
   // (At user level there is no single project, so `init` creates each project's profile from the template.)
   if (!user) files.push({ path: `${SHARED_DIR}/project-profile.md`, content: kit.templates.find((t) => t.file === 'project-profile.md').text, seed: true });
+  if (!user) files.push({ path: `${SHARED_DIR}/rules.md`, content: kit.templates.find((t) => t.file === 'rules.md').text, seed: true });
   if (level === 'workspace') {
     const tpl = (name) => kit.templates.find((t) => t.file === name).text;
     const rows = projects.map((x) => `| ${x.path.split('/').pop()} | ${x.path} | <to fill> | <to fill> | ${x.repo ? 'yes' : 'no'} | <to fill> |`).join('\n');
     files.push({ path: `${SHARED_DIR}/projects.md`, content: tpl('projects.md').trimEnd() + (rows ? `\n${rows}` : '') + '\n', seed: true });
     for (const x of projects) {
       files.push({ path: `${x.path}/${SHARED_DIR}/project-profile.md`, content: tpl('project-profile.md'), seed: true });
+      files.push({ path: `${x.path}/${SHARED_DIR}/rules.md`, content: tpl('rules.md'), seed: true });
       files.push({ path: `${x.path}/${SHARED_DIR}/hooks.config.json`, content: tpl('project-hooks.config.json'), seed: true });
     }
   }

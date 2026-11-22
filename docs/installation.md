@@ -93,7 +93,7 @@ Monorepo projects (one repository) are discovered by `light-init`.
 | Copilot, user level | `~/.copilot/{agents,skills,hooks}`, `~/.copilot/copilot-instructions.md` |
 | Cursor | `.cursor/rules/*.mdc` (one rule per agent and per skill) |
 | Codex | `.codex/agents/*.toml`, `.agents/skills`, `AGENTS.md` |
-| all | `AGENTS.md`, `.light-kit/{workflows,templates,profiles,project-profile.md,rules.md,hooks.config.json,hooks/}` (at user level: `~/.light-kit/...`, and `~/.codex/AGENTS.md`, `~/.claude/CLAUDE.md`, `~/.copilot/copilot-instructions.md`, `~/.copilot/{agents,skills,hooks}`) |
+| all | `AGENTS.md`, `.light-kit/{workflows,templates,profiles,project-profile.md,hooks.config.json,hooks/}`; `.light-kit/rules.md` is seeded per project (never at user level) (at user level: `~/.light-kit/...`, and `~/.codex/AGENTS.md`, `~/.claude/CLAUDE.md`, `~/.copilot/copilot-instructions.md`, `~/.copilot/{agents,skills,hooks}`) |
 | hooks | `.claude/settings.json`, `.codex/hooks.json`, `.cursor/hooks.json`, `.github/hooks/light-kit.json` (merged, your own hooks are kept) |
 
 Commands are skills, so no client gets a command or prompt file: an earlier version wrote those and the installer sweeps them out on upgrade (only files carrying the light-kit marker). Client formats change often; they are defined in one place, `CLIENTS` in `tools/build.mjs`. Copilot and Cursor have no parallel subagents here, so parallel steps run sequentially there.

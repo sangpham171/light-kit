@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Uninstall light-kit from a project: node tools/uninstall.mjs <target-dir> [--soft | --hard] [--clients ...] [--level ...] [--dry-run] [--yes]
 // soft (default): remove everything the installer generated. Your data stays: specs/, the project profile,
-//   hooks.config.json, models.json, projects.md, the codebase map, assessment and backlog.
+//   rules.md, hooks.config.json, models.json, projects.md, the codebase map, assessment and backlog.
 // hard: as soft, and delete the kit's own folders too (.light-kit/ and specs/, also in registered workspace projects).
 //   Destructive, so it asks for confirmation (--yes skips the question).
 // Both modes are idempotent. Outside the kit's own folders, a file is deleted only when the kit owns it.
@@ -14,7 +14,7 @@ import { build, loadKit, isManaged, HOOK_MARK, START, END, CLIENT_NAMES, legacyP
 import { findObsolete, detectProjects, detectClients } from './install.mjs';
 
 // Seeds that hold the user's own knowledge. Soft keeps them; hard removes them with the folder that contains them.
-const KEEP_SOFT = /(^|\/)\.light-kit\/(project-profile\.md|hooks\.config\.json|models\.json|projects\.md)$/;
+const KEEP_SOFT = /(^|\/)\.light-kit\/(project-profile\.md|rules\.md|hooks\.config\.json|models\.json|projects\.md)$/;
 
 // Generated files that carry no light-kit marker (they are still ours). Templates are kit copies, not user data.
 const kitOwned = (rel, configPath) =>

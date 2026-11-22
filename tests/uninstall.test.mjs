@@ -24,6 +24,7 @@ test('soft uninstall removes generated files and keeps user data', () => {
   install(d, CLIENT_NAMES);
   writeFileSync(join(d, '.light-kit/codebase-map.md'), 'map\n');
   writeFileSync(join(d, '.light-kit/assessment.md'), 'assessment\n');
+  writeFileSync(join(d, '.light-kit/rules.md'), '# rules\n| R-001 | confirmed | 3 | Keep it. |\n');
   // files an older kit version generated: template copies carry no marker, workflows do
   writeFileSync(join(d, '.light-kit/templates/old-template.md'), 'old\n');
   writeFileSync(join(d, '.light-kit/workflows/old-workflow.md'), '<!-- light-kit:generated -->\nold\n');
@@ -54,6 +55,7 @@ test('soft uninstall removes generated files and keeps user data', () => {
 
   for (const p of [
     '.light-kit/project-profile.md',
+    '.light-kit/rules.md',
     '.light-kit/hooks.config.json',
     '.light-kit/models.json',
     '.light-kit/codebase-map.md',

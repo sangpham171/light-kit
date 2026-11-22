@@ -11,7 +11,6 @@ const tmp = () => mkdtempSync(join(tmpdir(), 'light-kit-audit-'));
 const audit = (script, ...args) => spawnSync('node', [script, ...args], { encoding: 'utf8' });
 const json = (script, ...args) => { const r = audit(script, '--json', ...args); assert.equal(r.status, 0, r.stderr); return JSON.parse(r.stdout); };
 const count = (rep, type) => rep.components.filter((c) => c.type === type).length;
-const coreRules = (kit) => [...kit.core.body.matchAll(/^\d+\. \*\*/gm)].length;
 
 test('audit of the kit sources: inventory, purposes, cost and no broken references', () => {
   const rep = json('kit/audit/audit.mjs', '--source', 'kit');
@@ -20,7 +19,8 @@ test('audit of the kit sources: inventory, purposes, cost and no broken referenc
   assert.equal(count(rep, 'agent'), kit.agents.length);
   assert.equal(count(rep, 'skill'), kit.skills.length);
   assert.equal(count(rep, 'workflow'), kit.workflows.length);
-  assert.equal(count(rep, 'rule'), coreRules(kit));
+  assert.equal(count(rep, 'rule'), 15);
+  assert.ok(rep.components.some((c) => c.id.endsWith(': Learn from repeated mistakes')));
   assert.deepEqual(rep.findings.unclassified, []);
   assert.deepEqual(rep.findings.stale, []);
   assert.deepEqual(rep.findings.unreferenced, []);
@@ -62,7 +62,7 @@ test('installed kit: the audit tool and manifest come with every install and agr
   assert.equal(rep.level, 'project');
   assert.equal(count(rep, 'agent'), kit.agents.length);
   assert.equal(count(rep, 'skill'), kit.skills.length);
-  assert.equal(count(rep, 'rule'), coreRules(kit));
+  assert.equal(count(rep, 'rule'), 15);
   assert.deepEqual(rep.findings.missingFiles, []);
   assert.deepEqual(rep.findings.unclassified, []);
   assert.deepEqual(rep.findings.stale, []);
@@ -84,7 +84,7 @@ test('installed kit at user level: paths in the manifest follow each client\'s u
   const rep = json(join(home, '.light-kit/audit/audit.mjs'));
   assert.equal(rep.level, 'user');
   assert.deepEqual(rep.findings.missingFiles, []);
-  assert.equal(rep.components.filter((c) => c.type === 'rule').length, coreRules(loadKit()));
+  assert.equal(rep.components.filter((c) => c.type === 'rule').length, 15);
 });
 
 test('audit --record notes the model; it only works on an installed kit', () => {
