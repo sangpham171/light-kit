@@ -279,6 +279,18 @@ test('project rules: a seeded file, a skill, and a before/after loop at every ch
   assert.match(read('.claude/skills/light-implement/SKILL.md'), /apply the `light-rules` skill/);
   assert.match(read('.claude/agents/light-orchestrator.md'), /apply the `light-rules` skill/);
   assert.match(read('.claude/skills/light-review-checklist/SKILL.md'), /`confirmed` rule in `\.light-kit\/rules\.md`/);
+  // a review is one trigger, not the only one
+  assert.match(skill, /## When rules change/);
+  assert.match(skill, /the user reports a bug/);
+  assert.match(skill, /still does not work/);
+  assert.match(template, /## When to update/);
+  assert.match(template, /the user reports a bug/);
+  assert.match(read('CLAUDE.md'), /the user reports a bug/);
+  assert.match(read('.claude/skills/light-request/SKILL.md'), /still does not work/);
+  assert.match(read('.claude/skills/light-implement/SKILL.md'), /failed verification/);
+  for (const w of ['direct', 'standard', 'full']) assert.match(read(`.light-kit/workflows/${w}.md`), /skill: light-rules/, w);
+  assert.match(read('.light-kit/hooks.config.json'), /"rules-reminder": "warn"/);
+  assert.match(read('.light-kit/hooks/README.md'), /`rules-reminder`/);
   // the templates are kit copies, so a reinstall refreshes them; the project's own documents survive
   writeFileSync(join(dir, '.light-kit/templates/rules.md'), '# Project rules\n\n| R-001 | confirmed | 3 | Keep this template row. |\n');
   writeFileSync(join(dir, '.light-kit/rules.md'), '# Project rules\n\n| R-002 | confirmed | 3 | Keep this project row. |\n');
