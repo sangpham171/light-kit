@@ -104,3 +104,13 @@ stored. Safe to delete.
 | 2026-11-22T13:04:58Z | claude | Read | read | kit/hooks/README.md |
 | 2026-11-22T13:04:58Z | claude | Read | read | docs/safety-hooks.md |
 | 2026-11-22T13:04:59Z | claude | Read | read | specs/README.md |
+| 2026-11-22T13:05:05Z | claude | Bash | shell | node --test --test-name-pattern="tool-log" tests/hooks.test.mjs 2>&1 \| tail -40 |
+| 2026-11-22T13:05:08Z | claude | Read | read | kit/hooks/checks/commit-checkpoint.mjs |
+| 2026-11-22T13:05:09Z | claude | Read | read | kit/hooks/checks/index.mjs |
+| 2026-11-22T13:05:31Z | claude | Bash | shell | npm test 2>&1 \| tail -30 |
+| 2026-11-22T13:05:32Z | claude | Read | read | tools/install.mjs |
+| 2026-11-22T13:05:33Z | claude | Bash | shell | grep -n "argv\\|--clients\\|usage\\|process.exit" tools/install.mjs \| tail -40 |
+| 2026-11-22T13:05:40Z | claude | Bash | shell | set -e KIT=/Users/light/Documents/code/light-kit T=$(mktemp -d /tmp/lk-e2e-XXXXXX) echo "TMP=$T" node "$KIT/tools/install.mjs" "$T" --clients claude >/tmp/lk-install.log 2>&1 \|\| { cat /tmp/lk-instal |
+| 2026-11-22T13:05:44Z | claude | Bash | shell | set -e KIT=/Users/light/Documents/code/light-kit T=$(mktemp -d /tmp/lk-e2e-main-XXXXXX) node "$KIT/tools/install.mjs" "$T" --clients claude >/dev/null 2>&1 git -C "$T" init -q git -C "$T" symbolic-ref |
+| 2026-11-22T13:05:50Z | claude | Bash | shell | set -e KIT=/Users/light/Documents/code/light-kit T=$(mktemp -d /tmp/lk-e2e-req-XXXXXX) node "$KIT/tools/install.mjs" "$T" --clients claude >/dev/null 2>&1 mkdir -p "$T/specs/001-x" printf '# u\n' > "$ |
+| 2026-11-22T13:05:56Z | claude | Bash | shell | set -e KIT=/Users/light/Documents/code/light-kit # hook off T=$(mktemp -d /tmp/lk-e2e-off-XXXXXX) node "$KIT/tools/install.mjs" "$T" --clients claude >/dev/null 2>&1 printf '%s' '{"hooks":{"tool-log": |
