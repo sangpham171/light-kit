@@ -65,3 +65,36 @@ stored. Safe to delete.
 | 2026-11-22T14:45:08Z | claude | Edit | write | kit/hooks/README.md |
 | 2026-11-22T14:45:09Z | claude | Edit | write | docs/safety-hooks.md |
 | 2026-11-22T14:45:16Z | claude | Bash | shell | git status --short && ls specs/042-agent-skill-usage/ |
+| 2026-11-22T14:45:22Z | claude | Bash | shell | git add specs/042-agent-skill-usage specs/tool-log.md && git commit -q -m "docs(spec): plan request 042-agent-skill-usage" && git log --oneline -1 |
+| 2026-11-22T14:45:25Z | claude | Bash | shell | git add kit/hooks/lib/usage-stats.mjs kit/hooks/checks/agent-skill-usage.mjs kit/hooks/checks/index.mjs kit/hooks/lib/config.mjs kit/hooks/lib/normalize.mjs tools/build.mjs && git commit -q -m "feat(h |
+| 2026-11-22T14:45:32Z | claude | Edit | write | specs/042-agent-skill-usage/40-plan.md |
+| 2026-11-22T14:45:36Z | claude | Write | write | specs/042-agent-skill-usage/50-implementation.md |
+| 2026-11-22T14:45:39Z | claude | Write | write | specs/042-agent-skill-usage/status.md |
+| 2026-11-22T14:45:44Z | claude | Read | read | specs/042-agent-skill-usage/00-request.md |
+| 2026-11-22T14:45:44Z | claude | Read | read | specs/042-agent-skill-usage/10-understanding.md |
+| 2026-11-22T14:45:44Z | claude | Read | read | specs/042-agent-skill-usage/40-plan.md |
+| 2026-11-22T14:45:44Z | claude | Read | read | specs/042-agent-skill-usage/50-implementation.md |
+| 2026-11-22T14:45:45Z | claude | Bash | shell | git status --short |
+| 2026-11-22T14:45:46Z | claude | Read | read | kit/hooks/lib/usage-stats.mjs |
+| 2026-11-22T14:45:46Z | claude | Read | read | kit/hooks/checks/agent-skill-usage.mjs |
+| 2026-11-22T14:45:46Z | claude | Read | read | tests/agent-skill-usage.test.mjs |
+| 2026-11-22T14:45:47Z | claude | Read | read | kit/hooks/lib/normalize.mjs |
+| 2026-11-22T14:45:47Z | claude | Read | read | kit/hooks/checks/index.mjs |
+| 2026-11-22T14:45:48Z | claude | Read | read | kit/hooks/lib/config.mjs |
+| 2026-11-22T14:45:48Z | claude | Read | read | kit/hooks/lib/specs.mjs |
+| 2026-11-22T14:45:51Z | claude | Read | read | kit/hooks/run.mjs |
+| 2026-11-22T14:45:51Z | claude | Read | read | kit/hooks/checks/warn-secret-output.mjs |
+| 2026-11-22T14:45:51Z | claude | Read | read | kit/hooks/checks/tool-log.mjs |
+| 2026-11-22T14:45:52Z | claude | Read | read | kit/hooks/checks/token-usage.mjs |
+| 2026-11-22T14:45:52Z | claude | Bash | shell | git add specs/042-agent-skill-usage/40-plan.md specs/042-agent-skill-usage/status.md specs/042-agent-skill-usage/50-implementation.md && git commit -q -m "docs(spec): record the implementation for req |
+| 2026-11-22T14:45:57Z | claude | Bash | shell | sed -n '/## Technical debt/,/## Decisions/p' specs/041-dynamic-agent-selection/50-implementation.md; echo "=== 041 conclusion debt ==="; sed -n '/## Deferred technical debt/,/## Follow-ups/p' specs/04 |
+| 2026-11-22T14:45:59Z | claude | Bash | shell | git log --oneline -1 && git status --short |
+| 2026-11-22T14:46:07Z | claude | Read | read | kit/hooks/lib/secrets.mjs |
+| 2026-11-22T14:46:07Z | claude | Read | read | kit/hooks/checks/post-edit-quality.mjs |
+| 2026-11-22T14:46:07Z | claude | Read | read | kit/hooks/checks/artifact-header.mjs |
+| 2026-11-22T14:46:08Z | claude | Read | read | kit/hooks/checks/commit-checkpoint.mjs |
+| 2026-11-22T14:46:09Z | claude | Read | read | kit/hooks/checks/audit-log.mjs |
+| 2026-11-22T14:46:09Z | claude | Read | read | kit/hooks/lib/emit.mjs |
+| 2026-11-22T14:46:25Z | claude | Read | read | kit/hooks/README.md |
+| 2026-11-22T14:46:25Z | claude | Read | read | docs/safety-hooks.md |
+| 2026-11-22T14:46:32Z | claude | Bash | shell | npm test 2>&1 \| tail -6 |
