@@ -182,6 +182,13 @@
       "cacheRead": 4098432,
       "cacheWrite": 0,
       "timeMs": 789330
+    },
+    "5c07e8ef-933b-40d1-80ca-8a589f920c7c": {
+      "input": 97358,
+      "output": 33978,
+      "cacheRead": 2323968,
+      "cacheWrite": 0,
+      "timeMs": 436740
     }
   },
   "requests": {
@@ -1613,6 +1620,42 @@
           "cacheRead": 1580672,
           "cacheWrite": 0,
           "timeMs": 91993,
+          "timed": true
+        }
+      }
+    },
+    "053-usage-record-reconcile": {
+      "steps": {
+        "00-request": {
+          "input": 95232,
+          "output": 30982,
+          "cacheRead": 1818624,
+          "cacheWrite": 0,
+          "timeMs": 418537,
+          "timed": true
+        },
+        "10-understanding": {
+          "input": 178,
+          "output": 1280,
+          "cacheRead": 124672,
+          "cacheWrite": 0,
+          "timeMs": 6776,
+          "timed": true
+        },
+        "20-discovery": {
+          "input": 1948,
+          "output": 1716,
+          "cacheRead": 380672,
+          "cacheWrite": 0,
+          "timeMs": 11271,
+          "timed": true
+        },
+        "40-plan": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "timeMs": 156,
           "timed": true
         }
       }

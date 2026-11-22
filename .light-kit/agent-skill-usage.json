@@ -41,12 +41,15 @@
     "call_00_dyF4RmluZlqIEZjisbMy0123",
     "call_01_3oVrOiKRWTakDCyIvmqA7188",
     "call_00_ET_jeD9t5V9FNfDt0fCdL6q3052",
-    "call_01_QURRy47mMZQIi3jgeIcE1041"
+    "call_01_QURRy47mMZQIi3jgeIcE1041",
+    "call_00_wBiJhK5sRqTVXjsv0HKQ0560",
+    "call_01_3Z5KG0Uhb4puwKldZLwa0051",
+    "call_02_G9o0ORBTiv4fvw6p6bXV6884"
   ],
   "requests": {
     "(no request)": {
       "first": "2026-11-22T14:56:26.370Z",
-      "last": "2026-11-22T19:36:08.536Z",
+      "last": "2026-11-22T21:07:46.001Z",
       "agents": {
         "light-reviewer": 2,
         "light-tester": 1,
@@ -54,7 +57,10 @@
       },
       "skills": {
         "light-hooks-config": 1,
-        "light-request": 4
+        "light-request": 4,
+        "light-triage": 1,
+        "light-request-branch": 1,
+        "light-rules": 1
       }
     },
     "043-rule-triggers": {
