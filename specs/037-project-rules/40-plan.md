@@ -19,7 +19,7 @@ usage:
 - [x] 4. Wire the workflow layer: `light-init` seeds `rules.md`, `light-implement` applies the skill per task, the orchestrator applies it before and after a request, and the review checklist reports violations — level: medium — files: `kit/skills/light-init/SKILL.md`, `kit/skills/light-implement/SKILL.md`, `kit/agents/light-orchestrator.md`, `kit/skills/light-review-checklist/SKILL.md` — verify: `npm test` — commit: `feat(kit): seed and enforce the project rules`
 - [x] 5. Add a test that installs into a temp dir and asserts the template, the skill, the init seeding and the enforcement wiring — level: easy — files: `tests/kit.test.mjs` — verify: `node --test tests/kit.test.mjs` — commit: `test(kit): cover the project rules workflow`
 - [x] 6. Seed this project's own `.light-kit/rules.md`, add a short user-docs section and refresh the codebase map — level: easy — files: `.light-kit/rules.md`, `docs/usage.md`, `docs/installation.md`, `.light-kit/codebase-map.md` — verify: `npm test` — commit: `docs(kit): document the project rules`
-- [ ] 7. Review and fix: run the reviewer and tester checks, record findings, fix blockers and should-fix items — level: medium — files: `50-implementation.md` — verify: `npm test` — commit: `fix(kit): address the review for the project rules`
+- [x] 7. Review and fix: run the reviewer and tester checks, record findings, fix blockers and should-fix items — level: medium — files: `50-implementation.md` — verify: `npm test` — commit: `fix(kit): address the review for the project rules`
 
 Each task = one verified, coherent commit.
 
