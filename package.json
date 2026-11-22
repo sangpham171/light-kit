@@ -3,5 +3,5 @@
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "scripts": { "test": "node --test tests/*.test.mjs", "install-kit": "node tools/install.mjs", "uninstall-kit": "node tools/uninstall.mjs" }
+  "scripts": { "test": "node --test tests/*.test.mjs", "install-kit": "node tools/install.mjs", "uninstall-kit": "node tools/uninstall.mjs", "backfill-usage": "node tools/backfill-usage.mjs" }
 }
