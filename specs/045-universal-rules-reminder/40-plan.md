@@ -7,8 +7,8 @@ runs:
     thinking: unknown
     level: easy
 usage:
-  tokens: 268 input · 188,288 cache read · 0 cache write · 1,841 output · 190,397 total
-  time: 8s
+  tokens: 454 input · 402,560 cache read · 0 cache write · 2,267 output · 405,281 total
+  time: 11s
 ---
 
 # Plan
@@ -18,7 +18,7 @@ usage:
 - [x] 3. Remove `extraDefectPatterns` from `kit/hooks/lib/config.mjs`, `kit/hooks/hooks.config.json`, `kit/templates/project-hooks.config.json` and `kit/skills/light-hooks-config/SKILL.md` — level: easy — files: those four — verify: `node --test tests/kit.test.mjs` — commit: same as task 2
 - [x] 4. Update `tests/hooks.test.mjs` and `tests/kit.test.mjs`: session-start fires, prompt does not, no rules file silent, `off` silent, no `extraDefectPatterns` — level: medium — files: those two — verify: `node --test tests/hooks.test.mjs tests/kit.test.mjs` — commit: `test(hooks): cover the session-start rules reminder`
 - [x] 5. Update `kit/hooks/README.md` and `docs/safety-hooks.md` to the session-start, language-neutral behaviour — level: easy — files: those two — verify: read-back; `tests/kit.test.mjs` — commit: `docs(hooks): describe the universal rules reminder`
-- [ ] 6. Run `npm test`, then review and conclude — level: medium — files: `50-implementation.md`, `60-conclusion.md` — verify: `npm test` — commit: `docs(spec): record request 045`
+- [x] 6. Run `npm test`, then review and conclude — level: medium — files: `50-implementation.md`, `60-conclusion.md` — verify: `npm test` — commit: `docs(spec): record request 045`
 
 ## Risks
 - A session-start reminder may be less timely than a prompt-time one; the workflow `rules` step is the guarantee.
