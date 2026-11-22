@@ -258,7 +258,7 @@ export const USER_CLIENT_FOLDERS = {
 export const USER_SHARED = '~/.light-kit';
 
 // Shared kit files sit in ~/.light-kit at user level; project knowledge stays in each project's own .light-kit.
-const adaptText = (t) => t.replace(/(?<![~\w/])\.light-kit\/(workflows|templates|profiles)\b/g, `${USER_SHARED}/$1`);
+const adaptText = (t) => t.replace(/(?<![~\w/])\.light-kit\/(workflows|templates|profiles|init)\b/g, `${USER_SHARED}/$1`);
 const adaptDocs = (list) => list.map((d) => ({ ...d, body: adaptText(d.body) }));
 export function adaptKit(kit) {
   return { ...kit, agents: adaptDocs(kit.agents), skills: adaptDocs(kit.skills), workflows: adaptDocs(kit.workflows), profiles: adaptDocs(kit.profiles), core: { ...kit.core, body: adaptText(kit.core.body) } };
