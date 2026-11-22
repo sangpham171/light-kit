@@ -19,7 +19,7 @@ Automatic guardrails that run inside your AI client. One script (`run.mjs`) serv
 | `agent-skill-usage` | after a tool runs | warn | Count how often each agent and skill runs, per request: `.light-kit/agent-skill-usage.json` is the machine-readable source of truth, `.light-kit/agent-skill-usage.md` is a table with one row per request and a final `**All requests**` total row. Silent; writes nothing in a project without `.light-kit`. |
 | `require-spec` | before a write | warn | Remind the agent to start a request before changing code. |
 | `capture-discussion` | prompt submitted | warn | When the user asks to implement, remind the agent to keep the whole conversation in `00-request.md` and to write `40-plan.md` before changing code — when there is no active request (or only a `00-request.md`), or the request being worked on has no plan. Silent for questions and refusals; knows a nested project's `specs/` in a multi-project workspace. |
-| `rules-reminder` | prompt submitted | warn | When a user message reads like a defect report — a bug, a regression, "still not working", a failed test or build — remind the agent that a user-reported defect and a failed check are rule triggers too, not only a review finding. Silent when the project has no `.light-kit/rules.md`. The built-in patterns are English and Vietnamese; add another language with `rules.extraDefectPatterns`. |
+| `rules-reminder` | prompt submitted | warn | When a user message reads like a defect report — a bug, a regression, "still not working", a failed test or build — remind the agent that a user-reported defect and a failed check are rule triggers too, not only a review finding. Silent when the project has no `.light-kit/rules.md`. The built-in patterns are a starter set, not exhaustive, in English and Vietnamese; add another language with `rules.extraDefectPatterns`. |
 | `post-edit-quality` | after a write | warn | Run your format and lint commands on the edited file. |
 | `warn-secret-output` | after a tool | warn | Tell the agent when output contains a secret. |
 | `session-context` | session start | warn | Point the agent at the profile, the codebase map and the active request, and report the client's model and thinking effort when they can be read (Claude Code, Copilot in VS Code, Codex). Copilot reads the session's own record first (the agent-host event log, then the chat session log) and the model configuration in `state.vscdb` after it. Reported also for a user-level install in a project without `.light-kit`; a fresh Claude Code session falls back to the newest transcript of the same project. |
@@ -46,7 +46,7 @@ Edit `.light-kit/hooks.config.json` (the `light-init` skill does this for you, u
 | `sensitive.extraFiles` / `sensitive.allow` | globs for more sensitive files / safe templates |
 | `sensitive.extraEnvKeywords` | words that mark an environment variable as secret |
 | `secrets.extraPatterns` | extra regexes for your own credential formats |
-| `rules.extraDefectPatterns` | extra regexes for defect wording in other languages (built-ins: English and Vietnamese) |
+| `rules.extraDefectPatterns` | extra regexes for defect wording in other languages; the built-in starter set (English and Vietnamese) is not exhaustive |
 | `commands.extraDeny` / `commands.allow` | regexes for extra blocked commands / exceptions |
 | `protect.paths` | globs for generated, vendored or locked paths |
 | `spec.exempt` | globs that may change without an active request |
@@ -59,6 +59,12 @@ Edit `.light-kit/hooks.config.json` (the `light-init` skill does this for you, u
 | `audit.file` | log location |
 
 Globs without `/` match file names anywhere; globs with `/` match from the project root.
+
+For example, this makes a Spanish defect report trigger `rules-reminder`:
+
+```json
+{ "rules": { "extraDefectPatterns": ["no funciona", "está roto"] } }
+```
 
 ## Workspaces
 Installed once at a workspace root, the hooks serve every project below it. Settings are layered: `.light-kit/hooks.config.json` at the root, then `<project>/.light-kit/hooks.config.json` for the project the action is about (found from the file being edited, or the session's folder). Lists add up; the nearer layer wins for modes and commands. Format and lint commands run inside the project's folder, verify commands run per project that has changes, git checks look at the repository of the folder concerned, and requests are looked up in the project's `specs/` and the workspace's.
