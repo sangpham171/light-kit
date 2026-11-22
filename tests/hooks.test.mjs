@@ -208,32 +208,18 @@ test('the plan warning follows the request being worked on, and a nested project
   assert.equal(r.stderr, '');
 });
 
-test('a user defect report triggers the rules reminder', () => {
+test('session start reminds the agent that rules are recorded outside review', () => {
   const d = project();
-  const bug = run(d, 'claude', 'prompt', { prompt: 'the export still does not work after request 041' });
-  assert.equal(bug.code, 0);
-  assert.match(JSON.parse(bug.out).hookSpecificOutput.additionalContext, /light-rules/);
-  assert.match(JSON.parse(run(d, 'claude', 'prompt', { prompt: 'the export fails' }).out).hookSpecificOutput.additionalContext, /light-rules/);
-  assert.match(JSON.parse(run(d, 'claude', 'prompt', { prompt: 'it crashes when I open it' }).out).hookSpecificOutput.additionalContext, /light-rules/);
-  assert.equal(run(d, 'claude', 'prompt', { prompt: 'add an export button' }).out, '');
-  assert.equal(run(d, 'claude', 'prompt', { prompt: 'add a bug tracker' }).out, '');
-  // a built-in Vietnamese starter set
-  assert.match(JSON.parse(run(d, 'claude', 'prompt', { prompt: 'xuất dữ liệu vẫn không hoạt động' }).out).hookSpecificOutput.additionalContext, /light-rules/);
-  assert.equal(run(d, 'claude', 'prompt', { prompt: 'thêm nút xuất' }).out, '');
-  // another language comes from the project config
-  assert.equal(run(d, 'claude', 'prompt', { prompt: 'la exportación no funciona' }).out, '');
-  const es = project({ rules: { extraDefectPatterns: ['no funciona'] } });
-  assert.match(JSON.parse(run(es, 'claude', 'prompt', { prompt: 'la exportación no funciona' }).out).hookSpecificOutput.additionalContext, /light-rules/);
-  // an invalid extra regex is dropped, not thrown, and the built-in patterns still work
-  const bad = project({ rules: { extraDefectPatterns: ['('] } });
-  const badRun = run(bad, 'claude', 'prompt', { prompt: 'the export fails' });
-  assert.match(JSON.parse(badRun.out).hookSpecificOutput.additionalContext, /light-rules/);
-  assert.doesNotMatch(badRun.err, /errored/);
+  const r = run(d, 'claude', 'session-start', {});
+  assert.equal(r.code, 0);
+  assert.match(JSON.parse(r.out).hookSpecificOutput.additionalContext, /light-rules/);
+  // language-neutral: it never reads the prompt
+  assert.equal(run(d, 'claude', 'prompt', { prompt: 'the export still does not work' }).out, '');
   const off = project({ hooks: { 'rules-reminder': 'off' } });
-  assert.equal(run(off, 'claude', 'prompt', { prompt: 'the export still does not work' }).out, '');
+  assert.doesNotMatch(run(off, 'claude', 'session-start', {}).out, /light-rules/);
   const none = project();
   rmSync(join(none, '.light-kit/rules.md'));
-  assert.equal(run(none, 'claude', 'prompt', { prompt: 'the export still does not work' }).out, '');
+  assert.doesNotMatch(run(none, 'claude', 'session-start', {}).out, /light-rules/);
 });
 
 test('post-edit quality runs configured commands and reports failures', () => {
