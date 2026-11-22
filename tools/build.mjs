@@ -57,6 +57,7 @@ export function loadKit() {
   return {
     hooks: loadFiles('hooks'),
     audit: loadFiles('audit'),
+    init: loadFiles('init'),
     agents: load('agents'), skills: load('skills'),
     workflows: load('workflows'), profiles: load('profiles'),
     core: load('instructions').find((d) => d.meta.name === 'core'),
@@ -298,8 +299,10 @@ export function build(kitIn, clients, { hooks = true, level = 'project', project
   // Shared by every client.
   for (const s of kit.workflows) files.push({ path: `${SHARED_DIR}/workflows/${s.file}.md`, content: `${GENERATED}\n\n${s.body.trimEnd()}\n` });
   for (const p of kit.profiles) files.push({ path: `${SHARED_DIR}/profiles/${p.file}.md`, content: `${GENERATED}\n\n${p.body.trimEnd()}\n` });
-  // Every template is kept in the shared folder: `init` seeds a project's own files from them.
-  for (const t of kit.templates) files.push({ path: `${SHARED_DIR}/templates/${t.file}`, content: t.text, seed: true });
+  // Every template is kept in the shared folder: `init` seeds a project's own files from them and, on an
+  // existing install, merges them into the project's documents. They are kit copies, not user data, so a
+  // reinstall refreshes them (uninstall removes them with the rest of the kit).
+  for (const t of kit.templates) files.push({ path: `${SHARED_DIR}/templates/${t.file}`, content: t.text, overwrite: true });
   // Seed only: no generated marker, so the installer never overwrites it once init has filled it in.
   // (At user level there is no single project, so `init` creates each project's profile from the template.)
   if (!user) files.push({ path: `${SHARED_DIR}/project-profile.md`, content: kit.templates.find((t) => t.file === 'project-profile.md').text, seed: true });
@@ -336,6 +339,7 @@ export function build(kitIn, clients, { hooks = true, level = 'project', project
     for (const c of clients) files.push(hookRegistration(c, level));
   }
   files.push({ path: `${SHARED_DIR}/audit/audit.mjs`, content: `// light-kit:generated\n${kit.audit.find((f) => f.rel === 'audit.mjs').text}` });
+  for (const f of kit.init) files.push({ path: `${SHARED_DIR}/init/${f.rel}`, content: `// light-kit:generated\n${f.text}` });
   files.push({ path: `${SHARED_DIR}/audit/manifest.json`, content: JSON.stringify(auditManifest(kit, files, clients, level), null, 2) + '\n', overwrite: true });
   return files;
 }
