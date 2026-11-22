@@ -11,3 +11,4 @@ stored. Safe to delete.
 | 2026-11-22T19:41:22Z | claude | Edit | write | .light-kit/codebase-map.md |
 | 2026-11-22T19:41:22Z | claude | Edit | write | .light-kit/codebase-map.md |
 | 2026-11-22T19:41:26Z | claude | Bash | shell | git add specs/052-version-bump-hook/status.md specs/052-version-bump-hook/50-implementation.md specs/052-version-bump-hook/60-conclusion.md specs/052-version-bump-hook/tool-log.md .light-kit/usage.jso |
+| 2026-11-22T19:41:34Z | claude | Bash | shell | git add specs/tool-log.md && git commit -m "chore(spec): record tool-call log" >/dev/null && echo "kit diff:" && git diff --stat 8418c71..HEAD -- kit/ \| wc -l && echo "version: $(node -p "require('./ |
