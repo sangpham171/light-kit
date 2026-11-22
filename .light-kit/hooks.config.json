@@ -1,10 +1,42 @@
 {
-  "sensitive": { "extraFiles": [], "allow": ["**/kit/hooks/lib/secrets.mjs"], "extraEnvKeywords": [] },
-  "secrets": { "extraPatterns": [] },
-  "commands": { "extraDeny": [], "allow": [] },
-  "protect": { "paths": [] },
-  "spec": { "exempt": [] },
-  "quality": { "format": "", "lint": "" },
-  "verify": { "command": "npm test" },
-  "branches": { "protected": [] }
+  "sensitive": {
+    "extraFiles": [],
+    "allow": [
+      "**/kit/hooks/lib/secrets.mjs"
+    ],
+    "extraEnvKeywords": []
+  },
+  "secrets": {
+    "extraPatterns": []
+  },
+  "commands": {
+    "extraDeny": [],
+    "allow": []
+  },
+  "protect": {
+    "paths": []
+  },
+  "spec": {
+    "exempt": []
+  },
+  "quality": {
+    "format": "",
+    "lint": "",
+    "timeoutSec": 60
+  },
+  "verify": {
+    "command": "npm test",
+    "timeoutSec": 300
+  },
+  "branches": {
+    "protected": []
+  },
+  "commit": {
+    "maxUncommittedFiles": 8,
+    "extraForbiddenText": []
+  },
+  "audit": {
+    "file": ".light-kit/audit.log",
+    "remind": true
+  }
 }
