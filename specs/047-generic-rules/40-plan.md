@@ -7,17 +7,17 @@ runs:
     thinking: unknown
     level: easy
 usage:
-  tokens: 0 input · 0 cache read · 0 cache write · 0 output · 0 total
-  time: 0s
+  tokens: 314 input · 54,528 cache read · 0 cache write · 113 output · 54,955 total
+  time: 1s
 ---
 
 # Plan
 
-- [ ] 1. Add the generalization rule to `kit/templates/rules.md` (writing-a-rule section) and core rule 15 — level: easy — files: `kit/templates/rules.md`, `kit/instructions/core.md` — verify: `grep -n "general failure mode" kit/templates/rules.md kit/instructions/core.md` — commit: `docs(kit): require general rules`
-- [ ] 2. Apply it in `kit/skills/light-rules/SKILL.md` when a rule is added or changed — level: easy — files: `kit/skills/light-rules/SKILL.md` — verify: `grep -n "general failure mode" kit/skills/light-rules/SKILL.md` — commit: `docs(kit): apply the rule-generality check in light-rules`
-- [ ] 3. Update `.light-kit/rules.md`: the same guidance, a `pending` R-005 for this correction, and R-004 generalized — level: easy — files: `.light-kit/rules.md` — verify: row R-005 exists; R-004 no longer lists the three hook files in its `Rule` column — commit: `docs(rules): record the rule-generality correction`
-- [ ] 4. State it in `docs/usage.md` and pin it with a test — level: easy — files: `docs/usage.md`, `tests/kit.test.mjs` — verify: `npm test` — commit: `test(kit): cover the rule-generality guidance`
-- [ ] 5. Refresh the user-level installed copies and finish the request — level: easy — files: `~/.light-kit/templates/rules.md`, `~/.claude/skills/light-rules/SKILL.md` — verify: `npm run install-kit -- ~ --level user --dry-run` then run it; `diff` shows the new text — commit: `docs(spec): conclude request 047`
+- [x] 1. Add the generalization rule to `kit/templates/rules.md` (writing-a-rule section) and core rule 15 — level: easy — files: `kit/templates/rules.md`, `kit/instructions/core.md` — verify: `grep -n "general failure mode" kit/templates/rules.md kit/instructions/core.md` — commit: `docs(kit): require general rules`
+- [x] 2. Apply it in `kit/skills/light-rules/SKILL.md` when a rule is added or changed — level: easy — files: `kit/skills/light-rules/SKILL.md` — verify: `grep -n "general failure mode" kit/skills/light-rules/SKILL.md` — commit: `docs(kit): apply the rule-generality check in light-rules`
+- [x] 3. Update `.light-kit/rules.md`: the same guidance, a `pending` R-005 for this correction, and R-004 generalized — level: easy — files: `.light-kit/rules.md` — verify: row R-005 exists; R-004 no longer lists the three hook files in its `Rule` column — commit: `docs(rules): record the rule-generality correction`
+- [x] 4. State it in `docs/usage.md` and pin it with a test — level: easy — files: `docs/usage.md`, `tests/kit.test.mjs` — verify: `npm test` — commit: `test(kit): cover the rule-generality guidance`
+- [x] 5. Refresh the user-level installed copies and finish the request — level: easy — files: `~/.light-kit/templates/rules.md`, `~/.claude/skills/light-rules/SKILL.md` — verify: `npm run install-kit -- ~ --level user --dry-run` then run it; `diff` shows the new text — commit: `docs(spec): conclude request 047`
 
 Each task = one verified, coherent commit.
 
