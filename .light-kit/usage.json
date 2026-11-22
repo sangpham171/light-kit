@@ -98,6 +98,13 @@
       "cacheRead": 3086720,
       "cacheWrite": 0,
       "timeMs": 850151
+    },
+    "e781e6f0-cfae-4b72-bd61-4aaf5fe268bf": {
+      "input": 93393,
+      "output": 48059,
+      "cacheRead": 6915712,
+      "cacheWrite": 0,
+      "timeMs": 704463
     }
   },
   "requests": {
@@ -793,6 +800,58 @@
           "cacheRead": 567424,
           "cacheWrite": 0,
           "timeMs": 47343,
+          "timed": true
+        }
+      }
+    },
+    "037-project-rules": {
+      "steps": {
+        "00-request": {
+          "input": 63020,
+          "output": 14123,
+          "cacheRead": 1105024,
+          "cacheWrite": 0,
+          "timeMs": 173102,
+          "timed": true
+        },
+        "10-understanding": {
+          "input": 221,
+          "output": 1326,
+          "cacheRead": 75136,
+          "cacheWrite": 0,
+          "timeMs": 8583,
+          "timed": true
+        },
+        "20-discovery": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0,
+          "timeMs": 276,
+          "timed": true
+        },
+        "40-plan": {
+          "input": 198,
+          "output": 1827,
+          "cacheRead": 76672,
+          "cacheWrite": 0,
+          "timeMs": 9599,
+          "timed": true
+        },
+        "50-implementation": {
+          "input": 29457,
+          "output": 29103,
+          "cacheRead": 5393280,
+          "cacheWrite": 0,
+          "timeMs": 500114,
+          "timed": true
+        },
+        "60-conclusion": {
+          "input": 497,
+          "output": 1680,
+          "cacheRead": 265600,
+          "cacheWrite": 0,
+          "timeMs": 12789,
           "timed": true
         }
       }
