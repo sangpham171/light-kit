@@ -8,7 +8,7 @@ purpose: structure
 
 Use after `light-init` (adopt mode) produced `.light-kit/standardization-backlog.md` and the user runs `light-standardize`. Started with that skill, not chosen by triage. The assessment is the discovery; skip discovery.
 
-The agents named in each step are the baseline; the orchestrator may add, skip, split, repeat or reorder them as the request unfolds (`light-agent-selection`), within the rules below.
+The agents and steps named below are the baseline; the orchestrator may add, skip, split, repeat or reorder them as the request unfolds (`light-agent-selection`), within the rules below.
 
 steps:
 1. plan — agent: light-tech-lead — writes: 40-plan.md (one task per item, in backlog order, each with its Verify step and a commit subject)
