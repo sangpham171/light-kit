@@ -17,9 +17,7 @@ Style, stack and workflow preferences belong in `.light-kit/project-profile.md`,
 
 | ID | State | Count | Rule | Prevents | Check before | Last violated | Evidence |
 |---|---|---|---|---|---|---|---|
-| _none yet_ | | | | | | | |
-
-Replace the `_none yet_` row when you add the first rule.
+| R-001 | pending | 1 | Check each earlier request's open debt against the change and state in `50-implementation.md` and `60-conclusion.md` whether it is resolved or still open. | 039 TD-1 was labelled "not introduced" while it stayed open for `.light-kit/rules.md`, and the conclusion read as if it were closed. | Before writing the implementation log and the conclusion. | 2026-11-22 | `specs/040-init-updates-existing-kit/50-implementation.md`, review F-1.1 |
 
 ## Before a task
 

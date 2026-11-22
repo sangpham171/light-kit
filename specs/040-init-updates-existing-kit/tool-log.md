@@ -171,3 +171,27 @@ stored. Safe to delete.
 | 2026-11-22T13:44:18Z | claude | Edit | write | kit/init/merge.mjs |
 | 2026-11-22T13:44:21Z | claude | Edit | write | tests/init.test.mjs |
 | 2026-11-22T13:44:25Z | claude | Bash | shell | node --test tests/init.test.mjs 2>&1 \| tail -8 |
+| 2026-11-22T13:44:34Z | claude | Read | read | .light-kit/hooks.config.json |
+| 2026-11-22T13:44:50Z | claude | Read | read | docs/development.md |
+| 2026-11-22T13:45:46Z | claude | Edit | write | kit/skills/light-init/SKILL.md |
+| 2026-11-22T13:45:47Z | claude | Edit | write | kit/init/merge.mjs |
+| 2026-11-22T13:45:48Z | claude | Edit | write | docs/usage.md |
+| 2026-11-22T13:45:48Z | claude | Edit | write | docs/installation.md |
+| 2026-11-22T13:45:48Z | claude | Read | read | docs/development.md |
+| 2026-11-22T13:45:50Z | claude | Edit | write | docs/development.md |
+| 2026-11-22T13:45:51Z | claude | Edit | write | tests/workspace.test.mjs |
+| 2026-11-22T13:45:51Z | claude | Edit | write | tests/workspace.test.mjs |
+| 2026-11-22T13:45:55Z | claude | Edit | write | tests/init.test.mjs |
+| 2026-11-22T13:45:55Z | claude | Read | read | specs/040-init-updates-existing-kit/50-implementation.md |
+| 2026-11-22T13:45:58Z | claude | Edit | write | specs/040-init-updates-existing-kit/50-implementation.md |
+| 2026-11-22T13:46:00Z | claude | Read | read | specs/040-init-updates-existing-kit/50-implementation.md |
+| 2026-11-22T13:46:06Z | claude | Edit | write | specs/040-init-updates-existing-kit/50-implementation.md |
+| 2026-11-22T13:46:41Z | claude | Bash | shell | node --test tests/init.test.mjs 2>&1 \| tail -5; node --test tests/workspace.test.mjs 2>&1 \| tail -5; npm test 2>&1 \| tail -7 |
+| 2026-11-22T13:46:44Z | claude | Edit | write | specs/040-init-updates-existing-kit/50-implementation.md |
+| 2026-11-22T13:46:45Z | claude | Bash | shell | git add kit/init/merge.mjs kit/skills/light-init/SKILL.md docs/usage.md docs/installation.md docs/development.md tests/init.test.mjs tests/workspace.test.mjs && git commit -q -m "fix(kit): address the |
+| 2026-11-22T13:46:47Z | claude | Read | read | kit/templates/60-conclusion.md |
+| 2026-11-22T13:46:51Z | claude | Write | write | specs/040-init-updates-existing-kit/60-conclusion.md |
+| 2026-11-22T13:46:53Z | claude | Read | read | specs/040-init-updates-existing-kit/60-conclusion.md |
+| 2026-11-22T13:46:59Z | claude | Edit | write | .light-kit/rules.md |
+| 2026-11-22T13:46:59Z | claude | Edit | write | specs/040-init-updates-existing-kit/50-implementation.md |
+| 2026-11-22T13:47:00Z | claude | Write | write | specs/040-init-updates-existing-kit/status.md |
