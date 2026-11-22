@@ -9,13 +9,17 @@
 // same reader and counter the hook uses, then refreshes each request's own `agent-skill-usage.*`.
 // A call already counted — live or by an earlier import — is skipped, so the command is safe to run
 // again; a repeat run also recreates a per-request file that was deleted.
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, realpathSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { loadConfig } from '../kit/hooks/lib/config.mjs';
 import { JSON_FILE, MD_FILE, NO_REQUEST, callOf, readStats, recordCall, renderTable, saveRequestStats, saveStats, saveText } from '../kit/hooks/lib/usage-stats.mjs';
 
 const SLUG = /\b\d{3}-[a-z0-9]+(?:-[a-z0-9]+)*\b/g;
+
+// The same switch as the hook: `off` also disables the manual import.
+const disabled = (project) => loadConfig([project]).modes['agent-skill-usage'] === 'off';
 
 const transcriptFiles = (dir, out = []) => {
   let entries = [];
@@ -69,6 +73,7 @@ export function backfill({ root = process.cwd(), transcripts = join(homedir(), '
   const dir = join(project, '.light-kit');
   if (!existsSync(dir)) throw new Error(`${project} has no .light-kit folder`);
   const file = statsFile ?? join(dir, JSON_FILE);
+  if (disabled(project)) return { added: 0, found: 0, foundFiles: 0, stats: readStats(file), file, dryRun, disabled: true };
   const stats = readStats(file);
   const calls = callsIn(transcripts, project);
   let added = 0;
@@ -80,7 +85,7 @@ export function backfill({ root = process.cwd(), transcripts = join(homedir(), '
       if (name !== NO_REQUEST) saveRequestStats(join(project, 'specs', name), stats, name);
     }
   }
-  return { added, found: calls.length, foundFiles: transcriptFiles(transcripts).length, stats, file, dryRun };
+  return { added, found: calls.length, foundFiles: transcriptFiles(transcripts).length, stats, file, dryRun, disabled: false };
 }
 
 const arg = (name, fallback = '') => {
@@ -88,16 +93,26 @@ const arg = (name, fallback = '') => {
   return i === -1 ? fallback : process.argv[i + 1];
 };
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+// Compare real paths: `/var/...` and `/private/var/...` are the same file (R-007).
+const isEntry = () => {
+  if (!process.argv[1]) return false;
+  try { return realpathSync(resolve(process.argv[1])) === realpathSync(fileURLToPath(import.meta.url)); } catch { return false; }
+};
+
+if (isEntry()) {
   try {
+    const root = arg('root', process.cwd());
     const result = backfill({
-      root: arg('root', process.cwd()),
+      root,
       transcripts: arg('transcripts', join(homedir(), '.claude', 'projects')),
       statsFile: arg('stats') || undefined,
       dryRun: process.argv.includes('--dry-run'),
     });
-    const verb = result.dryRun ? 'would import' : 'imported';
-    console.log(`${verb} ${result.added} agent/skill calls (${result.found} found in ${result.foundFiles} session files) into ${result.file}`);
+    if (result.disabled) console.log(`agent-skill-usage is off for ${root}; nothing imported`);
+    else {
+      const verb = result.dryRun ? 'would import' : 'imported';
+      console.log(`${verb} ${result.added} agent/skill calls (${result.found} found in ${result.foundFiles} session files) into ${result.file}`);
+    }
   } catch (e) {
     console.error(`backfill-usage: ${e.message}`);
     process.exitCode = 1;
